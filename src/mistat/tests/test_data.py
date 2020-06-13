@@ -9,7 +9,7 @@ import unittest
 
 import pytest
 
-from mistat.data import DATA_DIR, get_description_file, convert_R_description
+from mistat.data import DATA_DIR, get_description_file
 import mistat
 import pandas as pd
 
@@ -42,7 +42,27 @@ class TestData(unittest.TestCase):
             description_file = get_description_file(name.name)
             assert description_file.exists()
 
-    def test_convert_R_description(self):
-        for name in Path(DATA_DIR).glob('*.Rd'):
-            convert_R_description(name.name)
-            break
+    def test_describe_data(self):
+        with pytest.raises(ValueError):
+            mistat.describe_data('unknown data file')
+
+        for name in ('CYCLT.csv.gz', 'CYCLT.csv', 'CYCLT'):
+            text = mistat.describe_data(name)
+            assert isinstance(text, str)
+            assert 'Description' in text
+
+        for name in Path(DATA_DIR).glob('*.csv.gz'):
+            text = mistat.describe_data(name.name)
+            assert isinstance(text, str)
+            assert 'Description' in text
+
+    def _test_prepare_Rd_HTML(self):
+        for name in Path(DATA_DIR / 'Rd').glob('*.Rd'):
+            name = name.with_suffix('').name
+            print(f'Rd2HTML(file("{name}.Rd"), "{name}.html")')
+        for name in Path(DATA_DIR / 'Rd').glob('*.Rd'):
+            name = name.with_suffix('').name
+            print(f'pandoc {name}.html -t rst -o {name}.rst')
+        for name in Path(DATA_DIR / 'Rd').glob('*.Rd'):
+            name = name.with_suffix('').name
+            print(f'pandoc {name}.rst -t markdown -o {name}.md')

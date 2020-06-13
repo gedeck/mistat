@@ -23,27 +23,14 @@ def load_data(name):
     return data
 
 
-def convert_R_description(name):
-    """ Extract information from the R description file """
-    data_file = get_description_file(name)
-    if not data_file.exists():
-        raise ValueError('Description file {name} not found')
-
-    description = data_file.read_text()
-    result = {}
-    for line in description.split():
-        line = line.strip()
-        if '\name' in line:
-            
-        print(line)
-        
-def parse_R_description(text):
-    key = None
-    content = None
-    for word in text.split():
-        if word.startwith('\'):
-          
-        
+def describe_data(name):
+    """ Return information about the data file """
+    description_file = get_description_file(name)
+    if not description_file.exists():
+        raise ValueError('Description for data file {name} not found')
+    text = description_file.read_text()
+    text = text.replace('R Documentation', 'Documentation')
+    return text
 
 
 def get_data_file(name):
@@ -59,10 +46,10 @@ def get_description_file(name):
         name = name[:-3]
     if name.endswith('.csv'):
         name = name[:-4]
-    if name.endswith('.Rd'):
+    if name.endswith('.md'):
         name = name[:-3]
-    description_file = DATA_DIR / f'{name}.Rd'
+    description_file = DATA_DIR / 'md' / f'{name}.md'
     if not description_file.exists():
         name = description_file.with_suffix('').name.rstrip(string.digits)
-        description_file = DATA_DIR / f'{name}.Rd'
+        description_file = DATA_DIR / 'md' / f'{name}.md'
     return description_file
