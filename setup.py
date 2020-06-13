@@ -31,6 +31,9 @@ setuptools.setup(
     url="https://github.com/gedeck/mistat",
     packages=setuptools.find_packages("src"),
     package_dir={'': 'src'},
+    package_data={
+        "mistat": ["csvFiles/*.csv.gz"],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",

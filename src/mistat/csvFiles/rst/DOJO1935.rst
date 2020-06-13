@@ -1,0 +1,35 @@
+======== ===============
+DOJO1935 R Documentation
+======== ===============
+
+Dow-Jones Financial Index 1935
+------------------------------
+
+Description
+~~~~~~~~~~~
+
+The Dow-Jones financial index for the 300 business days of 1935.
+
+Usage
+~~~~~
+
+::
+
+   data(DOJO1935)
+
+Source
+~~~~~~
+
+Kenett, R. and Zacks, S. (1998) *Modern Industrial Statistics: The
+Design and Control of Quality and Reliability*. Duxbury Press.
+
+Examples
+~~~~~~~~
+
+::
+
+   data(DOJO1935)
+
+   plot(DOJO1935,          
+        type="b", 
+        ylab="Dow Jones")
