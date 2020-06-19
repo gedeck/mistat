@@ -1,0 +1,937 @@
+\documentclass[nojss,article]{jss}
+
+%% Set PDF 1.5 and compression, including object compression
+%% Needed for MiKTeX -- most other distributions default to this
+\ifx\pdfoutput\undefined
+\else
+  \ifx\pdfoutput\relax
+  \else
+    \ifnum\pdfoutput>0
+      % PDF output
+      \pdfminorversion=5
+      \pdfcompresslevel=9
+      \pdfobjcompresslevel=2
+    \fi
+  \fi
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\VignetteIndexEntry 
+
+%% almost as usual
+\author{Andreas Kiermeier\\Statistical Process Improvement
+   Consulting and Training Pty. Ltd.}
+
+\title{Visualising and Assessing Acceptance Sampling Plans: The
+  \proglang{R} Package \pkg{AcceptanceSampling}}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Andreas Kiermeier} %% comma-separated
+\Plaintitle{Visualising and Assessing Acceptance Sampling Plans: The R
+  Package AcceptanceSampling} %% without formatting
+\Shorttitle{Acceptance Sampling Plans} %% a short title (if necessary)
+
+%% an abstract and keywords
+\Abstract{This paper has been published in the Journal of Statistical
+  Software \citep{Kiermeier:2008} and describes the framework for
+  creating and visualising acceptance sampling plans.
+
+  Manufacturers and government agencies frequently use
+  acceptance sampling to decide whether a lot from a supplier or
+  exporting country should be accepted or rejected.  International
+  standards on acceptance sampling provide sampling plans for specific
+  circumstances.
+
+  The aim of this package is to provide an easy-to-use interface to
+  visualize single, double or multiple sampling plans.  In addition,
+  methods have been provided to enable the user to assess sampling
+  plans against pre-specified levels of performance, as measured by
+  the probability of acceptance for a given level of quality in the
+  lot.}
+
+\Keywords{operating characteristic, oc curve, defective, defect,
+  non-conforming item, non-conformity, single sampling, double
+  sampling, multiple sampling, attributes sampling, 2-class, variables
+  \proglang{s4} methods}
+
+\Plainkeywords{operating characteristic, oc curve, defective, defect,
+  non-conforming item, non-conformity, single sampling, double
+  sampling, multiple sampling, attributes sampling, 2-class,
+  variables, s4 methods} %% without formatting
+
+%% publication information
+%% NOTE: This needs to filled out ONLY IF THE PAPER WAS ACCEPTED.
+%% If it was not (yet) accepted, leave them commented.
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  Andreas Kiermeier\\
+  Statistical Process Improvement Consulting and Training Pty. Ltd.\\
+  Telephone: +61~(4)23~028~565\\
+  E-mail: \email{Andreas.Kiermeier@gmail.com}
+}
+
+%% for those who use Sweave please include the following line (with % symbols):
+%% need no \usepackage{Sweave.sty}
+
+\usepackage{thumbpdf}
+\usepackage{xspace}
+\newcommand{\eg}{\emph{e.g.~}}
+\newcommand{\ie}{\emph{i.e.~}}
+\newcommand{\xbar}{\ensuremath{\bar{x}}\xspace}
+
+
+\SweaveOpts{prefix.string=figure, strip.white=true, eps=FALSE, engine=R}
+ %\VignetteIndexEntry{Using AcceptanceSampling} 
+ %\VignetteKeywords{AcceptanceSampling,attributes sampling, variables sampling}
+ %\VignettePackage{AcceptanceSampling} \\
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+%% include your article here, just as usual
+%% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
+
+\section{Introduction}
+%% Note: If there is markup in \(sub)section, then it has to be escape as above.
+
+Acceptance sampling is a methodology commonly used in quality control
+and improvement.  The aim is to make an inference about the quality of
+a batch/lot of product from a sample.  Depending on what is found in
+the sample, the whole lot is then either accepted or rejected, and
+rejected lots can then be scrapped or reworked, for example.
+
+Quality in this context can mean different things. For example, it
+could be
+\begin{itemize}
+\item the proportion of items within/not within specifications (not
+  defective/defective);
+\item the number of defects, such as scratches, minor dents, skewed
+  labels, etc.; or
+\item the measurable characteristic, \eg weight, length, or volume.
+\end{itemize}
+Irrespectively, lots with good quality should be accepted most of the
+time, while lots with poor quality should be rejected most of the
+time.  This is achieved by employing an appropriate \emph{sampling
+  plan}, which defines:
+\begin{itemize}
+\item how frequently lots are sampled, \ie continuously or once off;
+\item the size of the lot ($N$);
+\item the quality characteristic by which each sampled item is judged
+  by, \ie a measurement or a classification such as defective/not
+  defective;
+\item how many consecutive stages of sampling are to be used
+  ($i=1,\ldots,k$);
+\item the sample size at each stage ($n_i$); and
+\item the decision rules applied at each stage, which give rise to
+  acceptance or rejection of the lot at that stage\footnote{On
+    acceptance or rejection no further samples are taken.} or to
+  further sampling.
+\end{itemize}
+Once a sampling plan has been determined, it can be used to calculate
+the probability of accepting lots over a range of qualities.  The
+corresponding probability function is known as the \emph{Operating
+  Characteristic (OC)} function, which, when plotted against the lot
+quality, is known as the \emph{OC curve} (\eg
+Figure~\ref{fig:oc-plot}).
+
+The common classes of acceptance sampling plans are the
+\begin{itemize}
+\item \textbf{2-class attribute inspection plans}, which involve
+  classifying each item as either \emph{acceptable} or \emph{not
+    acceptable};\footnote{Alternative terms in common use are
+    \emph{not defective/defective} and
+    \emph{conforming/nonconforming}.}
+\item \textbf{3-class attribute inspection plans}, which involve
+  classifying each item as either \emph{acceptable}, \emph{marginal}
+  or \emph{not acceptable}; and
+\item \textbf{inspection by variables plans}, which involve measuring
+  each sampled item.
+\end{itemize}
+Of these, the 2-class and variables inspection plans are probably the
+more common and hence are the only ones considered here.
+
+Unless the whole lot is inspected, which of course is not possible
+when the inspection is destructive, there is always a chance that the
+wrong conclusion is drawn from the sample.  This can be either of the
+following two outcomes.
+\begin{itemize}
+\item Rejecting a lot with acceptable quality.  The probability with
+  which this occurs is known as the \emph{Producer's Risk (PR)} and
+  the corresponding level of quality is the \emph{Producer's Quality
+    Level (PQL)}.
+\item Accepting a lot with unacceptable quality.  The probability with
+  which this occurs is known as the \emph{Consumer's Risk (CR)} and
+  the corresponding level of quality is the \emph{Consumer's Quality
+    Level (CQL)}.
+\end{itemize}
+
+This is all well and good, but a critical question asked by those who
+want to utilise acceptance sampling is ``How many samples do I need to
+take?''  Of course, the immediate answer is ``It depends.''  --- it
+depends on what needs to be achieved and thus what level(s) of quality
+are critical for the user.
+
+There are many critical quality levels, which can be used to decide on
+the appropriate sampling plan, including the
+\begin{itemize}
+\item Producer and Consumer quality levels (and associated risks),
+  used to create flexible plans;
+\item \emph{Acceptable Quality Level (AQL)},\footnote{Equivalent to
+    the PQL} used frequently in standards, such as the AS~1199
+  \citep{as1199.1} or the equivalent ISO~2859 \citep{iso2859}, and
+  often with an associated producer's risk of 0.05;
+\item \emph{Average Outgoing Quality Limit (AOQL)}, used, for example,
+  by the Dodge-Romig AOQL sampling systems; and
+\item \emph{Lot Tolerance Percent Defective
+    (LTPD)},\footnote{Equivalent to the CQL} used, for example, by the
+  Dodge-Romig LTPD sampling systems and when isolated lots are
+  sampled, such as in the AS~1199.2 \citep{as1199.2},\footnote{This
+    standard uses the term \emph{Limiting Quality} in place of Lot
+    tolerable Percent Defective.} and often with a consumer risk of
+  0.1.
+\end{itemize}
+The \pkg{AcceptanceSampling} package implements the producer and
+consumer quality level approach, and can be used with either one or
+both, and therefore incorporates the AQL and LTPD based approaches.
+
+For the theoretical details of acceptance sampling the reader is
+referred to \cite{hald1981}, \cite{guenther1977} and
+\cite{schilling1982}.
+
+
+\section[The AcceptanceSampling package]{The \pkg{AcceptanceSampling} package}
+\label{sec:accept-pack}
+
+The \pkg{AcceptanceSampling} package is an add-on package to the
+\proglang{R} software \citep{rcore}, and is based on formal
+\proglang{S4} classes and methods \citep{chambers1999}.  This is done
+for several reasons.  Firstly, \proglang{R} seems to be moving toward
+\proglang{S4} classes.  Secondly, the relationship between sampling
+plans based on different distributional assumptions lends itself
+naturally to formal object oriented classes and methods.  Finally,
+\proglang{S4} classes have an inbuilt mechanism for data validation
+which can be quite useful.
+
+\subsection{Objects classes}
+\label{sec:objects-classes}
+
+The package consists of two virtual classes, \code{OC2c} and
+\code{OCvar}.  These virtual classes capture the structure of 2-Class
+Attributes and Variables acceptance sampling plans, respectively,
+independently of the actual underlying distributional assumptions.  We
+will look at each of the two virtual classes, and the actual classes
+derived from them, in more detail below.
+
+\newpage
+\subsubsection[OC2c Plans]{\code{OC2c} Plans}
+\label{sec:oc2c-plans}
+
+The \code{OC2c} virtual class captures the parameters used in 2-Class
+attributes sampling plans, namely sample size(s), \code{n}, acceptance
+number(s), \code{c}, rejection number(s), \code{r}, the distributional
+assumption, \code{type}, and the probability of accepting lots,
+\code{paccept}.
+
+The distributions that can be specified for \code{type} are
+\begin{itemize}
+\item \code{binomial} for the Binomial distribution, which is used
+  when all lots from a continuous, in-control production process are
+  tested for proportion of defects;
+\item \code{hypergeom} for the Hypergeometric distribution, which is
+  used when isolated lots are tested for number/proportion of defects;
+  and
+\item \code{poisson} for the Poisson distribution, which is used when
+  all lots from a continuous, in-control production process are tested
+  for rate of defectives.
+\end{itemize}
+
+The three actual classes, derived from \code{OC2c}, are
+\code{OCbinomial}, \code{OChypergeom} and \code{OCpoisson}
+(Figure~\ref{fig:class_structure_2c}). Each of these classes contains the
+\code{OC2c} virtual class, and hence its slots, but also adds
+additional slots unique to the particular distribution.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=5.31in,height=1.52in]{class_structure_2c.pdf}
+  \caption{Class structure for 2-Class Attributes plans}
+  \label{fig:class_structure_2c}
+\end{figure}
+
+The \code{OCbinomial} class contains the additional slot \code{pd},
+which gives the lot quality through the proportion of defectives in
+the lot.  The \code{OChypergeom} class contains additional slots
+\code{N} and \code{pd}, which give the lot size and the proportion of
+defectives in the lot, respectively.  It should be noted that
+\code{pd*N} equals the actual number of defectives in the lot and thus
+should result in integer values.  The \code{OCpoisson} class contains
+the additional slot \code{pd}, which gives the rate of
+defects\footnote{\emph{Defects} are also known as
+  \emph{nonconformities}, especially in more recent versions of
+  national and international standards.  These standards often use the
+  \emph{rate of defects per 100 items} --- note the difference here.}
+in the lot --- this parameter is equivalent to the \code{lambda}
+parameter used in the density, distribution and quantile functions of
+the Poisson distribution in \proglang{R}.
+
+New objects of the three classes can be generated via the \code{OC2c}
+generating function which takes the following arguments.
+\begin{description}
+\item[\code{n}:] A vector of sample sizes, one entry for each stage of
+  sampling.
+\item[\code{c}:] A vector of acceptance numbers, one for each stage of
+  sampling.
+\item[\code{r}:] A vector of rejection numbers, one for each stage of
+  sampling.
+\item[\code{type}:] The distribution which the sampling plan is based
+  on.  Can be \code{binomial}, \code{hypergeom} or \code{poisson}; the
+  default value is \code{binomial}. Note that \proglang{R}'s standard
+  matching functionality is used, so the three possible values can be
+  abbreviated (as far as a single letter).
+\item[\code{...}:] Additional arguments which depend on the chosen
+  distribution. All distributions require the argument \code{pd},
+  while the \code{hypergeom} also needs \code{N}.
+\end{description}
+Consequently, after validating the provided arguments, a new object
+from the specified class is created and returned.  As noted above, the
+argument validation is handled via validation functions which are
+provided as part of the class mechanism.  These are described in
+Section~\ref{sec:validation-methods}.
+
+\subsubsection[OCvar Plans]{\code{OCvar} Plans}
+\label{sec:ocvar-plans}
+
+The \code{OCvar} virtual class captures the parameters used in
+Variables sampling plans, namely sample size, \code{n}, acceptability
+constant, \code{k}, the distributional assumption, \code{type}, and
+the probability of accepting lots, \code{paccept}. Variables sampling
+plans are currently restricted to a single sampling stage as multiple
+stages are fairly uncommon.
+
+The only distribution that can be specified for \code{type} is
+\code{normal} for the Normal distribution.  This is because the normal
+distribution is the main distribution used for Variables sampling
+plans, even though the use of \proglang{S4} classes makes future
+extensions fairly straight forward.
+
+The actual class, derived from \code{OCvar}, is \code{OCnormal}
+(Figure~\ref{fig:class_structure_var}), which contains the \code{OCvar}
+virtual class, and hence its slots, but also adds additional slots.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=1.53in,height=1.52in]{class_structure_var.pdf}
+  \caption{Class structure for Variables sampling plans}
+  \label{fig:class_structure_var}
+\end{figure}
+
+The \code{OCnormal} class contains the additional slot \code{pd},
+which gives the lot quality through the proportion of defectives and
+the slot \code{s.type} which indicates whether the population standard
+deviation for the normal distribution is \code{known}, \ie $\sigma$
+method, or \code{unknown}, \ie $s$ method which uses the sample
+standard deviation. Note that the $R$ method, used for example in
+AS~2490 \citep{as2490}, is not implemented at present.
+
+New objects of the class can be generated via the \code{OCvar}
+generating function which takes the following arguments.
+\begin{description}
+\item[\code{n}:] The sample size (vector of length 1).
+\item[\code{k}:] The acceptability constant (vector of length 1).
+\item[\code{s.type}:] A character string indicating whether the
+  population standard deviation is \code{known} or \code{unknown}.
+\item[\code{pd}:] The proportion of defectives.
+\end{description}
+
+After validating the arguments, a new object from the class is created
+and returned.  As noted above, the argument validation is handled via
+validation functions which are provided as part of the class
+mechanism.  These are described in
+Section~\ref{sec:validation-methods}.
+
+Before moving on, the use of the proportion of defectives, \code{pd},
+deserves some further explanation.  Traditionally, sampling by
+variables requires the user to specify a lower ($L$) or upper ($U$)
+specification limit, or both, for the characteristic of interest;
+items outside these limits are classified as defective.  The
+characteristic of interest is then measured and the sample mean \xbar
+and sample standard deviation $s$, if required, are calculated.
+
+The next step is to calculate how far the sample mean is away from the
+specification limit(s) by calculating
+\begin{displaymath}
+  Q_L = \frac{U - \xbar}{\sigma} \qquad \mbox{and/or} \qquad
+  Q_U=\frac{\xbar-L}{\sigma} \;.
+\end{displaymath}
+Replacing $\sigma$ by $s$ gives the calculations required under the
+$s$ method.
+
+Then, $Q_L$ and/or $Q_U$ are compared to the acceptability constant
+$k$, obtained from Tables, and the lot is accepted if $Q_L \geq k$ or
+$Q_U \geq k$, and rejected otherwise.  Note that if upper and lower
+specification limits both exist, but are to be assessed separately,
+then the process is applied to each limit separately.
+
+The value of $k$ is generally determined from tables.  It is
+determined so that lots with a given proportion of defectives will
+result in a pre-specified  probability of acceptance, given a certain
+sample size.
+
+The approach taken here is to specify the sampling plan similarly to
+the 2-Class plans, that is, by using the proportion of defectives and
+relating them to a probability of acceptance.  This was done for
+several reasons.  Firstly it creates consistency between 2-Class
+Attributes and Variables sampling plans.  Secondly, the proportion of
+product which doesn't meet the specifications is of more immediate
+interest to the user than the value of the sample mean.  Thirdly, the
+coding is simpler as lower and upper specification limits don't have
+to be considered separately.
+
+
+
+\subsection{Validation methods}
+\label{sec:validation-methods}
+
+The validation functions for the virtual classes deal with sampling
+plan issues, \ie does the plan make sense?  Those for the actual
+classes deal with the specific distributions.  Due to inheritance, the
+validation functions for the virtual classes also apply to the
+corresponding actual classes.
+
+The checks performed by the various validation functions are described
+in the following sections for the 2-Class Attributes and Variables
+sampling plans.
+
+\subsubsection[OC2c Plans]{\code{OC2c} Plans}
+\label{sec:val-oc2c-plans}
+The following checks are made through the \code{OC2c} virtual class
+validation function.
+\begin{itemize}
+\item \code{n}, \code{c} and \code{r} contain no NA's;
+\item \code{n}, \code{c} and \code{r} are all vectors of the same length;
+\item None of the values in \code{c} are less than zero or greater than
+  \code{n};
+\item None of the values in \code{r} are less than zero or greater than
+  \code{n}; 
+\item None of the values in \code{r} are less than or equal to the
+  values in \code{c};
+\item For double or multiple sampling plans check that the values in
+  \code{c} and \code{r} are not decreasing; and
+\item The last value in \code{r} must be exactly one greater than the
+  last value in \code{c}, \eg if the last value in \code{c} equals 4,
+  then the last value in \code{r} must equal 5. This is to ensure that
+  a decision can be made about the acceptability of the lot.
+\end{itemize}
+
+In addition to these checks, the actual class definitions also contain
+validation functions.  For the \code{OCbinomial} class we check that
+\begin{itemize}
+\item \code{pd} contains no NA's; and
+\item \code{pd} contains only values in the interval [0, 1].
+\end{itemize}
+For the \code{OChypergeom} class we check that
+\begin{itemize}
+\item \code{N} is of length 1;
+\item \code{N} does not contain NA;
+\item \code{N} is not less than 1;
+\item \code{pd} contains no NA's; and
+\item \code{pd} contains only values in the interval [0, 1].
+\end{itemize}
+For the \code{OCpoisson} class we check that
+\begin{itemize}
+\item \code{pd} contains no NA's; and
+\item \code{pd} contains only values in the interval [0, $\infty$].
+\end{itemize}
+
+
+\subsubsection[OCvar Plans]{\code{OCvar} Plans}
+\label{sec:val-ocvar-plans}
+
+The following checks are made through the \code{OCvar} virtual class
+validation function.
+\begin{itemize}
+\item \code{n} and \code{k} contain no NA's;
+\item \code{n} and \code{k} are all numerical vectors of length 1; and 
+\item \code{n} and \code{k} are both greater than zero.
+\end{itemize}
+
+In addition to these checks, the \code{OCnormal} class definition also
+contains a validation function, which checks that
+\begin{itemize}
+\item \code{s.type} is either \code{known} or \code{unknown};
+\item \code{pd} contains no NA's; and
+\item \code{pd} contains only values in the interval [0, 1].
+\end{itemize}
+
+
+ 
+
+\subsection{Plot methods}
+\label{sec:plot-methods}
+
+One of the main reasons for writing this package was to give the user
+the ability to easily plot the OC curve for a given sampling plan.  In
+particular, plotting the OC curve corresponding to the sampling plans
+obtained from the Australian Standard for attributes sampling
+\citep{as1199.0}, as well as the Australian Standard for variables
+sampling \citep{as2490}, was considered important.
+
+Consequently, a plot method has been created for each actual class,
+plotting \code{pd} on the horizontal axis and \code{paccept} on the
+vertical axis. The signatures for these plot functions are
+\begin{itemize}
+\item \code{signature(x="OCbinomial", y="missing")},
+\item \code{signature(x="OChypergeom", y="missing")},
+\item \code{signature(x="OCpoisson", y="missing")}, and
+\item \code{signature(x="OCnormal", y="missing")}.
+\end{itemize}
+To use these plotting methods only an object of the particular class
+needs to be specified and all relevant details are extracted from the
+object and plotted (see Section~\ref{sec:examples}).
+
+In addition, a second set of signatures was considered important,
+namely
+\begin{itemize}
+\item \code{signature(x="numeric", y="OCbinomial")},
+\item \code{signature(x="numeric", y="OChypergeom")},
+\item \code{signature(x="numeric", y="OCpoisson")}, and
+\item \code{signature(x="numeric", y="OCnormal")}.
+\end{itemize}
+These are used when \code{paccept} is to be plotted against a
+numerical variable other than \code{pd}, \eg the mean.  An example is
+provided in Section~\ref{sec:examples}.
+
+\subsection{Print and Summary methods}
+\label{sec:print-summ-meth}
+
+Print and summary methods are common methods provided for \proglang{S4}
+classes.  Both have been implemented for the \code{OC2c} classes as
+well.
+
+The \code{print}, or more exactly \code{show}, methods provide a brief
+summary of the supplied object. For the \code{OC2c} classes they
+display what type of distribution underpins the plan, \eg Binomial,
+and what the sample size(s), acceptance number(s) and rejection
+number(s) are at each sampling stage. For the \code{OCvar} class they
+display the distribution, whether $\sigma$ is known or unknown, the
+sample size and the acceptability constant $k$.
+
+The \code{summary} methods show the same detail as the \code{show}
+methods by default, but accept the additional logical argument
+\code{full}.  If \code{full=TRUE}, then all the information for the
+object is printed, namely all values of \code{pd} and the
+corresponding values of \code{paccept}.
+
+Examples of both these methods are shown in Section~\ref{sec:examples}.
+
+\pagebreak
+\subsection{Assessment methods}
+\label{sec:assess-methods}
+A new generic method called \code{assess} has been created and is used
+to define a set of methods for the \code{OC2c} and \code{OCvar} plans.
+These \code{assess} methods can be used to assess whether a sampling
+plan can meet specific performance criteria.  The two types of
+performance criteria which can be specified are the \emph{Producer
+  Risk Point (PRP)}, via the argument \code{PRP}, and the
+\emph{Consumer Risk Pint (CRP)}, via the argument \code{CRP}.  These
+two points can be specified singly or together.
+
+Both risk points are supplied as vectors of length 2, with the first
+element representing the quality level (equivalent to \code{pd}) and
+the second element representing the corresponding probability of
+acceptance (equivalent to \code{paccept}).  This way, acceptance
+criteria can be set in terms of AQL, LTPD or both (producer and
+consumer quality levels).
+
+For the Producer Risk Point to be met, the plan must result in a
+probability of acceptance that is \emph{at least} as big as that
+specified by the user (\code{PRP[2]}), at the supplied PQL
+(\code{PRP[1]}).  This is equivalent to specifying a producer risk of
+at most 1 minus the probability of acceptance.
+
+For the Consumer Risk Point to be met, the plan must result in a
+probability of acceptance, or consumer risk, that is \emph{at most} as
+big as that specified by the user (\code{CRP[2]}), at the supplied CQL
+(\code{CRP[1]}).
+
+The \code{assess} methods also accept the logical argument
+\code{print} which indicates whether a summary of the assessment
+should be printed (\code{print=TRUE}, the default) or not
+(\code{print=FALSE}).
+
+
+\subsection{Finding a sampling plan}
+\label{sec:find-sampl-plan}
+
+A useful function applicable to all classes of sampling plans is the
+\code{find.plan} function.  This function allows the user to find a
+single stage sampling plan which meets specified producer and consumer
+risk points (see Section~\ref{sec:assess-methods}).  For the function
+to work both points must be specified and the CRP must have worse
+quality than the PRP.
+
+In the case of the of the \code{OCbinomial} and \code{OCpoisson} only
+the \code{PRP} and \code{CRP} need be specified.  For the
+\code{OChypergeom} the population size \code{N} must also be provided.
+
+For the \code{OCnormal} the \code{PRP} and \code{CRP} must be
+specified, as well as whether the population standard deviation is
+known or unknown.
+
+The function then finds the smallest sample size which will result in
+the PRP and CRP requirements being met.  This is done through trial
+and error, starting with $n=1$ in the case of \code{OC2c} plans and
+$n=2$ for \code{OCvar} plans, and increasing $n$ until the appropriate
+plan is found (other parameters are modified appropriately at each
+step).
+
+
+\section{Examples}
+\label{sec:examples}
+
+The package is loaded in the usual way.
+<<>>=
+library(AcceptanceSampling)
+@ 
+
+\newpage
+\subsection[OC2c Plans]{\code{OC2c Plans}}
+\label{sec:example-oc2c-plans}
+
+
+\subsubsection{Creating  and plotting sampling plans}
+\label{sec:example-oc2c-creating}
+
+Once loaded, the \code{OC2c} function can be used to create a new
+sampling plan.  In its simplest form this call specifies only the
+sample size and acceptance number.  For example, a sampling plan with
+$n=10$ and $c=3$ can be obtained as follows (assuming a Binomial
+distribution).
+<<>>=
+x <- OC2c(10, 3)
+x
+@ 
+
+To visualize the OC curve for this plan we use the \code{plot}
+function as follows (Figure~\ref{fig:oc-plot}).
+<<fig=TRUE, include=FALSE>>=
+plot(x)
+grid(lty="solid")
+@
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figure-003}
+  \caption{The OC curve corresponding to a sampling plan with $n=10$
+    and $c=3$.}
+  \label{fig:oc-plot}
+\end{figure}
+
+For the Binomial distribution the OC curve is based on the standard
+plot type \code{type="o"}, showing lines and points --- the points
+come from the values of the argument \code{pd}.  Other values for plot
+type can be provided by the user if so desired.  The usual additional
+arguments for the plot method are also accepted (\code{col},
+\code{lty}, etc.)  and passed directly to the generic \code{plot}
+method.
+
+The same approach holds for the Hypergeometric and Poisson
+distributions. A comparison of the various OC curves can be done as
+follows (Figure~\ref{fig:oc-comp}).
+<<fig=TRUE, include=FALSE>>=
+xb <- OC2c(5, 1, type="b")                     ## Binomial
+xh <- OC2c(5, 1, type="h", N=50, pd=(0:50)/50) ## Hypergeometric
+xp <- OC2c(5, 1, type="p")                     ## Poisson
+plot(xb, type="l", xlim=c(0, 0.2), ylim=c(0.6, 1))
+grid(lty="solid")
+points(xh@pd, xh@paccept, col="green")
+lines(xp@pd, xp@paccept, col="red")
+@ 
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figure-004}
+  \caption{OC curve for a binomial, hypergeometric and poisson based
+    sampling plan ($n=5, c=1$).}
+  \label{fig:oc-comp}
+\end{figure}
+
+\pagebreak Note that when using the Hypergeometric distribution, the default values are \code{N=100} and \code{pd=(0:100)/100} --- when changing the value of \code{N} you should also explicitly specify \code{pd} to ensure that \code{N*pd} contains only integer values.\footnote{Not changing \code{pd} can result in some unexpected results --- these come directly from invoking the function \code{phyper}, which is part of \proglang{R}.  This is because \code{pd*N} should result in integer values, \ie the number of defectives in the population.}  A warning is issued if \code{N} or \code{N*pd} are not integer, which is checked using the actual values rather than checking the storage type of these objects.
+
+In addition to drawing the sampling plan as shown in
+Figure~\ref{fig:oc-plot}, the second set of signatures
+(Section~\ref{sec:plot-methods}) can be used to relate the mean of a
+continuous response to the probability of acceptance.
+
+For example, consider a process which produces units with a weight
+that is normally distributed with a standard deviation of 1.5~g, and
+let 250~g be the lower specification limit. Then the quality of the
+process can be captured via the proportion of units which fall below
+the specification limit. Alternatively, we could use the mean of the
+distribution, which can be adjusted by a process operator, as a
+surrogate.  To plot the mean against the probability of acceptance the
+following approach can be used (Figure~\ref{fig:oc-mean}).
+<<fig=TRUE, include=FALSE>>=
+x.mean <- seq(248, 255, 0.05)
+x.pd <- pnorm(250, mean=x.mean, sd=1.5)
+x.plan <- OC2c(10, 1, pd=x.pd)
+plot(x.mean, x.plan, xlab="Mean weight")
+grid(lty="solid")
+@ 
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figure-005}
+  \caption{OC curve plotted against the mean of a continuous response.
+    The proportion of defects is given by $P(X \leq 250)$.}
+  \label{fig:oc-mean}
+\end{figure}
+
+\subsubsection{Sampling plan summary}
+\label{sec:example-oc2c-summary}
+
+The \code{summary} method provides a summary of the sampling plan ---
+the full output can be long.
+<<>>=
+x <- OC2c(10,3, pd=seq(0,0.1,0.01))
+summary(x, full=TRUE)
+@ 
+
+\subsubsection{Assessing a sampling plan}
+\label{sec:example-oc2c-assess}
+
+The \code{assess} method provides a way to assess a sampling plan
+against pre-specified criteria.  The criteria are either given via the
+Producer Risk Point (PRP) or the Consumer Risk Point (CRP), or both.
+The assessment is done as described in
+Section~\ref{sec:assess-methods}.  For example, consider that a plan,
+which gives a probability of acceptance of \emph{at least} 0.95 for a
+proportion of defectives equal to 0.05 (the PRP), is desired.  In
+addition, the plan should meet the consumer risk point, which
+specifies a probability of acceptance of \emph{at most} 0.075 for a
+proportion of defectives equal to 0.15.
+<<>>=
+assess(OC2c(20,0), PRP=c(0.05, 0.95), CRP=c(0.15, 0.075))
+@
+
+From the output it can be seen that the plan cannot meet both points.
+For the PRP, the actual value for P(accept) is 0.358, which is much
+lower than minimum desired level of 0.95.  However, the CRP is met
+since the actual value of P(accept) is 0.039, which is lower than the
+maximum allowable level of 0.075.
+
+
+\subsubsection{Finding a sampling plan}
+\label{sec:example-oc2c-find}
+
+To find a plan which will meet the above specified risk points we can
+use the following.
+<<>>=
+find.plan(PRP=c(0.05, 0.95), CRP=c(0.15, 0.075), type="binom")
+@
+This shows that, in order to meet both risk points, a sample of size
+$n=80$ is required and lots are to be accepted when the number of
+defectives in the sample does not exceed $c=7$.
+
+
+\subsubsection{Double and multiple sampling plans}
+\label{sec:example-double-mult-sampl}
+
+The final functionality of interest is the calculation of P(accept)
+for double or multiple sampling plans.  For a sampling plan with $k$
+stages this can be achieved by providing vectors of length $k$ for
+\code{n}, \code{c} and \code{r}.
+
+For example, the Australian Standard \citep{as1199.1} nominates
+the plan letter E for lots of size 51 to 90 under normal inspection of
+continuous lots (indexed by AQL). Assuming that the AQL is 4.0\%, the
+standard specifies the double sampling plan shown in
+Table~\ref{tab:double}.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|cccc|} \hline
+    Stage & n & c & r \\ \hline
+    1 & 8 & 0 & 2 \\ 
+    2 & 8 & 1 & 2 \\ \hline
+  \end{tabular}
+  \caption{Double sampling under normal inspection for AQL = 4.0\% and
+  lot sizes of 51 to 90 (Plan E) as specified by AS 1199.1-2003.}
+  \label{tab:double}
+\end{table}
+
+The OC curve associated with this plan can be drawn as follows
+(Figure~\ref{fig:oc-double}).
+
+<<fig=TRUE, include=FALSE>>=
+x <- OC2c(n=c(8,8), c=c(0,1), r=c(2,2))
+x
+plot(x)
+grid(lty="solid")
+@ 
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figure-009}
+  \caption{OC curve for the double sampling plan specified in
+    Table~\ref{tab:double}.}
+  \label{fig:oc-double}
+\end{figure}
+
+\subsection[OCvar Plans]{\code{OCvar} Plans}
+\label{sec:example-ocvar-plans}
+
+The methods and functions work similarly to those introduced for the
+\code{OC2c} class of sampling plans. Consequently, these aren't
+discussed in detail here.  However, it is important to cover the
+creation of a sampling plan when measurements are made.
+
+Consider the process described in
+Section~\ref{sec:example-oc2c-creating}, where the lower specification
+limit is 250~g and the standard deviation is known to be $\sigma=1.5$.
+Then, for various values of the population mean, the proportion of
+product falling below the specification limit can be calculated.  This
+proportion can then be used in the sampling plan (see
+Figure~\ref{fig:oc-var-mean}).
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figure-010}
+  \caption{OC curve plotted against the mean of a continuous response.
+    The proportion of defects is given by $P(X \leq 250)$.}
+  \label{fig:oc-var-mean}
+\end{figure}
+
+<<fig=TRUE,include=FALSE>>=
+x.mean <- seq(248, 255, 0.05)
+x.pd <- pnorm(250, mean=x.mean, sd=1.5)
+find.plan(PRP=c(0.05, 0.95), CRP=c(0.15, 0.075), type="normal", s.type="known")
+x.plan <- OCvar(n=26, k=1.322271, pd=x.pd)
+plot(x.mean, x.plan, xlab="Mean weight")
+grid(lty="solid")
+@ 
+
+In addition, comparing 2-Class Attributes and Variables sampling plans
+can be useful.  For example, consider that we are producing widgets
+which need to be less than 10~cm wide.  We are interested in finding a
+sampling plan which meets the risk points defined in
+Section~\ref{sec:example-oc2c-assess}.  We are faced with the
+following two options.
+\begin{enumerate}
+\item Use a pre-fabricated template to very quickly assess whether the
+  widgets meet specifications.  This would give rise to a 2-Class
+  attributes plan.
+\item Directly measure the width of the widgets. This is more
+  time consuming.  This would allow us to use a Variables
+  sampling plan and the information gained this way is potentially
+  useful in respect to quality improvement.
+\end{enumerate}
+To decide which approach should be used it would be useful to
+determine how much sampling needs to be undertaken under the two
+sampling plans.
+
+We already know from Section~\ref{sec:example-oc2c-find} that a
+2-Class sampling plan with $n=80$ and $c=7$ will be acceptable.
+Similarly, we can use the \code{find.plan} function to find a suitable
+Variables sampling plan.
+<<>>=
+find.plan(PRP=c(0.05, 0.95), CRP=c(0.15, 0.075), type="normal", s.type="unknown")
+@ 
+
+This indicates that a sample of size $n=49$ is required when the
+sample standard deviation is used ($\sigma$ unknown).  Once enough
+data has been collected, $\sigma$ can probably be assumed to be known,
+as long as the process is under control.  In this case, the sample
+size will drop to $n=26$, as shown below.
+<<>>=
+find.plan(PRP=c(0.05, 0.95), CRP=c(0.15, 0.075), type="normal", s.type="known")
+@
+
+The OC curves for these three plans are shown in
+Figure~\ref{fig:oc-2c-var}.  They are almost identical, which is no
+surprise as they all have to meet the same PRP and CRP.
+Figure~\ref{fig:oc-2c-var} was generated as follows.
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figure-013}
+  \caption{OC curve for the double sampling plan specified in
+    Table~\ref{tab:double}.}
+  \label{fig:oc-2c-var}
+\end{figure}
+
+<<fig=TRUE, include=FALSE>>=
+xb <- OC2c(n=80,c=7)
+xn1 <- OCvar(n=49, k=1.326538, s.type="unknown")
+xn2 <- OCvar(n=26, k=1.322271)
+plot(xb, type="l", xlim=c(0,0.3))
+grid(lty="solid")
+lines(xn1@pd, xn1@paccept, col="green")
+lines(xn2@pd, xn2@paccept, col="red")
+@ 
+
+This example shows that considerable reductions in sample size can be
+achieved by taking measurements.  However, whether the additional
+effort required to take these measurements is worth the reduction in
+sample size will need to be assessed on a case by case basis.
+
+\section{Questions and Answers}
+\label{sec:questions}
+
+\textbf{Question:} For ISO 3951 (Inspection by Variables---so using \texttt{OCvar}), I would like to be able to calculate probability of acceptance (Pa) values for the OC curves for particular sample sizes.  So for example, for sample size code letter J, how do I calculate the chance of accepting a lot with 10\% nonconforming when the AQL is 1\% ? (sample size = 35)
+
+\textbf{Answer:} You've obtained the code letter J from Table I-A, which is based on a General Inspection Level II and a Lot size of 501--1200.  Looking at Table II-A (assuming the ``s'' method) you then get both the sample size ($n$) and acceptability constant ($k$), which in your case are $n=35$ and $k=1.89$.  You then enter these into \texttt{OCvar}, \emph{e.g.}
+<<>>=
+xn1 <- OCvar(n=35, k=1.89, s.type="unknown", pd=seq(0,0.2,by=0.01))
+@ 
+
+Note that I've capped pd at 20\% as in this case R throws warnings due to numerical accuracy for values over about 50%.
+Then use the summary function with the option 'full=TRUE', i.e.
+<<>>=
+summary(xn1, full=TRUE)
+@ 
+
+From here you get the value you're after, i.e. at \texttt{pd = 0.1} (=10\%) we have P(accept) = 0.0165 (=1.65\%).
+
+To check, we can also have a look at the standard Table V-J-1 of the standard (around page 35 in the Australian Standard equivalent version).
+The table is a bit 'strange', but basically 
+
+The AQL is given in columns and specific values of P(accept) are given in rows. So, for an AQL of 1\% and a P(accept) of also 1\% (closest to 1.65\% calcualted above), we get a proportion of defectives of 10.95\%.  From the output above, a proportion defective of 11\% (closest to 10.95\%) gives a P(accept) = 0.00975 or 0.975\%, which is close to 1\%. So the output and the standard agree (as best as they can, given the limitations of the tabulated values in the standard).
+
+\section{Future Direction}
+\label{sec:future-direction}
+
+A software package can always be improved.  The following is a short list, in no specific order, of areas which are currently on the to-do list.
+\begin{itemize}
+\item Inspection procedures are usually assumed to be perfect.  This
+  is not always the case and \cite{johnson1991} provide the
+  mathematical detail to allow for testing inaccuracies.
+\item Implement 3-Class sampling plans.
+\item Implement double sampling, \ie two stages, for variables
+  sampling plans.
+\item Implement the $R$ method for Variables sampling plans.
+\end{itemize}
+
+\section*{Acknowledgements}
+\label{sec:acknowledgements}
+
+I would like to thank two anonymous reviewers whose comments helped
+improve this manuscript and the package.  They have also raised
+several areas for further improving the package.
+
+
+\bibliography{biblio}
+
+\end{document}

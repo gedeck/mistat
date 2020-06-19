@@ -1,0 +1,18 @@
+citHeader("To cite AcceptanceSampling in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Visualizing and Assessing Acceptance Sampling Plans: The {R} Package {AcceptanceSampling}",
+  author       = personList(as.person("Andreas Kiermeier")),
+  journal      = "Journal of Statistical Software",
+  year         = "2008",
+  volume       = "26",
+  number       = "6",
+  url          = "http://www.jstatsoft.org/v26/i06/",
+
+  textVersion  =
+  paste("Andreas Kiermeier (2008).",
+        "Visualising and Assessing Acceptance Sampling Plans: The R Package AcceptanceSampling.",
+        "Journal of Statistical Software 26(6).",
+        "URL http://www.jstatsoft.org/v26/i06/.")
+)
+

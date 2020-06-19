@@ -1,0 +1,21 @@
+import("methods")
+importFrom("graphics", "plot", "mtext")
+importFrom("stats", "dbinom", "dhyper", "dpois", "pbinom", "phyper", "pnorm", "ppois", "pt", "qnorm", "uniroot")
+importFrom("utils", "getFromNamespace")
+
+export("OC2c","OCvar")
+
+exportClasses("OC2c",
+              "OCbinomial",
+              "OChypergeom",
+              "OCpoisson")
+
+exportClasses("OCvar",
+              "OCnormal")
+
+exportMethods("plot",
+              "show",
+              "summary",
+              "assess")
+
+export("find.plan")

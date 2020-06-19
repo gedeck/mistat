@@ -1,0 +1,23 @@
+Package: AcceptanceSampling
+Type: Package
+Title: Creation and Evaluation of Acceptance Sampling Plans
+Version: 1.0-6
+Date: 2019-01-21
+Authors@R: c(person("Andreas", "Kiermeier", role = c("aut","cre"),
+	  	email="Andreas.Kiermeier@gmail.com"),
+   	    person("Peter", "Bloomfield", role = "ctb",
+		email = "Peter_Bloomfield@ncsu.edu"))
+Description: Provides functionality for creating and
+	evaluating acceptance sampling plans. Sampling plans can be single,
+	double or multiple.
+Depends: methods, R(>= 2.4.0), stats
+Imports: graphics, utils
+License: GPL (>= 3)
+LazyLoad: yes
+NeedsCompilation: no
+Packaged: 2019-01-21 07:06:50 UTC; andre
+Author: Andreas Kiermeier [aut, cre],
+  Peter Bloomfield [ctb]
+Maintainer: Andreas Kiermeier <Andreas.Kiermeier@gmail.com>
+Repository: CRAN
+Date/Publication: 2019-01-21 08:10:02 UTC
