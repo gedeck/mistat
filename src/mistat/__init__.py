@@ -1,2 +1,3 @@
 from .data import load_data, describe_data
-from .simulation import PistonSimulator, SimulationResult
+from .qcc import qcc_groups, QualityControlChart, ParetoChart
+from .simulation import PistonSimulator, SimulationResult, simulationGroup

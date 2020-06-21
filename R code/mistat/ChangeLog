@@ -1,0 +1,16 @@
+Version 1.0-5 (07 January 2018)
+* Removed package DiceView from Suggests and commented section of LATHYPPISTON example. Waiting for DiceView updated submission to CRAN
+Version 1.0-4 (02 August 2016)  
+* Modified script ch07.R to correctly address producer's and consumer's risks in first example and in tables 7.2 and 7.3. Thanks to Eric Hintze
+* Fixed a call to qcc without type parameter in ch08.R
+* Fixed a call to shroArlPfaCedNorm in ch09.R
+* Added README.md, update to DESCRIPTION and NAMESPACE (depends and import)
+Version 1.0-3 (12 June 2015)
+* Modified code and description file to match R 3.2.x guidelines
+Version 1.0-2 (20 January 2014)
+* Date in DeSCRIPTION file changed to 2014-01-19, the date the book became available
+* Modified script ch11.R, fix of the interaction plot at line 291
+Version 1.0 (26 September 2013)
+* version 1
+Version 0.999 (27 August 2013)
+* Fixed warnings and notes; first version on CRAN

@@ -1,0 +1,23 @@
+_E_l_e_c_t_r_i_c _V_o_l_t_a_g_e _O_u_t_p_u_t_s _o_f _R_e_c_t_i_f_y_i_n_g _C_i_r_c_u_i_t_s
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     99 electric voltage outputs of a rectifying circuit (V).
+
+_U_s_a_g_e:
+
+     data(OELECT)
+     
+_S_o_u_r_c_e:
+
+     Kenett, R. and Zacks, S. (1998) _Modern Industrial Statistics: The
+     Design and Control of Quality and Reliability_.  Duxbury Press.
+
+_E_x_a_m_p_l_e_s:
+
+     data(OELECT)
+     
+     summary(OELECT)
+     
+     mean(OELECT)
+     
