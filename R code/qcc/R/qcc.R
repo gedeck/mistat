@@ -757,7 +757,6 @@ limits.np <- function(center, std.dev, sizes, conf)
   limits <- matrix(c(lcl, ucl), ncol = 2)
   rownames(limits) <- rep("", length = nrow(limits))
   colnames(limits) <- c("LCL", "UCL")
-  stop(limits)
   return(limits)
 }
 library(utils)

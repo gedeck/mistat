@@ -14,14 +14,46 @@ import numpy as np
 import pandas as pd
 
 
-class QCCtype(Enum):
-    xbar = 'xbar'
-    S = 'S'
-    p = 'p'
-    R = 'R'
-
-
 GroupMeans = namedtuple('GroupMeans', 'statistics,center')
+
+
+class QCCStatistics:
+
+    def __init__(self):
+        self.default = None
+        self.statistics = {}
+        self.register(Xbar_statistic, default=True)
+        self.register(Xbar_one_statistic)
+        self.register(R_statistic)
+        self.register(S_statistic)
+        self.register(P_statistic)
+        self.register(NP_statistic)
+
+    def get(self, name):
+        if name is None and self.default is None:
+            raise ValueError('you need give a name as default is not defined')
+        if name.lower() not in self.statistics:
+            raise ValueError(f'unknown statistic {name}')
+        return self.statistics[name.lower()]()
+
+    def register(self, statistic, default=False):
+        name = statistic.qcc_type
+        if name.lower() in self.statistics:
+            raise ValueError(f'duplicate definition of statistics {name}')
+        if default and self.default is not None:
+            raise ValueError(f'duplicate definition of default statistics {name} and {default}')
+        name = name.lower()
+        if default:
+            self.default = name
+        self.statistics[name] = statistic
+
+    def __iter__(self):
+        if self.default is not None:
+            yield self.statistics[self.default]
+        for statistic in self.statistics.values():
+            if statistic.qcc_type.lower() == self.default:
+                continue
+            yield statistic
 
 
 class SD_estimator(Enum):
@@ -30,6 +62,9 @@ class SD_estimator(Enum):
     mvlue_r = 'MVLUE-R'  # Minimum Variance Linear Unbiased Estimator computed as a weighted average of subgroups estimates based on subgroup Ranges
     mvlue_sd = 'MVLUE-SD'  # Minimum Variance Linear Unbiased Estimator computed as a weighted average of subgroup estimates based on subgroup Standard Deviations
     rmsdf = 'RMSDF'  # Root-Mean-Square estimator computed as a weighted average of subgroup estimates based on subgroup Standard Deviations
+    mr = 'MR'
+    sd = 'SD'
+
 
 
 # exp.R.unscaled a vector specifying, for each sample size, the expected value of the relative range
@@ -44,29 +79,10 @@ _se_R_unscaled = [np.NaN, np.NaN, 0.8525033, 0.8883697, 0.8798108, 0.8640855, 0.
                   0.7084528, 0.7050004, 0.7017086, 0.6985648, 0.6955576, 0.6926770, 0.6899137, 0.6872596, 0.6847074, 0.6822502, 0.6798821, 0.6775973, 0.6753910, 0.6732584, 0.6711952, 0.6691976, 0.6672619, 0.6653848, 0.6635632, 0.6617943, 0.6600754, 0.6584041, 0.6567780, 0.6551950, 0.6536532, 0.6521506]
 
 
-class QCC_statistic:
-    @staticmethod
-    def get_for_type(qcc_type):
-        if isinstance(qcc_type, str):
-            qcc_type = qcc_type.lower()
-        if qcc_type == QCCtype.xbar or qcc_type == QCCtype.xbar.name.lower():
-            return Xbar_statistic()
-        elif qcc_type == QCCtype.S or qcc_type == QCCtype.S.name.lower():
-            return S_statistic()
-        elif qcc_type == QCCtype.p or qcc_type == QCCtype.p.name.lower():
-            return P_statistic()
-        elif qcc_type == QCCtype.R or qcc_type == QCCtype.R.name.lower():
-            return R_statistic()
-        else:
-            raise NotImplementedError()
-
+class Base_statistic:
     @staticmethod
     def getSizes(data):
         return [int(n) for n in (~np.isnan(data)).sum(1)]
-
-    @property
-    def qcc_type(self):
-        raise NotImplementedError()
 
     def stats(self, data, sizes=None):
         raise NotImplementedError()
@@ -78,12 +94,10 @@ class QCC_statistic:
         raise NotImplementedError()
 
 
-class Xbar_statistic(QCC_statistic):
+class Xbar_statistic(Base_statistic):
     """ Statistics used in computing and drawing a Shewhart xbar chart """
-
-    @property
-    def qcc_type(self):
-        return QCCtype.xbar
+    qcc_type = 'xbar'
+    description = ('mean', 'means of a continuous process variable')
 
     def stats(self, data, sizes=None):
         return GroupMeans(np.nanmean(data, axis=1), np.nanmean(data))
@@ -146,12 +160,50 @@ class Xbar_statistic(QCC_statistic):
         return pd.DataFrame({'LCL': lcl, 'UCL': ucl})
 
 
-class R_statistic(QCC_statistic):
-    """ Statistics used in computing and drawing a Shewhart R chart """
+class Xbar_one_statistic(Base_statistic):
+    """ Statistics used in xbar-one charts """
+    qcc_type = 'xbarone'
+    description = ('mean', 'one-at-time data of a continuous process variable')
 
-    @property
-    def qcc_type(self):
-        return QCCtype.R
+    def stats(self, data, sizes=None):
+        return GroupMeans(np.array(data), np.mean(data))
+
+    def sd(self, data, std_dev=None, sizes=None, k=2):
+        if isinstance(std_dev, numbers.Number):
+            return std_dev
+
+        # set default method if std_dev is None
+        std_dev = std_dev or SD_estimator.mr
+
+        if std_dev == SD_estimator.mr:
+            d = 0
+            for i in range(len(data) - (k - 1)):
+                group = data[i:i + k]
+                d += np.max(group) - np.min(group)
+            return d / ((len(data) - k + 1) * _exp_R_unscaled[k])
+        elif std_dev == SD_estimator.sd:
+            return np.std(data, ddof=1) / qcc_c4(len(data))
+        else:
+            raise NotImplementedError()
+
+    def limits(self, center, std_dev, sizes, conf):
+        if conf < 0:
+            raise ValueError(f'invalid conf argument {conf}')
+        se_stats = std_dev
+        if conf >= 1:
+            lcl = center - conf * se_stats
+            ucl = center + conf * se_stats
+        else:
+            sigmas = stats.norm.ppf(1 - (1 - conf) / 2)
+            lcl = center - sigmas * se_stats
+            ucl = center + sigmas * se_stats
+        return pd.DataFrame([{'LCL': lcl, 'UCL': ucl}])
+
+
+class R_statistic(Base_statistic):
+    """ Statistics used in computing and drawing a Shewhart R chart """
+    qcc_type = 'R'
+    description = ('range', ' ranges of a continuous process variable')
 
     def stats(self, data, sizes=None):
         if sizes is None:
@@ -195,12 +247,10 @@ class R_statistic(QCC_statistic):
         return pd.DataFrame({'LCL': lcl, 'UCL': ucl})
 
 
-class S_statistic(QCC_statistic):
+class S_statistic(Base_statistic):
     """ Statistics used in computing and drawing a Shewhart S chart """
-
-    @property
-    def qcc_type(self):
-        return QCCtype.S
+    qcc_type = 'S'
+    description = ('standard deviation', 'standard deviations of a continuous variable')
 
     def stats(self, data, sizes=None):
         if sizes is None:
@@ -243,12 +293,10 @@ class S_statistic(QCC_statistic):
         return pd.DataFrame({'LCL': lcl, 'UCL': ucl})
 
 
-class P_statistic(QCC_statistic):
+class P_statistic(Base_statistic):
     """ Statistics used in computing and drawing a Shewhart p chart """
-
-    @property
-    def qcc_type(self):
-        return QCCtype.p
+    qcc_type = 'p'
+    description = ('proportion', 'proportion of nonconforming units')
 
     def stats(self, data, sizes=None):
         if sizes is None:
@@ -281,7 +329,36 @@ class P_statistic(QCC_statistic):
         return limits
 
 
-class NP_statistic(QCC_statistic):
+class NP_statistic(Base_statistic):
+    """ Statistics used in computing and drawing a Shewhart np chart """
+    qcc_type = 'np'
+    description = ('count', 'number of nonconforming units')
+
+    def stats(self, data, sizes=None):
+        if sizes is None:
+            raise ValueError('np-charts require argument sizes to be provided')
+        if isinstance(sizes, numbers.Number):
+            sizes = np.array([sizes] * len(data))
+        pbar = np.sum(data) / np.sum(sizes)
+        center = sizes * pbar
+        if all(c == center[0] for c in center):
+            center = center[0]
+        return GroupMeans(data, center)
+
+    def sd(self, data, std_dev=None, sizes=None):
+        if isinstance(std_dev, numbers.Number):
+            return std_dev
+        if isinstance(sizes, numbers.Number):
+            sizes = np.array([sizes] * len(data))
+        else:
+            sizes = np.array(sizes)
+
+        pbar = np.sum(data) / np.sum(sizes)
+        std_dev = np.sqrt(sizes * pbar * (1 - pbar))
+        if all(c == std_dev[0] for c in std_dev):
+            std_dev = std_dev[0]
+        return std_dev
+
     def limits(self, center, std_dev, sizes, conf):
         if conf < 0:
             raise ValueError(f'invalid conf argument {conf}')
@@ -303,6 +380,76 @@ class NP_statistic(QCC_statistic):
         ucl[ucl > sizes] = sizes
         return pd.DataFrame({'LCL': lcl, 'UCL': ucl})
 
+# # c Chart
+#
+# stats.c <- function(data, sizes)
+# {
+#   data <- as.vector(data)
+#   sizes <- as.vector(sizes)
+#   if (length(unique(sizes)) != 1)
+#      stop("all sizes must be be equal for a c chart")
+#   statistics <- data
+#   center <- mean(statistics)
+#   list(statistics = statistics, center = center)
+# }
+#
+# sd.c <- function(data, sizes, ...)
+# {
+#   data <- as.vector(data)
+#   std.dev <- sqrt(mean(data))
+#   return(std.dev)
+# }
+#
+# limits.c <- function(center, std.dev, sizes, conf)
+# {
+#   if (conf >= 1)
+#      { lcl <- center - conf * sqrt(center)
+#        lcl[lcl < 0] <- 0
+#        ucl <- center + conf * sqrt(center)
+#      }
+#   else
+#      { if (conf > 0 & conf < 1)
+#           { ucl <- qpois(1 - (1 - conf)/2, center)
+#             lcl <- qpois((1 - conf)/2, center)
+#           }
+#        else stop("invalid conf argument. See help.")
+#      }
+#   limits <- matrix(c(lcl, ucl), ncol = 2)
+#   rownames(limits) <- rep("", length = nrow(limits))
+#   colnames(limits) <- c("LCL", "UCL")
+#   return(limits)
+# }
+#
+# # u Chart
+#
+# stats.u <- function(data, sizes)
+# {
+#   data <- as.vector(data)
+#   sizes <- as.vector(sizes)
+#   statistics <- data/sizes
+#   center <- sum(sizes * statistics)/sum(sizes)
+#   list(statistics = statistics, center = center)
+# }
+#
+# sd.u <- function(data, sizes, ...)
+# {
+#   data <- as.vector(data)
+#   sizes <- as.vector(sizes)
+#   std.dev <- sqrt(sum(data)/sum(sizes))
+#   return(std.dev)
+# }
+#
+# limits.u <- function(center, std.dev, sizes, conf)
+# {
+#   sizes <- as.vector(sizes)
+#   if (length(unique(sizes))==1)
+#      sizes <- sizes[1]
+#   limits.c(center * sizes, std.dev, sizes, conf) / sizes
+# }
+
 
 def qcc_c4(n):
     return np.sqrt(2 / (n - 1)) * np.exp(gammaln(n / 2) - gammaln((n - 1) / 2))
+
+
+qccStatistics = QCCStatistics()

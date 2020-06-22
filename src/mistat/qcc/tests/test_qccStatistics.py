@@ -10,8 +10,8 @@ from scipy.special import gammaln
 import pytest
 
 from mistat.data import load_data
-from mistat.qcc.qccStatistics import QCC_statistic, SD_estimator, qcc_c4,\
-    QCCtype
+from mistat.qcc import statistics
+from mistat.qcc.statistics import QCCStatistics, SD_estimator, qcc_c4
 import numpy as np
 
 
@@ -19,8 +19,21 @@ class Test_qccStatistics(unittest.TestCase):
     array_1 = np.array([[1, 2, 3], [1, 2, np.NaN]])
     array_2 = np.array([[1, 2, 3], [1, 2, 7]])
 
+    def setUp(self):
+        self.qccStatistics = QCCStatistics()
+        unittest.TestCase.setUp(self)
+
+    def test_default_statistic(self):
+        assert self.qccStatistics.default == 'xbar'
+
+        for statistic in self.qccStatistics:
+            assert hasattr(statistic, 'description'), statistic.qcc_type
+
     def test_Xbar_statistic(self):
-        xbar = QCC_statistic.get_for_type('xbar')
+        xbar = self.qccStatistics.get('xbar')
+        assert isinstance(xbar, statistics.Xbar_statistic)
+        assert xbar.qcc_type == 'xbar'
+
         assert xbar.getSizes(self.array_1) == [3, 2]
         stats = xbar.stats(self.array_1)
         np.testing.assert_array_equal(stats.statistics, [2, 1.5])
@@ -50,38 +63,42 @@ class Test_qccStatistics(unittest.TestCase):
         np.testing.assert_allclose(conf_limits, np.array([[0.6300197, 2.969980]]), rtol=1e-4)
 
     def test_S_statistic(self):
-        s = QCC_statistic.get_for_type('S')
-        assert s.getSizes(self.array_1) == [3, 2]
-        stats = s.stats(self.array_1)
+        S = self.qccStatistics.get('S')
+        assert isinstance(S, statistics.S_statistic)
+        assert S.qcc_type == 'S'
+
+        assert S.getSizes(self.array_1) == [3, 2]
+        stats = S.stats(self.array_1)
         assert stats.center == pytest.approx(0.8828427)
         np.testing.assert_allclose(stats.statistics, [1.0000000, 0.7071068], rtol=1e-5)
 
-        assert s.sd(self.array_1, 12345) == 12345
-        assert s.sd(self.array_1) == pytest.approx(1.007303)
-        assert s.sd(self.array_1, std_dev=SD_estimator.uwave_sd) == pytest.approx(1.007303)
-        assert s.sd(self.array_1, std_dev=SD_estimator.mvlue_sd) == pytest.approx(1.049987)
-        assert s.sd(self.array_1, std_dev=SD_estimator.rmsdf) == pytest.approx(0.9908318)
+        assert S.sd(self.array_1, 12345) == 12345
+        assert S.sd(self.array_1) == pytest.approx(1.007303)
+        assert S.sd(self.array_1, std_dev=SD_estimator.uwave_sd) == pytest.approx(1.007303)
+        assert S.sd(self.array_1, std_dev=SD_estimator.mvlue_sd) == pytest.approx(1.049987)
+        assert S.sd(self.array_1, std_dev=SD_estimator.rmsdf) == pytest.approx(0.9908318)
 
-        sd = s.sd(self.array_1)
-        sizes = s.getSizes(self.array_1)
-        conf_limits = s.limits(stats.center, sd, sizes, 3.0)
+        sd = S.sd(self.array_1)
+        sizes = S.getSizes(self.array_1)
+        conf_limits = S.limits(stats.center, sd, sizes, 3.0)
         np.testing.assert_allclose(conf_limits, np.array([[0, 2.28274627669134], [0, 2.70448059144019]]), rtol=1e-4)
-        conf_limits = s.limits(stats.center, sd, sizes, 0.9)
+        conf_limits = S.limits(stats.center, sd, sizes, 0.9)
         np.testing.assert_allclose(conf_limits, np.array(
             [[0.228134225169997, 1.74345862934255], [0.063164728444235, 1.97427769221479]]), rtol=1e-4)
 
-        stats = s.stats(self.array_2)
-        sd = s.sd(self.array_2)
-        sizes = s.getSizes(self.array_2)
-        conf_limits = s.limits(stats.center, sd, sizes, 3.0)
+        stats = S.stats(self.array_2)
+        sd = S.sd(self.array_2)
+        sizes = S.getSizes(self.array_2)
+        conf_limits = S.limits(stats.center, sd, sizes, 3.0)
         np.testing.assert_allclose(conf_limits, np.array([[0, 5.41184]]), rtol=1e-4)
 
-        conf_limits = s.limits(stats.center, sd, sizes, 0.9)
+        conf_limits = S.limits(stats.center, sd, sizes, 0.9)
         np.testing.assert_allclose(conf_limits, np.array([[0.5385259, 4.115549]]), rtol=1e-4)
 
     def test_P_statistic(self):
-        p = QCC_statistic.get_for_type('p')
-        assert p.qcc_type == QCCtype.p
+        p = self.qccStatistics.get('p')
+        assert isinstance(p, statistics.P_statistic)
+        assert p.qcc_type == 'p'
 
         data = load_data('JANDEFECT')
         sizes = 100
@@ -103,9 +120,35 @@ class Test_qccStatistics(unittest.TestCase):
         conf_limits = p.limits(stats.center, sd, sizes, 0.9)
         np.testing.assert_allclose(conf_limits, np.array([[0.02, 0.09]]), rtol=1e-4)
 
+    def test_NP_statistic(self):
+        NP = self.qccStatistics.get('np')
+        assert isinstance(NP, statistics.NP_statistic)
+        assert NP.qcc_type == 'np'
+
+        data = load_data('JANDEFECT')
+        sizes = 100
+        with pytest.raises(ValueError):
+            NP.stats(data)
+        stats = NP.stats(data, sizes)
+        assert stats.center == pytest.approx(5.387097)
+        assert stats.statistics[0] == 6
+
+        assert NP.sd(data, 12345) == 12345
+        assert NP.sd(data, sizes=100) == pytest.approx(2.257629)
+        assert NP.sd(data, sizes=[100] * len(data)) == pytest.approx(2.257629)
+#
+        sd = NP.sd(data, sizes=100)
+        sizes = [100] * len(data)
+        conf_limits = NP.limits(stats.center, sd, sizes, 3.0)
+        np.testing.assert_allclose(conf_limits, np.array([[0, 12.15998]]), rtol=1e-4)
+
+        conf_limits = NP.limits(stats.center, sd, sizes, 0.9)
+        np.testing.assert_allclose(conf_limits, np.array([[2, 9]]), rtol=1e-4)
+
     def test_R_statistic(self):
-        R = QCC_statistic.get_for_type('R')
-        assert R.qcc_type == QCCtype.R
+        R = self.qccStatistics.get('R')
+        assert isinstance(R, statistics.R_statistic)
+        assert R.qcc_type == 'R'
 
         data = load_data('CONTACTLEN').values
         assert R.getSizes(data) == [5] * 20
@@ -124,6 +167,30 @@ class Test_qccStatistics(unittest.TestCase):
 
         # conf_limits = R.limits(stats.center, sd, sizes, 0.9)
         # np.testing.assert_allclose(conf_limits, np.array([[0.1047873, 0.3924825]]), rtol=1e-4)
+
+    def test_Xbar_one_statistic(self):
+        data = [2.23, 2.53, 2.62, 2.63, 2.58, 2.44, 2.49, 2.34, 2.95, 2.54, 2.60, 2.45, 2.17, 2.58, 2.57, 2.44,
+                2.38, 2.23, 2.23, 2.54, 2.66, 2.84, 2.81, 2.39, 2.56, 2.70, 3.00, 2.81, 2.77, 2.89, 2.54, 2.98, 2.35, 2.53]
+
+        XbarOne = self.qccStatistics.get('xbarone')
+        assert isinstance(XbarOne, statistics.Xbar_one_statistic)
+        assert XbarOne.qcc_type == 'xbarone'
+
+        stats = XbarOne.stats(data)
+        assert stats.center == pytest.approx(2.569706)
+        assert stats.statistics[0] == 2.23
+
+        assert XbarOne.sd(data, 12345) == 12345
+        assert XbarOne.sd(data) == pytest.approx(0.1794541)
+        assert XbarOne.sd(data, std_dev=SD_estimator.mr) == pytest.approx(0.1794541)
+        assert XbarOne.sd(data, std_dev=SD_estimator.sd) == pytest.approx(0.2216795)
+
+        sd = XbarOne.sd(data)
+        conf_limits = XbarOne.limits(stats.center, sd, None, 3.0)
+        np.testing.assert_allclose(conf_limits, np.array([[2.031344, 3.108068]]), rtol=1e-4)
+
+        conf_limits = XbarOne.limits(stats.center, sd, None, 0.9)
+        np.testing.assert_allclose(conf_limits, np.array([[2.27453, 2.864882]]), rtol=1e-4)
 
     def test_qcc_c4(self):
         assert gammaln(2) == 0

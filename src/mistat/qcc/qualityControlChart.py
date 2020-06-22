@@ -5,7 +5,7 @@ Created on Jun 20, 2020
 '''
 from numbers import Number
 
-from mistat.qcc.qccStatistics import QCCtype, QCC_statistic, GroupMeans
+from mistat.qcc.statistics import qccStatistics, GroupMeans
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -15,10 +15,10 @@ import pandas as pd
 #                 center, std.dev, limits, data.name, labels, newdata, newsizes, newdata.name,
 #                 newlabels, nsigmas = 3, confidence.level, rules = shewhart.rules, plot = TRUE, ...)
 class QualityControlChart:
-    def __init__(self, data, qcc_type=QCCtype.xbar, labels=None,
+    def __init__(self, data, qcc_type=qccStatistics.default, labels=None,
                  center=None, std_dev=None, sizes=None,
                  nsigmas=3, confidence_level=None):
-        self.statistic = QCC_statistic.get_for_type(qcc_type)
+        self.statistic = qccStatistics.get(qcc_type)
         self.qcc_type = self.statistic.qcc_type
 
         self.data = data
