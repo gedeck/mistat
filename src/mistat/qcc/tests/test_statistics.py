@@ -29,6 +29,16 @@ class Test_qccStatistics(unittest.TestCase):
         for statistic in self.qccStatistics:
             assert hasattr(statistic, 'description'), statistic.qcc_type
 
+    def test_SD_estimator(self):
+        assert SD_estimator.get(None, SD_estimator.mr) == SD_estimator.mr
+        assert SD_estimator.get(SD_estimator.sd, SD_estimator.mr) == SD_estimator.sd
+        assert SD_estimator.get('sd', SD_estimator.mr) == SD_estimator.sd
+        assert SD_estimator.get('SD', SD_estimator.mr) == SD_estimator.sd
+        with pytest.raises(ValueError):
+            SD_estimator.get(123, SD_estimator.mr)
+        with pytest.raises(ValueError):
+            SD_estimator.get('unknown estimator', SD_estimator.mr)
+
     def test_Xbar_statistic(self):
         xbar = self.qccStatistics.get('xbar')
         assert isinstance(xbar, statistics.Xbar_statistic)

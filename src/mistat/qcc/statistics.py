@@ -65,6 +65,20 @@ class SD_estimator(Enum):
     mr = 'MR'
     sd = 'SD'
 
+    @classmethod
+    def get(cls, name, default):
+        if name is None:
+            name = default
+        if isinstance(name, cls):
+            return name
+        if not isinstance(name, str):
+            raise ValueError(f'name of estimator must be string or SD_estimator, found: {name}')
+        name = name.upper()
+        for estimator in cls:
+            if estimator.value == name:
+                return estimator
+        raise ValueError(f'unknown SD estimator {name}')
+
 
 
 # exp.R.unscaled a vector specifying, for each sample size, the expected value of the relative range
@@ -165,15 +179,28 @@ class Xbar_one_statistic(Base_statistic):
     qcc_type = 'xbarone'
     description = ('mean', 'one-at-time data of a continuous process variable')
 
+    @staticmethod
+    def getSizes(data):
+        pass  # not required
+        return [1 for _ in data]
+
     def stats(self, data, sizes=None):
+        if isinstance(data, (pd.Series, pd.DataFrame)):
+            data = data.values
         return GroupMeans(np.array(data), np.mean(data))
 
     def sd(self, data, std_dev=None, sizes=None, k=2):
         if isinstance(std_dev, numbers.Number):
             return std_dev
 
+        if isinstance(data, (pd.Series, pd.DataFrame)):
+            data = data.values
+
         # set default method if std_dev is None
+        std_dev = SD_estimator.get(std_dev, SD_estimator.mr)
         std_dev = std_dev or SD_estimator.mr
+        if isinstance(std_dev, str):
+            std_dev = std_dev.upper()
 
         if std_dev == SD_estimator.mr:
             d = 0
@@ -184,7 +211,7 @@ class Xbar_one_statistic(Base_statistic):
         elif std_dev == SD_estimator.sd:
             return np.std(data, ddof=1) / qcc_c4(len(data))
         else:
-            raise NotImplementedError()
+            raise NotImplementedError(f'estimator {std_dev}')
 
     def limits(self, center, std_dev, sizes, conf):
         if conf < 0:
@@ -197,7 +224,10 @@ class Xbar_one_statistic(Base_statistic):
             sigmas = stats.norm.ppf(1 - (1 - conf) / 2)
             lcl = center - sigmas * se_stats
             ucl = center + sigmas * se_stats
-        return pd.DataFrame([{'LCL': lcl, 'UCL': ucl}])
+        if isinstance(lcl, numbers.Number):
+            lcl = [lcl]
+            ucl = [ucl]
+        return pd.DataFrame({'LCL': lcl, 'UCL': ucl})
 
 
 class R_statistic(Base_statistic):
@@ -298,11 +328,21 @@ class P_statistic(Base_statistic):
     qcc_type = 'p'
     description = ('proportion', 'proportion of nonconforming units')
 
+    @staticmethod
+    def getSizes(data):
+        raise ValueError('p-charts require argument sizes to be provided')
+
     def stats(self, data, sizes=None):
         if sizes is None:
             raise ValueError('p-charts require argument sizes to be provided')
         if isinstance(sizes, numbers.Number):
             sizes = np.array([sizes] * len(data))
+        elif isinstance(sizes, (pd.Series, pd.DataFrame)):
+            sizes = sizes.values
+        if isinstance(data, (pd.Series, pd.DataFrame)):
+            data = data.values
+        data = data.flatten()
+        sizes = sizes.flatten()
         return GroupMeans(data / sizes, sum(data) / sum(sizes))
 
     def sd(self, data, std_dev=None, sizes=None):
@@ -310,7 +350,10 @@ class P_statistic(Base_statistic):
             return std_dev
         if isinstance(sizes, numbers.Number):
             sizes = np.array([sizes] * len(data))
-
+        else:
+            sizes = np.array(sizes)
+        if isinstance(data, (pd.Series, pd.DataFrame)):
+            data = data.values
         pbar = np.sum(data) / np.sum(sizes)
         return np.sqrt(pbar * (1 - pbar))
 
@@ -352,6 +395,8 @@ class NP_statistic(Base_statistic):
             sizes = np.array([sizes] * len(data))
         else:
             sizes = np.array(sizes)
+        if isinstance(data, (pd.Series, pd.DataFrame)):
+            data = data.values
 
         pbar = np.sum(data) / np.sum(sizes)
         std_dev = np.sqrt(sizes * pbar * (1 - pbar))

@@ -5,6 +5,9 @@ Created on Jun 20, 2020
 '''
 from numbers import Number
 
+from scipy import stats
+
+from mistat.qcc.rules import shewhartRules, beyondLimits
 from mistat.qcc.statistics import qccStatistics, GroupMeans
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,14 +20,17 @@ import pandas as pd
 class QualityControlChart:
     def __init__(self, data, qcc_type=qccStatistics.default, labels=None,
                  center=None, std_dev=None, sizes=None,
-                 nsigmas=3, confidence_level=None):
+                 nsigmas=3, confidence_level=None,
+                 newdata=None):
         self.statistic = qccStatistics.get(qcc_type)
         self.qcc_type = self.statistic.qcc_type
 
-        self.data = data
-        if len(data.shape) == 1:
+        self.data = np.array(data)
+        if len(self.data.shape) == 1:
             self.data = pd.DataFrame({'data': self.data})
-        self.sizes = sizes or self.statistic.getSizes(data)
+        self.sizes = sizes
+        if self.sizes is None:
+            self.sizes = self.statistic.getSizes(data)
 
         if labels is None:
             labels = list(range(len(data)))
@@ -37,7 +43,7 @@ class QualityControlChart:
             self.stats = self.statistic.stats(self.data, self.sizes)
         self.center = center or self.stats.center
 
-        self.std_dev = self.statistic.sd(self.data, std_dev)
+        self.std_dev = self.statistic.sd(self.data, std_dev, self.sizes)
 
         if confidence_level is None:
             self.nsigmas = nsigmas
@@ -47,14 +53,30 @@ class QualityControlChart:
             conf = confidence_level
         self.limits = self.statistic.limits(self.center, self.std_dev, self.sizes, conf)
 
+        if newdata is not None:
+            pass
+#             raise NotImplementedError()
+            # gives self.newdata, self.newstats, self.newsizes
+        else:
+            self.newdata = None
+            self.newstats = None
+            self.newsizes = None
+
         # TODO violations
+        self.violations = shewhartRules(self)
 
     def plot(self, title=None, ax=None):
         if ax is None:
             _, ax = plt.subplots(figsize=(8, 6))
+        beyondLimits = [*self.violations['beyondLimits']['LCL'], *self.violations['beyondLimits']['UCL']]
+        violatingRuns = self.violations['violatingRuns']
         df = pd.DataFrame({'x': self.labels, 'y': self.stats.statistics})
         ax = df.plot.line(x='x', y='y', style='-o', color='lightgrey',
                           marker='o', markerfacecolor='black', ax=ax)
+        ax.plot(df.iloc[beyondLimits]['x'], df.iloc[beyondLimits]['y'], linestyle='None',
+                marker='s', markerfacecolor='red', markeredgecolor='red')
+        ax.plot(df.iloc[violatingRuns]['x'], df.iloc[violatingRuns]['y'],
+                linestyle='None', marker='s', markerfacecolor='red', markeredgecolor='red')
         ax.legend().remove()
         ax.set_xlabel('Group')
         ax.set_ylabel('Group summary statistics')
@@ -74,12 +96,12 @@ class QualityControlChart:
         fig.text(0.1, 0.06, f'Center = {self.center:.5g}', fontsize=12)
         fig.text(0.1, 0.02, f'StdDev = {self.std_dev:.5g}', fontsize=12)
         if len(self.limits) == 1:
-            fig.text(0.4, 0.06, f'UCL = {self.limits.UCL[0]:.5g}', fontsize=12)
-            fig.text(0.4, 0.02, f'LCL = {self.limits.LCL[0]:.5g}', fontsize=12)
-        fig.text(0.6, 0.06, f'Number beyond limits = TODO', fontsize=12)
-        fig.text(0.6, 0.02, f'Number violating runs = TODO', fontsize=12)
+            fig.text(0.4, 0.06, f'LCL = {self.limits.LCL[0]:.5g}', fontsize=12)
+            fig.text(0.4, 0.02, f'UCL = {self.limits.UCL[0]:.5g}', fontsize=12)
+        fig.text(0.6, 0.06, f'Number beyond limits = {len(beyondLimits)}', fontsize=12)
+        fig.text(0.6, 0.02, f'Number violating runs = {len(violatingRuns)}', fontsize=12)
 
-        fig_title = [f'{self.qcc_type.name} Chart']
+        fig_title = [f'{self.statistic.qcc_type} Chart']
         if title is not None:
             fig_title.append(title)
         fig.suptitle('\n'.join(fig_title), fontsize=14)
@@ -96,3 +118,33 @@ def qcc_groups(data, groups):
     for idx, group in grouped:
         result[idx - 1, :len(group.values)] = group.values
     return result
+
+
+def qcc_overdispersion_test(x, sizes=None, dist=None):
+    if dist is None:
+        dist = 'poisson' if sizes is None else 'binomial'
+    dist = dist.lower()
+    if dist == 'binomial' and sizes is None:
+        raise ValueError("binomial data require argument 'size'")
+    if sizes is not None and len(x) != len(sizes):
+        raise ValueError("arguments 'x' and 'sizes' must have same length")
+
+    if dist == 'binomial':
+        p = np.sum(x) / np.sum(sizes)
+        theor_var = np.mean(sizes) * p * (1 - p)
+    elif dist == 'poisson':
+        theor_var = np.mean(x)
+    else:
+        raise ValueError(f"invalid distribution '{dist}'")
+    n = len(x)
+    obs_var = np.var(x, ddof=1)
+
+    D = (n - 1) * obs_var / theor_var
+    p_value = 1 - stats.chi2(n - 1).cdf(D)
+
+    return pd.Series({
+        'Overdispersion test': dist,
+        'Obs.Var/Theor.Var': obs_var / theor_var,
+        'Statistic': D,
+        'p-value': p_value,
+    })

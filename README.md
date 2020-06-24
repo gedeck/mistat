@@ -7,4 +7,5 @@ Collection of utility functions
 
 ```
 process.capability
+cause and effect diagram
 ```

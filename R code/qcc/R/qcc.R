@@ -858,14 +858,14 @@ beyond.limits <- function(object, limits = object$limits)
   return(c(index.above.ucl, index.below.lcl))
 }
 
-violating.runs <- function(object, run.length = qcc.options("run.length"))
+violating.runs <- function(qccObject, run.length = qcc.options("run.length"))
 {
 # Return indices of points violating runs
   if(run.length == 0)
     return(numeric())
-  center <- object$center
-  statistics <- c(object$statistics, object$newstats)
-  cl <- object$limits
+  center <- qccObject$center
+  statistics <- c(qccObject$statistics, qccObject$newstats)
+  cl <- qccObject$limits
   diffs <- statistics - center
   diffs[diffs > 0] <- 1
   diffs[diffs < 0] <- -1
