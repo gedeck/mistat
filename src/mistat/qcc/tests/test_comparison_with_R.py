@@ -11,6 +11,7 @@ import pytest
 
 from mistat.qcc.qualityControlChart import qcc_groups, QualityControlChart
 from mistat.qcc.statistics import SD_estimator, QCCStatistics
+from mistat.qcc.tests.utilities import assertQCC, assertQCCviolations
 import numpy as np
 import pandas as pd
 
@@ -151,28 +152,3 @@ class TestComparisonWithR(unittest.TestCase):
                     0.2095927]
         XbarOne = QCCStatistics().get('xbarone')
         np.testing.assert_allclose([XbarOne.sd(x, k=k) for k in range(2, 25)], expected, rtol=1e-5)
-
-
-def assertQCC(qcc, center, std_dev, limits):
-    assert qcc.center == pytest.approx(center)
-    assert qcc.std_dev == pytest.approx(std_dev)
-    if qcc.limits.shape == (1, 2):
-        np.testing.assert_allclose(qcc.limits, [limits], rtol=1e-5)
-    else:
-        np.testing.assert_allclose(qcc.limits[:len(limits)], limits, rtol=1e-5)
-
-
-def assertQCCviolations(qcc, beyondLimits=None, violatingRuns=None):
-    if beyondLimits is None:
-        assert len(qcc.violations['beyondLimits']['UCL']) == 0
-        assert len(qcc.violations['beyondLimits']['LCL']) == 0
-    else:
-        np.testing.assert_array_equal(qcc.violations['beyondLimits']['UCL'], beyondLimits['UCL'])
-        np.testing.assert_array_equal(qcc.violations['beyondLimits']['LCL'], beyondLimits['LCL'])
-
-    if violatingRuns is None:
-        assert len(qcc.violations['violatingRuns']) == 0
-
-
-def assertNewQCC(qcc, center, std_dev, limits):
-    pass
