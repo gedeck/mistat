@@ -1,7 +1,9 @@
 '''
 
 '''
+from contextlib import redirect_stdout
 from pathlib import Path
+import io
 import unittest
 
 import pytest
@@ -19,7 +21,6 @@ class TestProcessCapability(unittest.TestCase):
         pistonrings = pd.read_csv(Path(__file__).parent / 'data' / 'pistonrings.csv')
         diameter = qcc_groups(pistonrings['diameter'], pistonrings['sample'])
         data = diameter[:25, ]
-        newdata = diameter[25:, ]
 
         qcc = QualityControlChart(data, qcc_type='xbar')
         assertQCC(qcc, 74.00118, 0.009785039, [73.98805, 74.0143])
@@ -34,8 +35,6 @@ class TestProcessCapability(unittest.TestCase):
             'Cpm': (1.691, 1.480, 1.902),
         }
         assertPCindices(pc, expected)
-# Exp<LSL 0%     Obs<LSL 0%
-# Exp>USL 0%     Obs>USL 0%
 
         pc = ProcessCapability(qcc, [73.95, 74.05], target=74.02)
         assertPC(pc, 125, 74.00118, 0.009785039, [73.95, 74.05], 3, target=74.02)
@@ -81,6 +80,25 @@ class TestProcessCapability(unittest.TestCase):
         assert pc.exp_USL == pytest.approx(0, abs=0.5)
         assert pc.obs_LSL == pytest.approx(12, abs=0.5)
         assert pc.obs_USL == pytest.approx(0, abs=0.5)
+
+    def test_ProcessCapability_summary(self):
+        pistonrings = pd.read_csv(Path(__file__).parent / 'data' / 'pistonrings.csv')
+        diameter = qcc_groups(pistonrings['diameter'], pistonrings['sample'])
+        data = diameter[:25, ]
+
+        qcc = QualityControlChart(data, qcc_type='xbar')
+        assertQCC(qcc, 74.00118, 0.009785039, [73.98805, 74.0143])
+
+        pc = ProcessCapability(qcc, [73.99, 74.01])
+        f = io.StringIO()
+        with redirect_stdout(f):
+            pc.summary()
+        s = f.getvalue()
+        assert 'Exp<LSL' in s
+        assert '18%' in s
+        assert 'Capability indices:' in s
+        assert 'Target =' in s
+        assert '74.00' in s
 
 
 def assertPC(pc, nobs, center, std_dev, limits, nsigmas, target=None):

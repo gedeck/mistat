@@ -6,6 +6,7 @@ Created on Jun 20, 2020
 from scipy import stats
 
 from mistat.qcc.qualityControlChart import QualityControlChart
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -88,17 +89,74 @@ class ProcessCapability:
         df = n * (1 + ratio**2) / (1 + 2 * ratio**2)
         self.Cpm_limits = [self.Cpm * np.sqrt(stats.chi2(df).ppf(a) / df) for a in alphas]
 
-#   invisible(list(
-#                  exp = { exp <- c(exp.LSL, exp.USL)/100
-#                          names(exp) <- c("Exp < LSL", "Exp > USL")
-#                          exp },
-#                  obs = { obs <- c(obs.LSL, obs.USL)/100
-#                          names(obs) <- c("Obs < LSL", "Obs > USL")
-#                          obs }
-#                  ))
+    def summary(self):
+        print('Process Capability Analysis')
+        print()
+        print(f'Number of obs = {self.nobs:<4d}         Target = {self.target:.2f}')
+        print(f'       Center = {self.center:<14.2f}  LSL = {self.spec_limits.values[0, 0]:.2f}')
+        print(f'       StdDev = {self.std_dev:<14.6f}  USL = {self.spec_limits.values[0, 1]:.2f}')
+        print()
+        print('Capability indices:')
+        print()
+        print('        Value     2.5%   97.5%')
+        for key in ('Cp', 'Cp_l', 'Cp_u', 'Cp_k', 'Cpm'):
+            print(f'{key:<5s} {getattr(self, key):8.4f}', end='')
+            limits = getattr(self, f'{key}_limits')
+            print(f'{limits[0]:8.4f}{limits[1]:8.4f}')
+        print()
+        print(f'Exp<LSL {self.exp_LSL:3.0f}%   Obs<LSL {self.obs_LSL:3.0f}%')
+        print(f'Exp>USL {self.exp_USL:3.0f}%   Obs>USL {self.obs_USL:3.0f}%')
 
-#
-#
+    def plot(self, bins='scott', ax=None):
+        if ax is None:
+            _, ax = plt.subplots(figsize=(8, 6))
+        data = self.qcc.data.flatten()
+        data = data[~np.isnan(data)]
+        xlim = [min(np.min(data), np.min(self.spec_limits.values), self.target),
+                max(np.max(data), np.max(self.spec_limits.values), self.target)]
+        xlim = xlim + np.diff(xlim) * [-0.1, 0.1]
+
+        ax.hist(data, bins=bins, density=True, color='lightgrey', edgecolor='grey')
+        xx = np.linspace(*xlim, num=250)
+        ax.plot(xx, stats.norm(self.center, self.std_dev).pdf(xx), ls='--', color='gray')
+
+        position = [self.spec_limits.LSL[0], self.target, self.spec_limits.USL[0]]
+        ax.axvline(position[0], color='red', ls=':')
+        ax.axvline(position[1], color='red', ls='--')
+        ax.axvline(position[2], color='red', ls=':')
+
+        secax = ax.secondary_xaxis('bottom')
+        ax.xaxis.tick_top()
+        ax.set_xticks(position)
+        ax.set_xticklabels(['LSL', 'Target', 'USL'])
+        ax.set_yticks([])
+
+        fig = ax.get_figure()
+        fig.subplots_adjust(bottom=0.25)
+        options = {'fontsize': 11}
+        col = [0.1, 0.35, 0.55, 0.75]
+        row = [0.18, 0.14, 0.1, 0.06, 0.02]
+        fig.text(col[0], row[0], f'Number of obs = {self.nobs}', **options)
+        fig.text(col[0], row[1], f'Center = {self.center:.5g}', **options)
+        fig.text(col[0], row[2], f'StdDev = {self.std_dev:.5g}', **options)
+
+        fig.text(col[1], row[0], f'Target = {self.center:.2g}', **options)
+        fig.text(col[1], row[1], f'LSL = {self.spec_limits.LSL[0]:.2g}', **options)
+        fig.text(col[1], row[2], f'USL = {self.spec_limits.USL[0]:.2g}', **options)
+
+        fig.text(col[2], row[0], f'Cp = {self.Cp:.2g}', **options)
+        fig.text(col[2], row[1], f'Cp_l = {self.Cp_l:.2g}', **options)
+        fig.text(col[2], row[2], f'Cp_u = {self.Cp_u:.2g}', **options)
+        fig.text(col[2], row[3], f'Cp_k = {self.Cp_k:.2g}', **options)
+        fig.text(col[2], row[4], f'Cpm = {self.Cpm:.2g}', **options)
+
+        fig.text(col[3], row[0], f'Exp<LSL = {self.exp_LSL:.2g}%', **options)
+        fig.text(col[3], row[1], f'Exp>USL = {self.exp_USL:.2g}%', **options)
+        fig.text(col[3], row[2], f'Obs<LSL = {self.obs_LSL:.2g}%', **options)
+        fig.text(col[3], row[3], f'Obs>USL = {self.obs_USL:.2g}%', **options)
+        return ax
+
+
 # process.capability <- function(object, spec.limits, target, std.dev, nsigmas, confidence.level = 0.95, breaks="scott", add.stats=TRUE, print=TRUE, digits = getOption("digits"), restore.par=TRUE)
 # {
 # # Computes process capability indices for a qcc object of type "xbar"
@@ -106,165 +164,3 @@ class ProcessCapability:
 
 #   title <- paste("Process Capability Analysis\nfor", object$data.name)
 #
-#   xlim <- range(x, USL, LSL, target, na.rm = TRUE)
-#   xlim <- xlim+diff(xlim)*c(-0.1,0.1)
-#   xx <- seq(min(xlim), max(xlim), length=250)
-#   dx <- dnorm(xx, center, std.dev)
-#   h <- hist(x, breaks = breaks, plot=FALSE) # compute histogram
-#   ylim <- range(h$density, dx)
-#   ylim <- ylim+diff(ylim)*c(0,0.05)
-#
-#   tab <- cbind(c(Cp, Cp.l, Cp.u, Cp.k, Cpm),
-#                rbind(Cp.limits, Cp.l.limits, Cp.u.limits,
-#                      Cp.k.limits, Cpm.limits))
-#   rownames(tab) <- c("Cp", "Cp_l", "Cp_u", "Cp_k", "Cpm")
-#   colnames(tab) <- c("Value", names(Cp.limits))
-#
-#   oldpar <- par(no.readonly = TRUE)
-#   if(restore.par) on.exit(par(oldpar))
-#   mar <- c(4.1,2.1,3.6,2.1)
-#   par(bg  = qcc.options("bg.margin"),
-#       cex = oldpar$cex * qcc.options("cex"),
-#       mar = if(add.stats) pmax(mar, c(8.6+is.null(center)*-1,0,0,0)) else mar)
-#
-#   plot(0, 0, type="n", xlim = xlim, ylim = ylim,
-#        axes = FALSE, ylab="", xlab = "")
-#   usr <- par()$usr
-#   rect(usr[1], usr[3], usr[2], usr[4], col = qcc.options("bg.figure"))
-#   axis(1); box()
-#   top.line <- par("mar")[3]-length(capture.output(cat(title))) - 0.5
-#   mtext(title, side = 3, line = top.line,
-#         font = par("font.main"),
-#         cex  = qcc.options("cex"),
-#         col  = par("col.main"))
-#   # draw histogram
-#   plot(h, add = TRUE, freq = FALSE)
-#   # add graphical info
-#   abline(v=c(LSL,USL), col=2, lty=3, lwd=2)
-#   text(LSL, usr[4], "LSL", pos=3, offset=0.2, cex=0.8, xpd = TRUE)
-#   text(USL, usr[4], "USL", pos=3, offset=0.2, cex=0.8, xpd = TRUE)
-#   if(has.target)
-#     { abline(v=target, col=2, lty=2, lwd=2)
-#       text(target, usr[4], "Target", pos=3, offset=0.2, cex=0.8, xpd = TRUE) }
-#   lines(xx, dx, lty=2)
-#
-#   if(add.stats)
-#     { # computes the x margins of the figure region
-#       plt <- par()$plt
-#       px <- diff(usr[1:2])/diff(plt[1:2])
-#       xfig <- c(usr[1]-px*plt[1], usr[2]+px*(1-plt[2]))
-#       at.col <- xfig[1] + diff(xfig[1:2])*c(0.07, 0.35, 0.56, 0.75)
-#       top.line <- 3
-#       # write info at bottom
-#       #--
-#       mtext(paste("Number of obs = ", n, sep = ""),
-#             side = 1, line = top.line, adj = 0, at = at.col[1],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Center = ", signif(center, digits), sep = ""),
-#             side = 1, line = top.line+1, adj = 0, at = at.col[1],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("StdDev = ", signif(std.dev, digits), sep = ""),
-#             side = 1, line = top.line+2, adj = 0, at = at.col[1],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       #--
-#       mtext(ifelse(has.target, paste("Target = ", signif(target, digits), sep = ""),
-#                                paste("Target = ")),
-#             side = 1, line = top.line, adj = 0, at = at.col[2],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("LSL = ", ifelse(is.na(LSL), "", signif(LSL, digits)), sep = ""),
-#             side = 1, line = top.line+1, adj = 0, at = at.col[2],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("USL = ", ifelse(is.na(USL), "", signif(USL, digits)), sep = ""),
-#             side = 1, line = top.line+2, adj = 0, at = at.col[2],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       #--
-#       mtext(paste("Cp     = ", ifelse(is.na(Cp), "", signif(Cp, 3)), sep = ""),
-#             side = 1, line = top.line, adj = 0, at = at.col[3],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Cp_l  = ", ifelse(is.na(Cp.l), "", signif(Cp.l, 3)), sep = ""),
-#             side = 1, line = top.line+1, adj = 0, at = at.col[3],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Cp_u = ", ifelse(is.na(Cp.u), "", signif(Cp.u, 3)), sep = ""),
-#             side = 1, line = top.line+2, adj = 0, at = at.col[3],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Cp_k = ", ifelse(is.na(Cp.k), "", signif(Cp.k, 3)), sep = ""),
-#             side = 1, line = top.line+3, adj = 0, at = at.col[3],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Cpm  = ", ifelse(is.na(Cpm), "", signif(Cpm, 3)), sep = ""),
-#             side = 1, line = top.line+4, adj = 0, at = at.col[3],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       #--
-#       mtext(paste("Exp<LSL ", ifelse(is.na(exp.LSL), "", paste(signif(exp.LSL, 2), "%", sep="")), sep = ""),
-#             side = 1, line = top.line, adj = 0, at = at.col[4],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Exp>USL ", ifelse(is.na(exp.USL), "", paste(signif(exp.USL, 2), "%", sep="")), sep = ""),
-#             side = 1, line = top.line+1, adj = 0, at = at.col[4],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Obs<LSL ", ifelse(is.na(obs.LSL), "", paste(signif(obs.LSL, 2), "%", sep="")), sep = ""),
-#             side = 1, line = top.line+2, adj = 0, at = at.col[4],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#       mtext(paste("Obs>USL ", ifelse(is.na(obs.USL), "", paste(signif(obs.USL, 2), "%", sep="")), sep = ""),
-#             side = 1, line = top.line+3, adj = 0, at = at.col[4],
-#             font = qcc.options("font.stats"),
-#             cex = par("cex")*qcc.options("cex.stats"))
-#     }
-#
-#   if(print)
-#     { cat("\nProcess Capability Analysis\n")
-#       cat("\nCall:\n", deparse(match.call()), "\n\n", sep = "")
-#       cat(paste(formatC("Number of obs = ", width=16),
-#                 formatC(n, width=12, flag="-"),
-#                 formatC("Target = ", width=10),
-#                 ifelse(has.target, formatC(signif(target,digits=digits), flag="-"), ""),
-#                 "\n", sep=""))
-#       cat(paste(formatC("Center = ", width=16),
-#                 formatC(signif(center, digits=digits), width=12, flag="-"),
-#                 formatC("LSL = ", width=10),
-#                 ifelse(is.na(LSL), "", formatC(signif(LSL, digits=digits), flag="-")),
-#                 "\n", sep=""))
-#       cat(paste(formatC("StdDev = ", width=16),
-#                 formatC(signif(std.dev, digits=digits), width=12, flag="-"),
-#                 formatC("USL = ", width=10),
-#                 ifelse(is.na(USL), "", formatC(signif(USL, digits=digits), flag="-")),
-#                 "\n", sep=""))
-#       cat("\nCapability indices:\n\n")
-#       print(tab, digits=4, na.print="", print.gap=2)
-#       cat("\n")
-#       cat(paste("Exp<LSL", ifelse(is.na(exp.LSL), "\t",
-#                                    paste(format(exp.LSL, digits=2), "%\t", sep="")),
-#                 "Obs<LSL", ifelse(is.na(obs.LSL), "",
-#                                    paste(format(obs.LSL, digits=2), "%\n", sep=""))))
-#       cat(paste("Exp>USL", ifelse(is.na(exp.USL), "\t",
-#                                    paste(format(exp.USL, digits=2), "%\t", sep="")),
-#                 "Obs>USL", ifelse(is.na(obs.USL), "",
-#                                    paste(format(obs.USL, digits=2), "%\n", sep=""))))
-#     }
-#
-#   invisible(list(nobs = n, center = center, std.dev = std.dev,
-#                  target = target,
-#                  spec.limits = { sl <- c(LSL, USL)
-#                                  names(sl) <- c("LSL", "USL")
-#                                  sl },
-#                  indices = tab,
-#                  exp = { exp <- c(exp.LSL, exp.USL)/100
-#                          names(exp) <- c("Exp < LSL", "Exp > USL")
-#                          exp },
-#                  obs = { obs <- c(obs.LSL, obs.USL)/100
-#                          names(obs) <- c("Obs < LSL", "Obs > USL")
-#                          obs }
-#                  ))
-# }

@@ -7,7 +7,9 @@ import unittest
 
 import pytest
 
-from mistat.acceptanceSampling.distributions import getDistribution, OCtype
+from mistat.acceptanceSampling.distributions import getDistribution, OCtype,\
+    OCbinomial
+import numpy as np
 
 
 class TestData(unittest.TestCase):
@@ -23,6 +25,12 @@ class TestData(unittest.TestCase):
         assert oc2c.paccept[oc2c.pd == 0.15] == pytest.approx(0.8298, 1e-3)
         assert oc2c.paccept[oc2c.pd == 0.2] == pytest.approx(0.6296, 1e-3)
         assert oc2c.paccept[oc2c.pd == 0.25] == pytest.approx(0.4148, 1e-3)
+
+    def test_binomial_probAcc(self):
+        assert OCbinomial.probAcc([1, 2], [10, 12], 0.1) == pytest.approx(0.3444672)
+        assert OCbinomial.probAcc([1, 5], [10, 12], 0.25) == pytest.approx(0.1774998)
+        np.testing.assert_array_almost_equal(OCbinomial.probAcc([1, 5], [10, 12], np.array([0.1, 0.2])),
+                                             np.array([0.3872108, 0.2632264]))
 
 
 @pytest.mark.parametrize("n,c", [(20, 4), (10, 2), ])
