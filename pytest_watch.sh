@@ -1,4 +1,4 @@
-# rm .testmondata
+rm .testmondata
 # rm .coverage
 # rm -rf htmlcov
 # rm -rf .pytest_cache

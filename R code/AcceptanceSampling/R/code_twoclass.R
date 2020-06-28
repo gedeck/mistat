@@ -239,17 +239,22 @@ calc.OCbinomial.pdi <- function(pd,n,c,r)
       x <- eval(parse(text=expand.call)[[1]])
       x <- x[,(k-1):1]
       names(x) <- paste("X",1:(k-1),sep="")
+      # print(x)
 
       for(i in ncol(x):2){
         x[,i] <- x[,i]-x[,i-1]
       }
       x <- cbind(x, X.last=c[k] - rowSums(x[,1:(k-1)]))
+      # print(x)
+      # stop()
       p.acc <- p.acc + sum(apply(x, 1, FUN=prob.acc, n=n, p=pd))
     }
   }
   return(p.acc)
 }
-
+library(utils)
+assignInNamespace("calc.OCbinomial.pdi", calc.OCbinomial.pdi, ns="AcceptanceSampling")
+x <- OC2c(c(125,125,125,125), c(1,3,11,20), c(6,9,13, 21), pd=seq(0,0.1,0.001))
 
 
 calc.OChypergeom <- function(n,c,r,N,D) {
@@ -266,6 +271,7 @@ calc.OChypergeom <- function(n,c,r,N,D) {
   p.acc <- sapply(D, FUN=calc.OChypergeom.pdi, n=n, c=c, r=r, N=N)
   p.acc
 }
+  p.acc <- sapply(pd, FUN=calc.OCbinomial.pdi, n=n, c=c, r=r)
 
 
 ## phyper(q=0,m=5,n=100-5,k=13) +
@@ -287,7 +293,9 @@ calc.OChypergeom.pdi <- function(D,n,c,r,N)
     n.cum <- cumsum(n)
     N.cum <- N-c(0,n.cum[1:k1])
     D.cum <- D-c(0,x.cum[1:k1])
-
+print(    prod(dhyper(x=x[1:k1], m=pmax(D.cum[1:k1],0),
+                n=N.cum[1:k1]-pmax(D.cum[1:k1],0), k=n[1:k1]))*
+      phyper(q=x[k], m=pmax(D.cum[k],0), n=N.cum[k]-pmax(D.cum[k],0), k=n[k]))
     prod(dhyper(x=x[1:k1], m=pmax(D.cum[1:k1],0),
                 n=N.cum[1:k1]-pmax(D.cum[1:k1],0), k=n[1:k1]))*
       phyper(q=x[k], m=pmax(D.cum[k],0), n=N.cum[k]-pmax(D.cum[k],0), k=n[k])
@@ -303,6 +311,7 @@ calc.OChypergeom.pdi <- function(D,n,c,r,N)
       ## Only a single sampling stage to do - this is simple
       p.acc <- sapply(D, FUN=function(el){
         phyper(q=c[1], m=el, n=N-el, k=n[1])})
+      print(p.acc)
       ## p.acc now exists and can be used in the following stages.
     }
     else if (k==2) {
@@ -315,6 +324,8 @@ calc.OChypergeom.pdi <- function(D,n,c,r,N)
       ## the second stage
       x <- data.frame(X1=seq(c.s[1], r.s[1], by=1),
                       X.last=c[2]-seq(c.s[1], r.s[1], by=1))
+      print(x)
+      print(c(n, N, D))
       p.acc <- p.acc + sum(apply(x, 1, FUN=prob.acc, n=n, N=N, D=D))
     }
     else {
@@ -336,12 +347,17 @@ calc.OChypergeom.pdi <- function(D,n,c,r,N)
         x[,i] <- x[,i]-x[,i-1]
       }
       x <- cbind(x, X.last=c[k] - rowSums(x[,1:(k-1)]))
+      print(x)
+      print(c(n, N, D))
       p.acc <- p.acc + sum(apply(x, 1, FUN=prob.acc, n=n, N=N, D=D))
     }
   }
   return(p.acc)
 }
-
+library(utils)
+assignInNamespace("calc.OChypergeom.pdi", calc.OChypergeom.pdi, ns="AcceptanceSampling")
+# x <- OC2c(c(125,125,125,125), c(1,3,11,20), c(6,9,13, 21), pd=[0, 0.1, 0.2, 0.3, 0.4, 0.5])
+x <- OC2c(c(10, 20, 30),c(1, 5, 15), r=c(8, 12, 16), type="hypergeom", N=5000, pd=c(0.3))
 
 calc.OCpoisson <- function(n,c,r,pd)
 {
@@ -355,11 +371,15 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
 {
   ## This is really a helper function - it does all the work for each
   ## value of pd.
+  print(c(pd, n, c, r))
   k.s <- length(n) ## number of stages in this sampling
 
   prob.acc <- function(x, n, p){
+    print(x, n, p)
     k <- length(x)
     k1 <- k-1
+    print(c(x[k], n[k] * p, ppois(x[k], n[k]*p)))
+    print(1:k1, dpois(x[1:k1], n[1:k1]*p))
     prod(dpois(x[1:k1], n[1:k1]*p))*ppois(x[k], n[k]*p)
   }
 
@@ -371,8 +391,10 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
 
     if(k==1) {
       ## Only a single sampling stage to do - this is simple
+      print(c('c', c[1], 'nc', n[1] * pd))
       p.acc <- sapply(pd, FUN=function(el){
         ppois(q=c[1],lambda=n[1]*el)})
+      print(p.acc)
       ## p.acc now exists and can be used in the following stages.
     }
     else if (k==2) {
@@ -385,6 +407,7 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
       ## the second stage
       x <- data.frame(X1=seq(c.s[1], r.s[1], by=1),
                       X.last=c[2]-seq(c.s[1], r.s[1], by=1))
+      print(x)
       p.acc <- p.acc + sum(apply(x, 1, FUN=prob.acc, n=n, p=pd))
     }
     else {
@@ -406,11 +429,15 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
         x[,i] <- x[,i]-x[,i-1]
       }
       x <- cbind(x, X.last=c[k] - rowSums(x[,1:(k-1)]))
+      print(x)
       p.acc <- p.acc + sum(apply(x, 1, FUN=prob.acc, n=n, p=pd))
     }
   }
   return(p.acc)
 }
+library(utils)
+assignInNamespace("calc.OCpoisson.pdi", calc.OCpoisson.pdi, ns="AcceptanceSampling")
+x <- OC2c(c(20,30,40),c(3, 6, 10), type='poisson', pd=c(0.1))
 
 
 ## calc.OCpoisson <- function(n,c,r,pd)

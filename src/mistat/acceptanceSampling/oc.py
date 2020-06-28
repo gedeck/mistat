@@ -10,6 +10,7 @@ import numpy as np
 OC_TYPES = ['binomial', 'hypergeom', 'poisson']
 
 
+# TODO valdate default handling
 class OperatingCharacteristics2c:
     def __init__(self, sample_sizes, acceptance_numbers, rejection_numbers=None,
                  oc_type='binomial', **kwargs):
@@ -35,9 +36,15 @@ class OperatingCharacteristics2c:
         if any([len(self.rejection) != self.nstages, len(self.acceptance) != self.nstages]):
             raise ValueError('Inconsistent length of arguments sample_sizes, acceptance_numbers and rejection_numbers')
 
+        if self.acceptance[-1] + 1 != self.rejection[-1]:
+            raise ValueError('Decision from last sample cannot be made: r != c+1')
+
         if self.oc_type == 'binomial':
             self.distribution = getDistribution(self.samples, self.acceptance,
                                                 OCtype.binomial, r=self.rejection, **kwargs)
+        elif self.oc_type == 'hypergeom':
+            self.distribution = getDistribution(self.samples, self.acceptance,
+                                                OCtype.hypergeom, r=self.rejection, **kwargs)
 
     @property
     def pd(self):
