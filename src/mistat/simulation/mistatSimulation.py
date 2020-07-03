@@ -35,7 +35,7 @@ def simulationGroup(simulation_result, group_size, quiet=False):
 
 
 def convert_to_list(value):
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple)):
         return value
     return [value]
 

@@ -1,0 +1,765 @@
+
+R version 4.0.0 (2020-04-24) -- "Arbor Day"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require(FrF2)
+Loading required package: FrF2
+Loading required package: DoE.base
+Loading required package: grid
+Loading required package: conf.design
+
+Attaching package: 'DoE.base'
+
+The following objects are masked from 'package:stats':
+
+    aov, lm
+
+The following object is masked from 'package:graphics':
+
+    plot.design
+
+The following object is masked from 'package:base':
+
+    lengths
+
+> 
+> summary(FrF2(16,7),brief=TRUE)
+Call:
+FrF2(16, 7)
+
+Experimental design of type  FrF2 
+16  runs
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G
+1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=A B=B C=C D=D E=E F=F G=G
+
+$generators
+[1] E=ABC F=ABD G=ACD
+
+
+Alias structure:
+$fi2
+[1] AB=CE=DF AC=BE=DG AD=BF=CG AE=BC=FG AF=BD=EG AG=CD=EF BG=CF=DE
+
+> summary(FrF2(32,7,blocks=4),brief=TRUE)
+Call:
+FrF2(32, 7, blocks = 4)
+
+Experimental design of type  FrF2.blocked 
+32  runs
+blocked design with  4  blocks of size  8 
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G
+1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=A B=B C=C D=D E=E F=F G=G
+
+$`generators for design itself`
+[1] F=ABC G=ABD
+
+$`block generators`
+[1] ACD ABE
+
+
+Alias structure:
+$fi2
+[1] AB=CF=DG AC=BF    AD=BG    AF=BC    AG=BD    CD=FG    CG=DF   
+
+Aliased with block main effects:
+[1] none
+> summary(FrF2(32,9,blocks=4,alias.block.2fis=TRUE),brief=TRUE)
+Call:
+FrF2(32, 9, blocks = 4, alias.block.2fis = TRUE)
+
+Experimental design of type  FrF2.blocked 
+32  runs
+blocked design with  4  blocks of size  8 
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G  H  J
+1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=A B=B C=C D=D E=E F=F G=G H=H J=J
+
+$`generators for design itself`
+[1] F=ABC  G=ABD  H=ABE  J=ACDE
+
+$`block generators`
+[1] AB AC
+
+
+Alias structure:
+$fi2
+ [1] AD=BG AE=BH AG=BD AH=BE CD=FG CE=FH CG=DF CH=EF DE=GH DH=EG
+
+Aliased with block main effects:
+[1] AB AC AF BC BF CF DG EH
+> summary(FrF2(32,9,blocks=c("AB","AC"),alias.block.2fis=TRUE),brief=TRUE)
+Call:
+FrF2(32, 9, blocks = c("AB", "AC"), alias.block.2fis = TRUE)
+
+Experimental design of type  FrF2.blocked 
+32  runs
+blocked design with  4  blocks of size  8 
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G  H  J
+1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=A B=B C=C D=D E=E F=F G=G H=H J=J
+
+$`generators for design itself`
+[1] F=ABC  G=ABD  H=ABE  J=ACDE
+
+$`block generators`
+[1] AB AC
+
+
+Alias structure:
+$fi2
+ [1] AD=BG AE=BH AG=BD AH=BE CD=FG CE=FH CG=DF CH=EF DE=GH DH=EG
+
+Aliased with block main effects:
+[1] AB AC AF BC BF CF DG EH
+> summary(FrF2(64,7,blocks=4),brief=TRUE)
+Call:
+FrF2(64, 7, blocks = 4)
+
+Experimental design of type  FrF2.blocked 
+64  runs
+blocked design with  4  blocks of size  16 
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G
+1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=A B=B C=C D=D E=E F=F G=G
+
+$`generators for design itself`
+[1] G=ABCDEF
+
+$`block generators`
+[1] ABC ADE
+
+
+no aliasing of main effects or 2fis  among experimental factors
+
+Aliased with block main effects:
+[1] none
+> summary(plan1 <- FrF2(32,7,estimable=c("AB","CD")),brief=TRUE)
+Call:
+FrF2(32, 7, estimable = c("AB", "CD"))
+
+Experimental design of type  FrF2.estimable 
+32  runs
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G
+1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=A B=B C=C D=D E=E F=F G=G
+
+$generators
+[1] F=ACE  G=ACBD
+
+
+Alias structure:
+$fi2
+[1] AC=EF AE=CF AF=CE
+
+> summary(plan2 <- FrF2(nruns= 64 ,nfactors= 10 , estimable= c( "AB","AC","AD","AE","AF",
++        "AG","AH","AJ","AK","BC","BD","BE","BF","BG","BH","BJ","BK" ) ), brief=TRUE)
+Call:
+FrF2(nruns = 64, nfactors = 10, estimable = c("AB", "AC", "AD", 
+    "AE", "AF", "AG", "AH", "AJ", "AK", "BC", "BD", "BE", "BF", 
+    "BG", "BH", "BJ", "BK"))
+
+Experimental design of type  FrF2.estimable 
+64  runs
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G  H  J  K
+1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+ [1] A=A B=B C=C D=D E=E F=F G=G H=H J=J K=K
+
+$generators
+[1] B=CEFG H=CDE  J=CDAF K=CDAG
+
+
+Alias structure:
+$fi2
+[1] CD=EH CE=DH CH=DE FG=JK FJ=GK FK=GJ
+
+> 
+> C1 <- compromise(10, 1:2, msg=FALSE)
+> summary(plan3 <- FrF2(nruns= 64 ,nfactors= 10 , 
++     estimable= C1$requirement, perms=C1$perms.full, clear=FALSE ), brief=TRUE)
+Call:
+FrF2(nruns = 64, nfactors = 10, estimable = C1$requirement, perms = C1$perms.full, 
+    clear = FALSE)
+
+Experimental design of type  FrF2.estimable 
+64  runs
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G  H  J  K
+1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+ [1] A=A B=B C=C D=D E=E F=F G=G H=H J=J K=K
+
+$generators
+[1] G=ACD  H=ACBE J=ACBF K=ADEF
+
+
+Alias structure:
+$fi2
+[1] AC=DG AD=CG AG=CD EF=HJ EH=FJ EJ=FH
+
+> 
+> ### blockpick.big, a design that uses map (old version)
+> plan <- FrF2(64,15,blocks=16,alias.block.2fi=TRUE,block.old=TRUE)
+> summary(plan,brief=TRUE)
+Call:
+FrF2(64, 15, blocks = 16, alias.block.2fi = TRUE, block.old = TRUE)
+
+Experimental design of type  FrF2.blocked 
+64  runs
+blocked design with  16  blocks of size  4 
+
+Factor settings (scale ends):
+   A  B  C  D  E  F  G  H  J  K  L  M  N  O  P
+1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+ [1] A=A B=B C=C D=D E=E F=F G=G H=H J=J K=K L=L M=M N=N O=O P=P
+
+$`generators for design itself`
+ [1] C=b1AB      D=b2AB      E=b1b2A     F=b1b2B     G=b3AB      H=b1b3A    
+ [7] J=b2b3A     K=b4AB      L=b1b4A     M=b2b4B     N=b3b4A     O=b3b4B    
+[13] P=b1b2b3b4A
+
+$`block generators`
+                                          
+ block generators b1 b2 b3 b4             
+ from Yates matrix columns 1 2 4 8        
+ of base design 19-13.3 in catalogue catlg
+ base factors remapped as 3 4 5 6 1 2     
+
+
+Alias structure:
+$fi2
+ [1] AB=EF=NO    AC=DE=GH=KL AD=CE=GJ    AF=BE=LM=OP AG=CH=DJ=KN AK=CL=GN   
+ [7] AM=FL=JO    AO=BN=FP=JM BC=DF       BD=CF=KM    BG=KO       BH=FJ=LO=MP
+[13] BJ=FH=MN    BK=DM=GO    BL=EM=HO    BP=EO=FN=HM CJ=DH=EG=KP CM=FK      
+[19] CN=DP=GL=HK CP=DN=JK    DL=EK=GP    DO=GM      
+
+Aliased with block main effects:
+ [1] AE AH AJ AL AN AP BF BM BO CD CG CK DG DK EH EJ EL EN EP FM FO GK HJ HL HN
+[26] HP JL JN JP LN LP MO NP
+> 
+> ### various split-plot setups
+> planfull <-FrF2(32,5,WPs=4,nfac.WP=2,factor.names=Letters[21:25])
+> summary(planfull, brief=TRUE)
+Call:
+FrF2(32, 5, WPs = 4, nfac.WP = 2, factor.names = Letters[21:25])
+
+Experimental design of type  FrF2.splitplot 
+32  runs
+
+Factor settings (scale ends):
+   V  W  X  Y  Z
+1 -1 -1 -1 -1 -1
+2  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=V B=W C=X D=Y E=Z
+
+$generators
+[1] full factorial
+
+
+no aliasing of main effects or 2fis  among experimental factors
+
+
+split-plot design:  4  whole plots
+   first  2  factors are whole plot factors
+> design.info(planfull)[-which(names(design.info(planfull))=="FrF2.version")]
+$type
+[1] "FrF2.splitplot"
+
+$nruns
+[1] 32
+
+$nfactors
+[1] 5
+
+$nfac.WP
+[1] 2
+
+$nfac.SP
+[1] 3
+
+$factor.names
+$factor.names$V
+[1] -1  1
+
+$factor.names$W
+[1] -1  1
+
+$factor.names$X
+[1] -1  1
+
+$factor.names$Y
+[1] -1  1
+
+$factor.names$Z
+[1] -1  1
+
+
+$nWPs
+[1] 4
+
+$plotsize
+[1] 8
+
+$res.WP
+[1] Inf
+
+$aliased
+$aliased$legend
+[1] "A=V" "B=W" "C=X" "D=Y" "E=Z"
+
+
+$base.design
+[1] "generator columns: "
+
+$map
+[1] 1 2 3 4 5
+
+$orig.fac.order
+[1] 1 2 3 4 5
+
+$replications
+[1] 1
+
+$repeat.only
+[1] FALSE
+
+$randomize
+[1] TRUE
+
+$seed
+NULL
+
+$creator
+FrF2(32, 5, WPs = 4, nfac.WP = 2, factor.names = Letters[21:25])
+
+> try(planfull <-FrF2(32,5,WPs=4,nfac.WP=3,factor.names=Letters[21:25]))
+Error in FrF2(32, 5, WPs = 4, nfac.WP = 3, factor.names = Letters[21:25]) : 
+  3 whole plot factors cannot be accomodated in 4 whole plots for a full factorial. Please request smaller design with replication instead.
+> 
+> plan0 <-FrF2(32,7,gen=c(6,15),WPs=4,WPfacs=c("B","C","F"),factor.names=Letters[19:25])
+> summary(plan0,brief=TRUE)
+Call:
+FrF2(32, 7, gen = c(6, 15), WPs = 4, WPfacs = c("B", "C", "F"), 
+    factor.names = Letters[19:25])
+
+Experimental design of type  FrF2.splitplot 
+32  runs
+
+Factor settings (scale ends):
+   U  V  Y  T  W  X  Z
+1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=U B=V C=Y D=T E=W F=X G=Z
+
+$generators
+[1] C=AB   G=ABDE
+
+
+Alias structure:
+$main
+[1] A=BC B=AC C=AB
+
+$fi2
+[1] CD=EG CE=DG CG=DE
+
+
+split-plot design:  4  whole plots
+   first  3  factors are whole plot factors
+> design.info(plan0)[-which(names(design.info(plan0))=="FrF2.version")]
+$type
+[1] "FrF2.splitplot"
+
+$nruns
+[1] 32
+
+$nfactors
+[1] 7
+
+$nfac.WP
+[1] 3
+
+$nfac.SP
+[1] 4
+
+$factor.names
+$factor.names$U
+[1] -1  1
+
+$factor.names$V
+[1] -1  1
+
+$factor.names$Y
+[1] -1  1
+
+$factor.names$T
+[1] -1  1
+
+$factor.names$W
+[1] -1  1
+
+$factor.names$X
+[1] -1  1
+
+$factor.names$Z
+[1] -1  1
+
+
+$nWPs
+[1] 4
+
+$plotsize
+[1] 8
+
+$res.WP
+[1] 3
+
+$aliased
+$aliased$legend
+[1] "A=U" "B=V" "C=Y" "D=T" "E=W" "F=X" "G=Z"
+
+$aliased$main
+[1] "A=BC" "B=AC" "C=AB"
+
+$aliased$fi2
+[1] "CD=EG" "CE=DG" "CG=DE"
+
+
+$base.design
+[1] "generator columns: 6, 15"
+
+$map
+[1] 1 2 3 4 5
+
+$orig.fac.order
+[1] 2 3 6 1 4 5 7
+
+$replications
+[1] 1
+
+$repeat.only
+[1] FALSE
+
+$randomize
+[1] TRUE
+
+$seed
+NULL
+
+$creator
+FrF2(32, 7, gen = c(6, 15), WPs = 4, WPfacs = c("B", "C", "F"), 
+    factor.names = Letters[19:25])
+
+> 
+> plan <-FrF2(32,7,WPs=4,nfac.WP=3,factor.names=Letters[19:25])
+> summary(plan, brief=TRUE)
+Call:
+FrF2(32, 7, WPs = 4, nfac.WP = 3, factor.names = Letters[19:25])
+
+Experimental design of type  FrF2.splitplot 
+32  runs
+
+Factor settings (scale ends):
+   T  U  V  W  X  Y  Z
+1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=T B=U C=V D=W E=X F=Y G=Z
+
+$generators
+[1] C=AB   G=ADEF
+
+
+Alias structure:
+$main
+[1] A=BC B=AC C=AB
+
+
+split-plot design:  4  whole plots
+   first  3  factors are whole plot factors
+> generators(plan)
+$generators
+[1] "C=AB"   "G=ADEF"
+
+> design.info(plan)[-which(names(design.info(plan))=="FrF2.version")]
+$type
+[1] "FrF2.splitplot"
+
+$nruns
+[1] 32
+
+$nfactors
+[1] 7
+
+$nfac.WP
+[1] 3
+
+$nfac.SP
+[1] 4
+
+$factor.names
+$factor.names$T
+[1] -1  1
+
+$factor.names$U
+[1] -1  1
+
+$factor.names$V
+[1] -1  1
+
+$factor.names$W
+[1] -1  1
+
+$factor.names$X
+[1] -1  1
+
+$factor.names$Y
+[1] -1  1
+
+$factor.names$Z
+[1] -1  1
+
+
+$nWPs
+[1] 4
+
+$plotsize
+[1] 8
+
+$res.WP
+[1] 3
+
+$aliased
+$aliased$legend
+[1] "A=T" "B=U" "C=V" "D=W" "E=X" "F=Y" "G=Z"
+
+$aliased$main
+[1] "A=BC" "B=AC" "C=AB"
+
+$aliased$fi2
+character(0)
+
+
+$catlg.name
+[1] "catlg"
+
+$base.design
+[1] "7-2.4"
+
+$map
+[1] 1 2 3 4 5
+
+$orig.fac.order
+[1] 1 2 6 3 4 5 7
+
+$replications
+[1] 1
+
+$repeat.only
+[1] FALSE
+
+$randomize
+[1] TRUE
+
+$seed
+NULL
+
+$creator
+FrF2(32, 7, WPs = 4, nfac.WP = 3, factor.names = Letters[19:25])
+
+> 
+> plan2 <- FrF2(32,7,gen=c(6,15),WPs=4,nfac.WP=3,WPfacs=c(2,3,6),factor.names=Letters[19:25])
+> summary(plan2, brief=TRUE)
+Call:
+FrF2(32, 7, gen = c(6, 15), WPs = 4, nfac.WP = 3, WPfacs = c(2, 
+    3, 6), factor.names = Letters[19:25])
+
+Experimental design of type  FrF2.splitplot 
+32  runs
+
+Factor settings (scale ends):
+   U  V  Y  T  W  X  Z
+1 -1 -1 -1 -1 -1 -1 -1
+2  1  1  1  1  1  1  1
+
+Design generating information:
+$legend
+[1] A=U B=V C=Y D=T E=W F=X G=Z
+
+$generators
+[1] C=AB   G=ABDE
+
+
+Alias structure:
+$main
+[1] A=BC B=AC C=AB
+
+$fi2
+[1] CD=EG CE=DG CG=DE
+
+
+split-plot design:  4  whole plots
+   first  3  factors are whole plot factors
+> generators(plan2)
+$generators
+[1] "C=AB"   "G=ABDE"
+
+> design.info(plan2)[-which(names(design.info(plan2))=="FrF2.version")]
+$type
+[1] "FrF2.splitplot"
+
+$nruns
+[1] 32
+
+$nfactors
+[1] 7
+
+$nfac.WP
+[1] 3
+
+$nfac.SP
+[1] 4
+
+$factor.names
+$factor.names$U
+[1] -1  1
+
+$factor.names$V
+[1] -1  1
+
+$factor.names$Y
+[1] -1  1
+
+$factor.names$T
+[1] -1  1
+
+$factor.names$W
+[1] -1  1
+
+$factor.names$X
+[1] -1  1
+
+$factor.names$Z
+[1] -1  1
+
+
+$nWPs
+[1] 4
+
+$plotsize
+[1] 8
+
+$res.WP
+[1] 3
+
+$aliased
+$aliased$legend
+[1] "A=U" "B=V" "C=Y" "D=T" "E=W" "F=X" "G=Z"
+
+$aliased$main
+[1] "A=BC" "B=AC" "C=AB"
+
+$aliased$fi2
+[1] "CD=EG" "CE=DG" "CG=DE"
+
+
+$base.design
+[1] "generator columns: 6, 15"
+
+$map
+[1] 1 2 3 4 5
+
+$orig.fac.order
+[1] 2 3 6 1 4 5 7
+
+$replications
+[1] 1
+
+$repeat.only
+[1] FALSE
+
+$randomize
+[1] TRUE
+
+$seed
+NULL
+
+$creator
+FrF2(32, 7, gen = c(6, 15), WPs = 4, nfac.WP = 3, WPfacs = c(2, 
+    3, 6), factor.names = Letters[19:25])
+
+> 
+> proc.time()
+   user  system elapsed 
+   7.45    0.54    8.00 

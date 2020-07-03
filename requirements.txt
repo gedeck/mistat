@@ -7,3 +7,4 @@ pingouin
 pytest-watch 
 pytest-testmon 
 pytest-xdist
+doepydFac

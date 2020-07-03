@@ -4,12 +4,13 @@ Created on Jun 13, 2020
 @author: petergedeck
 '''
 from dataclasses import dataclass
-from scipy import stats
 
+from scipy import stats
 from scipy.stats import norm
 
 from mistat.simulation.mistatSimulation import SimulationResult
 import numpy as np
+import pandas as pd
 
 from .mistatSimulation import MistatSimulation, repeat_elements, convert_to_list
 
@@ -57,11 +58,13 @@ class PistonSimulator(MistatSimulation):
             raise ValueError('Number of simulations must be greater 1')
 
         # Convert to lists
-        maxsize = self.n_simulation
+        maxsize = 0
         for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0'):
             values = convert_to_list(getattr(self, option))
             maxsize = max(maxsize, len(values))
             setattr(self, option, values)
+        if maxsize == 1:
+            maxsize = self.n_simulation
 
         # Make sure that the vectors are all the same length
         for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0'):
@@ -104,7 +107,9 @@ class PistonSimulator(MistatSimulation):
 
 
 def validate_range(value, left, right, message):
-    if isinstance(value, list):
+    if isinstance(value, (tuple, list, pd.core.series.Series, np.ndarray)):
+        left = left - 1e-6
+        right = right + 1e-6
         if not all(left <= v <= right for v in value):
             raise ValueError(message)
     else:

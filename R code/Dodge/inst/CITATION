@@ -1,0 +1,19 @@
+citHeader("To cite package 'Dodge' in publications use:")
+
+if(!exists("meta") || is.null(meta)) meta <- packageDescription("Dodge")
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
+vers <- paste("R package version", meta$Version)
+
+citEntry(entry="Manual",
+  title = "Dodge: Functions for acceptance sampling iIdeas originated by H.F. Dodge",
+  author = personList(as.person("A. Jonathan R. Godfrey"), as.person("K. Govindaraju")), year = year,
+  note = vers,     url = "https://cran.r-project.org/package=Dodge",
+
+
+  textVersion =
+  paste("A. Jonathan R. Godfrey and K. Govindaraju 
+(",
+year,
+  "). Dodge: Functions for acceptance sampling  ideas originated by H.F. Dodge. ",
+  vers, ".", sep=""))
+

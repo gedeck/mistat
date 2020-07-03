@@ -1,0 +1,77 @@
+
+R version 4.0.0 (2020-04-24) -- "Arbor Day"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require(FrF2)
+Loading required package: FrF2
+Loading required package: DoE.base
+Loading required package: grid
+Loading required package: conf.design
+
+Attaching package: 'DoE.base'
+
+The following objects are masked from 'package:stats':
+
+    aov, lm
+
+The following object is masked from 'package:graphics':
+
+    plot.design
+
+The following object is masked from 'package:base':
+
+    lengths
+
+> reshuffled <- FrF2(32,9, estimable=c("AC","BC","AB"))
+> basic <- FrF2(32,9, estimable=c("CJ"))
+> FrF2:::generators.from.design(basic)
+[[1]]
+x6 ~ x1 * x2 * x3
+<environment: 0x0000000010033e60>
+
+[[2]]
+x7 ~ x1 * x2 * x4
+<environment: 0x0000000010038490>
+
+[[3]]
+x8 ~ x1 * x2 * x5
+<environment: 0x00000000100447a0>
+
+[[4]]
+x9 ~ x1 * x3 * x4 * x5
+<environment: 0x000000001004eb90>
+
+> FrF2:::generators.from.design(reshuffled)
+[[1]]
+x6 ~ x1 * x3 * x4 * x5
+<environment: 0x000000000fcd29a0>
+
+[[2]]
+x7 ~ x1 * x2 * x3
+<environment: 0x000000000fcdaea8>
+
+[[3]]
+x8 ~ x2 * x3 * x4 * x5
+<environment: 0x000000000fce5378>
+
+[[4]]
+x9 ~ x1 * x2 * x4 * x5
+<environment: 0x000000000fcef7a0>
+
+> 
+> proc.time()
+   user  system elapsed 
+   2.90    0.29    3.18 

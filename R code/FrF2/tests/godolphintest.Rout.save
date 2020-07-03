@@ -1,0 +1,218 @@
+
+R version 4.0.0 (2020-04-24) -- "Arbor Day"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require(FrF2)
+Loading required package: FrF2
+Loading required package: DoE.base
+Loading required package: grid
+Loading required package: conf.design
+
+Attaching package: 'DoE.base'
+
+The following objects are masked from 'package:stats':
+
+    aov, lm
+
+The following object is masked from 'package:graphics':
+
+    plot.design
+
+The following object is masked from 'package:base':
+
+    lengths
+
+> ### tests for Godolphin methodology
+> 
+> ### colpick
+> ## colpick for full factorial
+> colpick(6, 2)   ## default
+checking up to 162 matrices
+$X
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    0    1    1    0    1    1
+[2,]    1    0    1    1    0    1
+
+$clear2fis
+ [1] "AB" "AC" "AE" "AF" "BC" "BD" "BF" "CD" "CE" "DE" "DF" "EF"
+
+> ## character estimability requirement
+> colpick(6, 3, estimable=compromise(6, 4)$requirement)
+a clear design requires at least 16 runs
+checking up to 720 matrices
+$X
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    0    0    0    1    1    1
+[2,]    0    1    1    0    0    1
+[3,]    1    0    1    0    1    0
+
+$clear2fis
+ [1] "AB" "AC" "AD" "AE" "AF" "BC" "BD" "BE" "BF" "CD" "CE" "CF" "DE" "DF" "EF"
+
+$map
+[1] 1 3 4 2 5 6
+
+> ## matrix estimability requirement
+> colpick(6, 3, estimable=rbind(4, c(1:3,5:6)))
+checking up to 720 matrices
+$X
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    0    0    0    1    1    1
+[2,]    0    1    1    0    0    1
+[3,]    1    0    1    0    1    0
+
+$clear2fis
+ [1] "AB" "AC" "AD" "AE" "AF" "BC" "BD" "BE" "BF" "CD" "CE" "CF" "DE" "DF" "EF"
+
+$map
+[1] 1 3 4 2 5 6
+
+> ## character design specification
+> colpick("6-1.1", 3, estimable=compromise(6, 4)$requirement)
+a clear design requires at least 16 runs
+checking up to 120 matrices
+$X
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    0    0    0    1    1    0
+[2,]    0    1    1    0    0    0
+[3,]    1    0    1    0    1    1
+
+$clear2fis
+ [1] "AB" "AC" "AD" "AE" "BC" "BD" "BE" "BF" "CD" "CE" "CF" "DE" "DF" "EF"
+
+$map
+[1] 1 3 4 2 5 6
+
+> ## catlg design specification
+> colpick(catlg["6-1.1"], 3, estimable=compromise(6, 4)$requirement)
+a clear design requires at least 16 runs
+checking up to 120 matrices
+$X
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    0    0    0    1    1    0
+[2,]    0    1    1    0    0    0
+[3,]    1    0    1    0    1    1
+
+$clear2fis
+ [1] "AB" "AC" "AD" "AE" "BC" "BD" "BE" "BF" "CD" "CE" "CF" "DE" "DF" "EF"
+
+$map
+[1] 1 3 4 2 5 6
+
+> ## impossible request
+> colpick(catlg["8-2.1"], 1)
+checking up to 1 matrices
+no suitable block arrangement was found
+NULL
+> ## request that requires to suppress dominating filter
+> colpick("9-3.2", 2)  ## (implemented with version 2.1)
+checking up to 162 matrices
+$X
+     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9]
+[1,]    0    0    1    0    1    1    1    1    1
+[2,]    1    1    1    1    0    0    1    0    1
+
+$clear2fis
+ [1] "AF" "AJ" "BE" "BF" "BH" "BJ" "CD" "CE" "CF" "CH" "DF" "DG" "DJ" "EG" "EJ"
+[16] "FG" "FJ" "GH" "HJ"
+
+> ## request with more than 50 factors (don't try to create the design!)
+> tail(colpick(55, 2)$clear2fis)
+checking up to 3.876649133536e+25 matrices
+[1] "F51:F55" "F52:F53" "F52:F54" "F53:F54" "F53:F55" "F54:F55"
+> 
+> ## phimax
+> phimax(8, 2)            ## maximum possible
+[1] 21
+> phimax(8, 2, c(4,3,1))  ## fewer
+[1] 19
+> phimax(9, 4)            ## all
+[1] 36
+> 
+> ## blockgencreate
+> X <- rbind(c(1,1,1,0,0,0,1),
++            c(1,1,0,1,1,1,0))
+> blockgencreate(X, 2)
+[1] "AB"  "ACD" "ACE"
+> 
+> ## Xcalc
+> ## gen character
+> Xcalc(rbind(c(1,1,0,0),c(0,1,1,1)), 
++        gen=c("AB","BCD"))
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    1    0    0    0    1
+[2,]    0    1    1    1    1    1
+> ## gen list
+> Xcalc(rbind(c(1,1,0,0),c(0,1,1,1)), 
++              gen=list(c(1,2),2:4))
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    1    0    0    0    1
+[2,]    0    1    1    1    1    1
+> ## gen Yates columns
+> Xcalc(rbind(c(1,1,0,0),c(0,1,1,1)), 
++              gen=c(3,14))
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    1    0    0    0    1
+[2,]    0    1    1    1    1    1
+> ## gen catlg
+> Xcalc(rbind(c(1,1,0,0),c(0,1,1,1)), 
++              gen=catlg[nruns(catlg)==16 & 
++                          res(catlg)==4])
+$`5-1.2`
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    1    0    0    0
+[2,]    0    1    1    1    0
+
+$`6-2.1`
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    1    0    0    0    0
+[2,]    0    1    1    1    0    0
+
+$`7-3.1`
+     [,1] [,2] [,3] [,4] [,5] [,6] [,7]
+[1,]    1    1    0    0    0    0    1
+[2,]    0    1    1    1    0    0    0
+
+$`8-4.1`
+     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]
+[1,]    1    1    0    0    0    0    1    1
+[2,]    0    1    1    1    0    0    0    1
+
+> 
+> plangodolphin <- FF_from_X(colpick(4, 2)$X, randomize=FALSE)
+checking up to 18 matrices
+> cbind(run.order(plangodolphin), plangodolphin)
+   run.no.in.std.order run.no run.no.std.rp Blocks  A  B  C  D
+1                9.1.1      1         9.1.1      1 -1 -1 -1  1
+2               15.1.2      2        15.1.2      1 -1  1  1  1
+3                6.1.3      3         6.1.3      1  1 -1  1 -1
+4                4.1.4      4         4.1.4      1  1  1 -1 -1
+5                1.2.1      5         1.2.1      2 -1 -1 -1 -1
+6                7.2.2      6         7.2.2      2 -1  1  1 -1
+7               14.2.3      7        14.2.3      2  1 -1  1  1
+8               12.2.4      8        12.2.4      2  1  1 -1  1
+9               13.3.1      9        13.3.1      3 -1 -1  1  1
+10              11.3.2     10        11.3.2      3 -1  1 -1  1
+11               2.3.3     11         2.3.3      3  1 -1 -1 -1
+12               8.3.4     12         8.3.4      3  1  1  1 -1
+13               5.4.1     13         5.4.1      4 -1 -1  1 -1
+14               3.4.2     14         3.4.2      4 -1  1 -1 -1
+15              10.4.3     15        10.4.3      4  1 -1 -1  1
+16              16.4.4     16        16.4.4      4  1  1  1  1
+> 
+> proc.time()
+   user  system elapsed 
+   1.98    0.21    2.18 
