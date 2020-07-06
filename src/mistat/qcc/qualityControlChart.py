@@ -7,7 +7,7 @@ from numbers import Number
 
 from scipy import stats
 
-from mistat.qcc.rules import shewhartRules, beyondLimits
+from mistat.qcc.rules import shewhartRules
 from mistat.qcc.statistics import qccStatistics, GroupMeans
 import matplotlib.pyplot as plt
 import numpy as np
@@ -106,6 +106,49 @@ class QualityControlChart:
             fig_title.append(title)
         fig.suptitle('\n'.join(fig_title), fontsize=14)
         return ax
+
+    def oc_curves(self, nsigmas=None, ax=None):
+        if self.qcc_type in ['p' or 'np']:
+            return oc_curves_p(self, ax=ax)
+        else:
+            raise NotImplementedError()
+
+
+def oc_curves_p(qcc, ax=None):
+    if qcc.qcc_type not in ['p', 'np']:
+        raise ValueError("not a qcc object of type 'p', or 'np'.")
+
+    size = set(qcc.sizes)
+    if len(size) > 1:
+        raise ValueError('Operating characteristic curves available only for equal sample sizes!')
+    if qcc.limits is None:
+        raise ValueError("the `qcc' object does not have control limits!")
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(8, 6))
+
+    limits = qcc.limits
+    size = qcc.sizes[0]
+    p = np.linspace(0, 1, 101)
+
+    if qcc.qcc_type == 'p':
+        UCL = min(np.floor(size * limits.UCL[0]), size)
+        LCL = max(np.floor(size * limits.LCL[0]), 0)
+    else:
+        UCL = min(np.floor(limits.UCL[0]), size)
+        LCL = max(np.floor(limits.LCL[0]), 0)
+    beta = pd.Series(stats.binom(size, p).cdf(UCL) - stats.binom(size, p).cdf(LCL - 1),
+                     index=p)
+
+    beta.plot(ax=ax, color='black')
+    ax.set_xlim(-0.05, 1.05)
+    ax.set_ylim(-0.05, 1.05)
+    ax.set_xlabel(r'$p$')
+    ax.set_ylabel('Prob. type II error')
+    ax.set_title(f'OC curves for {qcc.qcc_type} Chart')
+
+    p_max = beta.idxmax()
+    ax.plot([p_max, p_max], [0, beta.max()], color='grey', linestyle='--')
 
 
 def qcc_groups(data, groups):
