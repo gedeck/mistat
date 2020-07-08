@@ -3,6 +3,8 @@ Created on Jul 6, 2020
 
 @author: petergedeck
 '''
+from collections import namedtuple
+
 from scipy import stats
 
 import matplotlib.pyplot as plt
@@ -74,12 +76,13 @@ class Cusum:
         self.head_start = head_start
         self.decision_interval = decision_interval
         self.se_shift = se_shift
+        self.ldb = ldb
+        self.udb = udb
         self.violations = violations
 
-    def plot(self, ax=None, title=None, xlabel='Group', ylabel='Cumulative Sum'):
+    def plot(self, ax=None, title='cusum Chart', xlabel='Group', ylabel='Cumulative Sum'):
         if ax is None:
             _, ax = plt.subplots(figsize=(8, 6))
-#         n_beyond_bounds = sum([len(self.violations['lower']), len(self.violations['upper'])])
 
         if self.newdata is not None:
             raise NotImplementedError()
@@ -90,23 +93,39 @@ class Cusum:
         if title is not None:
             ax.set_title(title)
 
-#         ax.plot(indices, statistics)
-#         ax.set_ylim(np.min([*self.pos, *self.neg, self.decision_interval, -self.decision_interval]),
-#                     np.max([*self.pos, *self.neg, self.decision_interval, -self.decision_interval]))
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
-        ax.axhline(0, linewidth=2)
-        ax.axhline(self.decision_interval, linestyle=':')
-        ax.axhline(-self.decision_interval, linestyle=':')
+        ax.axhline(0, linewidth=2, color='grey')
+        ax.axhline(self.decision_interval, linestyle=':', color='grey')
+        ax.axhline(-self.decision_interval, linestyle=':', color='grey')
 
-        ax.plot(indices, self.pos[indices], marker="o")
-        ax.plot(indices, self.neg[indices], marker="o")
+        indices = np.array(indices)
+        for cs, v in [(self.pos, self.violations['upper']), (self.neg, self.violations['lower'])]:
+            v = np.array(v)
+            ax.plot(indices, cs, color='grey')
+            ax.plot(indices[v], cs[v], marker="s", color='red')
+            ax.plot(np.delete(indices, v), np.delete(cs, v), color='black', marker='o', markersize=4)
 
-        raise NotImplementedError()
+        ax2 = ax.twinx()
+        ax2.set_ylim(*ax.get_ylim())
+        ax2.yaxis.tick_right()
+        ax2.set_yticks([self.ldb, self.udb])
+        ax2.set_yticklabels(['LDB', 'UDB'])
+
+        fig = ax.get_figure()
+        fig.subplots_adjust(bottom=0.23)
+        fig.text(0.2, 0.1, f'Number of groups = {len(self.statistics)}', fontsize=12)
+        fig.text(0.2, 0.06, f'Center = {self.center:.5g}', fontsize=12)
+        fig.text(0.2, 0.02, f'StdDev = {self.std_dev:.5g}', fontsize=12)
+
+        fig.text(0.5, 0.1, f'Decision interval (std. err.) = {self.decision_interval}', fontsize=12)
+        fig.text(0.5, 0.06, f'Shift detection (std. err.) {self.se_shift}', fontsize=12)
+        fig.text(
+            0.5, 0.02, f"No. of points beyond limits = {len(self.violations['upper']) + len(self.violations['lower'])}", fontsize=12)
 
 
-def cusumArl(*, randFunc=None, N=100, limit=10_000, seed=None,
+def cusumArl(*, randFunc=None, N=1000, limit=10_000, seed=None,
              kp=1, km=-1, hp=3, hm=-3,
              side='both', verbose=True):
     side = side.lower()
@@ -116,24 +135,99 @@ def cusumArl(*, randFunc=None, N=100, limit=10_000, seed=None,
 
     randFunc = randFunc or stats.norm()
 
-    data = pd.DataFrame(randFunc.rvs(N) for _ in range(limit))
-    print(data.shape)
+    result = {}
+    result['run'] = [runLength(randFunc.rvs(limit), kp, km, hp, hm, side) for _ in range(N)]
+    rls = np.array([run.rl for run in result['run']])
+    result['rls'] = rls
+    # Ignore inf values for statistics calculations
+    rls = np.ma.masked_invalid(rls)
+    result['statistic'] = {
+        'ARL': np.mean(rls),
+        'Std. Error': np.sqrt((np.mean(rls ** 2) - np.mean(rls)) / N),
+    }
+    if verbose:
+        stats = result['statistic']
+        print(f"ARL {stats['ARL']:.5g}  Std. Error {stats['Std. Error']:.5g}")
+    return result
 
-    n = limit
+
+def cusumPfaCed(*, randFunc1=None, randFunc2=None,
+                tau=10, N=100, limit=10_000, seed=None,
+                kp=1, km=-1, hp=3, hm=-3,
+                side='both', verbose=True):
+    side = side.lower()
+    if side not in ("both", "upper", "lower"):
+        raise ValueError("side = '{side}' is not supported.")
+    np.random.seed(seed)
+
+    rls = []
+    for _ in range(N):
+        x = [*randFunc1.rvs(tau), *randFunc2.rvs(limit - tau)]
+        rls.append(runLength(x, kp, km, hp, hm, side).rl)
+    result = {'rls': rls}
+
+    rls = np.ma.masked_invalid(rls)
+    pfa = np.mean(rls < tau)
+    ced = np.mean(rls[rls >= tau]) - tau
+    se = np.sqrt(
+        (np.sum(rls[rls >= tau] ** 2) / (N - np.sum(rls < tau)) - ced ** 2)
+        /
+        (N - np.sum(rls < tau)))
+
+    result['statistic'] = {
+        'PFA': pfa,
+        'CED': ced,
+        'Std. Error': se
+    }
+    if verbose:
+        stats = result['statistic']
+        print(f"PFA {stats['PFA']:.5g}  CED {stats['CED']:.5g}  Std. Error {stats['Std. Error']:.5g}")
+    return result
 
 
 #
-#   data <- matrix(randFunc(n=limit*N, ...), nrow=N)
-#   n <- ncol(data)
-#
-#   res <- list(run=apply(data, MARGIN=1, .runLength, kp=kp, km=km, ubd=hp, lbd=hm, side=side))
+#   res <- list(run = apply(data, MARGIN=1, .runLength, kp=kp, km=km, ubd=hp, lbd=hm, side=side))
 #   res$rls <- sapply(res$run, function(x) x$rl)
 #
-#   res$statistic <- c(mean(res$rls), sqrt((mean(res$rls^2) - mean(res$rls))/N))
-#   names(res$statistic) <- c("ARL", "Std. Error")
+#   pfa <- sum(res$rls < tau)/nrow(data)
+#   ced = sum(res$rls[res$rls >= tau])/(nrow(data) - sum(res$rls < tau)) - tau
+#   se = sqrt((sum(res$rls[res$rls >= tau]^2)/(nrow(data) - sum(res$rls < tau)) - ced ^ 2) / (nrow(data) - sum(res$rls < tau)))
+#
+#   res$statistic <- c(pfa, ced, se)
+#   names(res$statistic) <- c("PFA", "CED", "Std. Error")
 #
 #   if(printSummary)
 #     print(res$statistic)
 #
 #   invisible(res)
-# }
+
+
+def runLength(x, kp, km, ubd, lbd, side):
+    x = np.array(x)
+
+    if side in ['both', 'upper']:
+        cusum = 0
+        vUpper = np.inf
+        for i, zfi in enumerate(x - kp):
+            cusum = max(0, cusum + zfi)
+            if cusum > ubd:
+                vUpper = i
+                break
+
+    if side in ['both', 'lower']:
+        cusum = 0
+        vLower = np.inf
+        for i, zfi in enumerate(x - km):
+            cusum = min(0, cusum + zfi)
+            if cusum < lbd:
+                vLower = i
+                break
+    Result = namedtuple('RunLength', 'violationsLower,violationsUpper,rl')
+    rl = 1
+    if side == 'both':
+        rl = min(vLower, vUpper)
+    elif side == 'upper':
+        rl = min(vUpper)
+    elif side == 'lower':
+        rl = min(vLower)
+    return Result(vLower, vUpper, rl)

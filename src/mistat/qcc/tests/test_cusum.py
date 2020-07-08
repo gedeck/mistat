@@ -3,27 +3,38 @@ Created on Jun 22, 2020
 
 @author: petergedeck
 '''
-from pathlib import Path
 import unittest
 
 from scipy import stats
+import pytest
 
-from mistat.data import load_data
-from mistat.qcc.cusum import cusumArl
-from mistat.qcc.qualityControlChart import QualityControlChart, qcc_groups
-from mistat.qcc.rules import run_length_encoding
-import numpy as np
-import pandas as pd
+from mistat.qcc.cusum import cusumArl, cusumPfaCed
 
 
 class TestCusum(unittest.TestCase):
     def test_cusumArl(self):
-        print(cusumArl(randFunc=stats.norm(loc=1), N=100, limit=1000, seed=1))
+        arl = cusumArl(randFunc=stats.norm(), N=100, limit=10000, seed=1, verbose=False)
+        assert arl['statistic']['ARL'] == pytest.approx(1013.86)
+        assert arl['statistic']['Std. Error'] == pytest.approx(148.36833)
 
-# cusumArl(mean=1, seed=123, N=100, limit=1000)
-#
-# cusumArl(size=100, prob=0.05, kp=5.95, km=3.92, hp=12.87, hm=-8.66,
-#   randFunc=rbinom, seed=123, N=100, limit=2000)
-#
-# cusumArl(lambda=10, kp=12.33, km=8.41, hp=11.36, hm=-12.91,
-#   randFunc=rpois, seed=123, N=100, limit=2000)
+        arl = cusumArl(randFunc=stats.norm(loc=0.5), N=100, limit=10000, seed=1, verbose=False)
+        assert arl['statistic']['ARL'] == pytest.approx(101.88)
+        assert arl['statistic']['Std. Error'] == pytest.approx(13.180037)
+
+        arl = cusumArl(randFunc=stats.norm(loc=1.0), N=100, limit=10000, seed=1, verbose=False)
+        assert arl['statistic']['ARL'] == pytest.approx(16.91)
+        assert arl['statistic']['Std. Error'] == pytest.approx(2.171727)
+
+        arl = cusumArl(randFunc=stats.norm(loc=1.5), N=100, limit=10000, seed=1, verbose=False)
+        assert arl['statistic']['ARL'] == pytest.approx(5.82)
+        assert arl['statistic']['Std. Error'] == pytest.approx(0.6506919)
+
+    def test_cusumArl_inf(self):
+        arl = cusumArl(randFunc=stats.binom(n=100, p=0.05), N=100, limit=2000, seed=3,
+                       kp=5.95, km=3.92, hp=12.87, hm=-8.66, verbose=False)
+        assert arl['statistic']['ARL'] == pytest.approx(414.16161)
+        assert arl['statistic']['Std. Error'] == pytest.approx(58.66780)
+
+    def test_cusumPfaCed(self):
+        cusumPfaCed(randFunc1=stats.norm(), randFunc2=stats.norm(loc=1),
+                    tau=100, N=100, limit=1_000, seed=1, verbose=True)
