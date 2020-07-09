@@ -17,7 +17,7 @@ def DSPlanBinomial(N, n1, n2, Ac1, Re1, Ac2, p=None):
 
     _ = np.array([stats.binom.cdf(Ac1, n1, pi) for pi in p])
     limits = list(range(Ac1 + 1, Re1))
-    print(limits)
+    # print(limits)
     # TODO: write specs
 
 

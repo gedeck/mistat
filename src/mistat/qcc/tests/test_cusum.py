@@ -37,4 +37,5 @@ class TestCusum(unittest.TestCase):
 
     def test_cusumPfaCed(self):
         cusumPfaCed(randFunc1=stats.norm(), randFunc2=stats.norm(loc=1),
-                    tau=100, N=100, limit=1_000, seed=1, verbose=True)
+                    tau=100, N=100, limit=1_000, seed=1, verbose=False)
+        # TODO:  write asserts
