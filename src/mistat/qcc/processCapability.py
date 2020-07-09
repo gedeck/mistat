@@ -31,11 +31,11 @@ class ProcessCapability:
         usl = spec_limits[1]
         self.spec_limits = pd.DataFrame({'LSL': [lsl], 'USL': [usl]})
 
-        has_target = target is not None
+        self.has_target = target is not None
         self.target = target or np.nanmean(self.spec_limits)
         if target is None:
             self.target = np.nanmean(self.spec_limits)
-            has_target = True
+            self.has_target = True
 
         # validation:
         # - only one of lcl or ucl can be NaN
@@ -125,7 +125,7 @@ class ProcessCapability:
         ax.axvline(position[1], color='red', ls='--')
         ax.axvline(position[2], color='red', ls=':')
 
-        secax = ax.secondary_xaxis('bottom')
+        ax.secondary_xaxis('bottom')
         ax.xaxis.tick_top()
         ax.set_xticks(position)
         ax.set_xticklabels(['LSL', 'Target', 'USL'])

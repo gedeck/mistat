@@ -5,12 +5,7 @@ Created on Jun 22, 2020
 '''
 import unittest
 
-from scipy import stats
-import pytest
-
-from mistat.qcc.cusum import cusumArl, cusumPfaCed
 from mistat.qcc.ewmaChart import ewmaSmooth
-import mistat
 import numpy as np
 
 

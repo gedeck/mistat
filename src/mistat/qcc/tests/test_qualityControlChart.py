@@ -70,12 +70,12 @@ class TestQualityControlChart(unittest.TestCase):
         self.cycleTime = qcc_groups(Ps['seconds'], Ps['group'])
 
     def test_xbar_chart(self):
-        qcc = QualityControlChart(self.cycleTime)
-        qcc = QualityControlChart(self.cycleTime, qcc_type='xbar')
-        qcc = QualityControlChart(self.cycleTime, qcc_type='S')
-        qcc = QualityControlChart(load_data('JANDEFECT'), qcc_type='p', sizes=100,
-                                  center=0.048, std_dev=np.sqrt(0.048 * (1 - 0.048)))
-        qcc = QualityControlChart(load_data('CONTACTLEN'), qcc_type='R')
+        _ = QualityControlChart(self.cycleTime)
+        _ = QualityControlChart(self.cycleTime, qcc_type='xbar')
+        _ = QualityControlChart(self.cycleTime, qcc_type='S')
+        _ = QualityControlChart(load_data('JANDEFECT'), qcc_type='p', sizes=100,
+                                center=0.048, std_dev=np.sqrt(0.048 * (1 - 0.048)))
+        _ = QualityControlChart(load_data('CONTACTLEN'), qcc_type='R')
 
     def test_S_chart(self):
-        qcc = QualityControlChart(self.cycleTime, qcc_type='S')
+        _ = QualityControlChart(self.cycleTime, qcc_type='S')

@@ -3,7 +3,6 @@ Created on Jun 21, 2020
 
 @author: petergedeck
 '''
-from matplotlib import cm
 from matplotlib import colors
 
 import matplotlib.pyplot as plt

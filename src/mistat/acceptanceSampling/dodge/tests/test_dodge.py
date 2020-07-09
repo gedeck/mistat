@@ -59,4 +59,5 @@ class TestDodge(unittest.TestCase):
 
     def test_doubleSamplingPlan(self):
         # R: DSPlanPoisson(1000, 10, 10, 0,2, 1)
-        design = DSPlanBinomial(1000, 10, 10, 0, 2, 1)
+        _ = DSPlanBinomial(1000, 10, 10, 0, 2, 1)
+        # TODO: write asserts

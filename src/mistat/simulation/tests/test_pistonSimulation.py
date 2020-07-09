@@ -9,8 +9,6 @@ import unittest
 import pytest
 
 from mistat.simulation.pistonSimulation import PistonSimulator, uniformSumDistribution
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 class TestPistonSimulation(unittest.TestCase):

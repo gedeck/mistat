@@ -1,5 +1,6 @@
 
 .runLengthShroNorm <- function(x, mean, sigma, n, delta, ubd){
+runLengthShroNorm <- function(x, mean, sigma, n, delta, ubd){
   
   limit <- length(x)
   
@@ -12,9 +13,13 @@
     wm = 0 
     
     for(i in 1:(m - 1)){
+      print(c(i, x[m-i+1]))
       s1 = s1 + x[m - i + 1] - mean
+      print(c(-i * n * (delta ^ 2) / (2 * sigma ^ 2), n * delta * s1 / sigma ^ 2))
       wm = wm + exp(-i * n * (delta ^ 2) / (2 * sigma ^ 2) + n * delta * s1 / sigma ^ 2)
+      print(c(i, s1, wm))
     }
+    print(c('inner loop done', wm))
     
     wmv[m] <- wm
     
@@ -32,9 +37,11 @@
   }
   return(res)
 }
+runLengthShroNorm(y, 1, 1, 10, 1, 19)
 
 
 .runLengthShroPois <- function(x, rho, delta, ubd){
+runLengthShroPois <- function(x, rho, delta, ubd){
   
   limit <- length(x)
   
@@ -67,6 +74,7 @@
   }
   return(res)
 }
+runLengthShroPois(y, 11/10, 1, 19)
 
 
 shroArlPfaCedNorm <- function (mean0=0, mean1=NA, sd=1,

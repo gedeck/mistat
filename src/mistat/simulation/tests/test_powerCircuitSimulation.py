@@ -9,8 +9,6 @@ import unittest
 import pytest
 
 from mistat.simulation.powerCircuitSimulation import PowerCircuitSimulation
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 class TestPowerCircuitSimulation(unittest.TestCase):

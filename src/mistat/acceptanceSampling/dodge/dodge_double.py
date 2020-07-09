@@ -15,9 +15,10 @@ def DSPlanBinomial(N, n1, n2, Ac1, Re1, Ac2, p=None):
     p = p if p is not None else np.arange(0, 0.255, 0.005)
     p = np.array(p)
 
-    Pa1 = np.array([stats.binom.cdf(Ac1, n1, pi) for pi in p])
+    _ = np.array([stats.binom.cdf(Ac1, n1, pi) for pi in p])
     limits = list(range(Ac1 + 1, Re1))
     print(limits)
+    # TODO: write specs
 
 
 #     1.00000000 0.95111013 0.90438208 0.85973044 0.817072

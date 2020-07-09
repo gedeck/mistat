@@ -4,7 +4,6 @@ Created on Jun 26, 2020
 @author: petergedeck
 '''
 from mistat.acceptanceSampling.distributions import getDistribution, OCtype
-import numpy as np
 
 
 OC_TYPES = ['binomial', 'hypergeom', 'poisson']
