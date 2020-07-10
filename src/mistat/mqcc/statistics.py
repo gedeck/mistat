@@ -4,16 +4,18 @@ Created on Jul 9, 2020
 @author: petergedeck
 '''
 from collections import namedtuple
+from string import ascii_uppercase
 
 from scipy import linalg
 from scipy import stats
 
-from mistat.qcc.statistics import QCCStatistics, Base_statistic
+from mistat.qcc.statistics import QCCStatistics
 import numpy as np
 import pandas as pd
 
 
 GroupStatistics = namedtuple('GroupStatistics', 'statistics,means,center,cov')
+DataSizes = namedtuple('DataSizes', 'num_samples,samples_sizes,num_variables')
 
 
 class MQCCStatistics(QCCStatistics):
@@ -30,9 +32,8 @@ class T2_statistic:
     qcc_type = 't2'
     description = ('T2', 'Hotelling T^2 chart for subgrouped data')
 
-    def stats(self, data, center=None, cov=None):
+    def get_sizes(self, data):
         shapes = {k: v.shape for k, v in data.items()}
-
         num_samples = [v[0] for v in shapes.values()]  # m
         if len(set(num_samples)) == 1:
             num_samples = num_samples[0]
@@ -40,6 +41,10 @@ class T2_statistic:
         if len(set(sample_sizes)) == 1:
             sample_sizes = sample_sizes[0]
         p = len(data)  # number of variables
+        return DataSizes(num_samples, sample_sizes, p)
+
+    def stats(self, data, center=None, cov=None):
+        num_samples, sample_sizes, p = self.get_sizes(data)
 
         # within sample means
         means = pd.DataFrame({k: np.nanmean(v, axis=1) for k, v in data.items()})
@@ -89,19 +94,18 @@ class T2single_statistic:
     qcc_type = 't2single'
     description = ('T2 single', 'Hotelling T^2 chart for individual observations')
 
+    def get_sizes(self, data):
+        return DataSizes(data.shape[0], 1, data.shape[1])
+
     def stats(self, data, center=None, cov=None):
         data = pd.DataFrame(data)
-
-        m = data.shape[0]  # num. of samples
-        p = data.shape[1]  # num. of variables
-        n = 1  # samples sizes
+        m, _, _ = self.get_sizes(data)
 
         if center is None:
             center = np.mean(data, axis=0)
         else:
             center = pd.DataFrame(center)
-
-        x = data.sub(center.values, axis=1)
+        x = data.sub(center.values.flatten(), axis=1)
         if cov is None:
             cov = np.transpose(x) @ x
             cov = cov / (m - 1)
@@ -111,7 +115,7 @@ class T2single_statistic:
 
     def limits(self, ngroups, size, nvars, conf):
         m = ngroups  # num. of samples
-        n = size  # samples sizes
+        n = size  # samples sizes # @UnusedVariable
         p = nvars  # num. of variables
 
         # Phase 1 control limits
@@ -125,3 +129,6 @@ class T2single_statistic:
         prediction = pd.DataFrame([{'LPL': lcl, 'UPL': ucl}])
 
         return {'control': control, 'prediction': prediction}
+
+
+mqccStatistics = MQCCStatistics()

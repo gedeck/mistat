@@ -12,6 +12,7 @@ from numbers import Number
 import itertools
 
 import numpy as np
+import pandas as pd
 
 
 RUN_LENGTH = 7
@@ -24,10 +25,11 @@ def shewhartRules(qcc, **kwargs):
     }
 
 
-def beyondLimits(qcc, limits=None):
+def beyondLimits(qcc, limits=None, **kwargs):
     limits = limits or qcc.limits
     statistics = (qcc.newstats and qcc.newstats.statistics) or qcc.stats.statistics
-
+    if isinstance(statistics, pd.Series):
+        statistics = statistics.values
     statistics = statistics.flatten()
 
     if len(limits['UCL']) == 1:
@@ -37,7 +39,9 @@ def beyondLimits(qcc, limits=None):
                              'LCL': np.nonzero(statistics.ravel() < limits['LCL'].ravel())[0]}}
 
 
-def violatingRuns(qcc, run_length=7):
+def violatingRuns(qcc, run_length=7, **kwargs):
+    if run_length == 0:
+        return {'violatingRuns': []}
     center = qcc.center
     statistics = list(qcc.stats.statistics)
     if qcc.newstats:
