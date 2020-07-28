@@ -23,6 +23,7 @@ mahalanobisT2 <- function(x,
   K <- N^2/(2*N)*(2*N-P-1)/((2*N-2)*P)
   
   Qf <- qf(p=conf.level, df1=P, df2=2*N-P-1)
+  print(Qf)
     
   D2 <- as.matrix(D$V1 - D$V2)
   
