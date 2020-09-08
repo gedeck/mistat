@@ -7,3 +7,4 @@ from .qcc import qcc_groups, QualityControlChart, ParetoChart, ProcessCapability
 from .runsTest import runsTest
 from .simulation import PistonSimulator, SimulationResult, simulationGroup, PowerCircuitSimulation
 from .stem_leaf import stemLeafDiagram
+from .randomizationTest import randomizationTest

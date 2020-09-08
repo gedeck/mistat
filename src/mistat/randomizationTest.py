@@ -17,16 +17,28 @@ def randomizationTest(a, b, sample_stat, aggregate_stats=None, n_boot=500, seed=
         if aggregate_stats is not None:
             stats = aggregate_stats(stats)
         return stats
-
-    B = pg.compute_bootci(sampleLabels, func=apply_func, n_boot=n_boot,
-                          confidence=0.95, seed=seed, return_dist=True)
     Bt0 = apply_func(sampleLabels)
+
+    def apply_func_RSWOR(labels):
+        # replace bootstrapped sample with RSWOR
+        import random
+        labels = random.sample(sampleLabels, len(sampleLabels))
+
+        stats = list(sample_values.groupby(labels).apply(sample_stat))
+        if aggregate_stats is not None:
+            stats = aggregate_stats(stats)
+        return stats
+    B = pg.compute_bootci(sampleLabels, func=apply_func_RSWOR, n_boot=n_boot,
+                          confidence=0.95, seed=seed, return_dist=True)
 
     if printSummary:
         # include the original stat in the quantile calculation
         orgPosition = sum(B[1] < Bt0) + 1
         quantile = 100 * orgPosition / (n_boot + 1)
+        print(f'Original stat is {Bt0:.6f}')
         print(f'Original stat is at quantile {orgPosition} of {n_boot + 1} ' +
               f'({quantile:.2f}%)')
-        print(f'Original stat is {Bt0:.6f}')
+        dist = pd.Series(B[1]).describe()
+        print('Distribution of bootstrap samples:')
+        print(f" min: {dist['min']:.2f}, median: {dist['50%']:.2f},  max: {dist['max']:.2f}")
     return [*B[1], Bt0]
