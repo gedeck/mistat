@@ -80,7 +80,6 @@ class SD_estimator(Enum):
         raise ValueError(f'unknown SD estimator {name}')
 
 
-
 # exp.R.unscaled a vector specifying, for each sample size, the expected value of the relative range
 # (i.e. R/σ) for a normal distribution. This appears as d2 on most tables containing factors for
 # the construction of control charts.
@@ -187,7 +186,7 @@ class Xbar_one_statistic(Base_statistic):
     def stats(self, data, sizes=None):
         if isinstance(data, (pd.Series, pd.DataFrame)):
             data = data.values
-        return GroupMeans(np.array(data), np.mean(data))
+        return GroupMeans(np.array(data).flatten(), np.mean(data))
 
     def sd(self, data, std_dev=None, sizes=None, k=2):
         if isinstance(std_dev, numbers.Number):

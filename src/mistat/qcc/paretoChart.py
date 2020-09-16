@@ -13,11 +13,14 @@ import pandas as pd
 class ParetoChart:
     def __init__(self, data, title=None, labels=None):
         self.title = title
-        self.labels = labels or data.index
+        if labels is None:
+            self.labels = data.index
+        else:
+            self.labels = labels
         self.data = pd.DataFrame({
-            'Labels': labels or data.index,
+            'Labels': self.labels,
             'Frequency': np.array(data).flatten()
-        }, index=labels or data.index)
+        })
         self.data = self.data.sort_values(by='Frequency', ascending=False)
         self.data['Cum.Freq.'] = np.cumsum(self.data['Frequency'])
         total = np.sum(self.data['Frequency'])
@@ -31,7 +34,7 @@ class ParetoChart:
             print(f'Pareto chart analysis: {self.title}')
         print(self.data)
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, rotation=None):
         if ax is None:
             _, ax = plt.subplots(figsize=(8, 6))
 
@@ -49,7 +52,7 @@ class ParetoChart:
             bar.set_edgecolor('black')
 
         ax.set_xticks(range(0, nlevels))
-        ax.set_xticklabels(self.data['Labels'])
+        ax.set_xticklabels(self.data['Labels'], rotation=rotation)
         xlim = ax.get_xlim()
         ax.hlines(q, *ax.get_xlim(), linestyle='dotted', color='grey')
         ax.set_xlim(*xlim)

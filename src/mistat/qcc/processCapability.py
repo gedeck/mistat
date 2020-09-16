@@ -18,7 +18,7 @@ class ProcessCapability:
                  confidence_level=0.95):
         if not isinstance(qcc, QualityControlChart):
             raise ValueError('Argument qcc must be a QualityControlChart object')
-        if qcc.qcc_type not in ('xbar', 'xbar.one'):
+        if qcc.qcc_type not in ('xbar', 'xbarone'):
             raise ValueError('Process Capability Analysis only available for charts type "xbar" and "xbar.one" charts')
 
         self.qcc = qcc
@@ -110,7 +110,10 @@ class ProcessCapability:
     def plot(self, bins='scott', ax=None):
         if ax is None:
             _, ax = plt.subplots(figsize=(8, 6))
-        data = self.qcc.data.flatten()
+        data = self.qcc.data
+        if isinstance(data, pd.DataFrame):
+            data = data.values
+        data = data.flatten()
         data = data[~np.isnan(data)]
         xlim = [min(np.min(data), np.min(self.spec_limits.values), self.target),
                 max(np.max(data), np.max(self.spec_limits.values), self.target)]
