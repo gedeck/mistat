@@ -8,6 +8,7 @@ def stemLeafDiagram(X, rowsPerGroup, leafUnit=1.0, latex=False):
     size = len(X)
     cumCount = 0
     revCumCount = size
+    lastGroupNr = None
     for _, group in X.groupby([int(xi * rowsPerGroup / (leafUnit * 10)) for xi in X]):
         count = len(group)
         cumCount += count
@@ -16,11 +17,19 @@ def stemLeafDiagram(X, rowsPerGroup, leafUnit=1.0, latex=False):
         digits = ''.join(f'{xi}'[-1] for xi in group)
 
         cumFreq = min(cumCount, revCumCount)
+        groupNr = int(group.iloc[0]/10)
+        if lastGroupNr and lastGroupNr < groupNr - 1:
+            # add lines with no values
+            while lastGroupNr < groupNr - 1:
+                lastGroupNr += 1
+                s = '0'
+                print(f'{s:>8s} {sep} {lastGroupNr:-5d} {sep}')
+        lastGroupNr = groupNr
         if (cumCount >= size // 2) and (revCumCount >= size // 2):
             s = f'({count})'
-            print(f'{s:>8s} {sep} {int(group.iloc[0]/10):-5d} {sep}  {digits}')
+            print(f'{s:>8s} {sep} {groupNr:-5d} {sep}  {digits}')
         else:
-            print(f'{cumFreq:-8d} {sep} {int(group.iloc[0]/10):-5d} {sep}  {digits}')
+            print(f'{cumFreq:-8d} {sep} {groupNr:-5d} {sep}  {digits}')
         if latex:
             print('\\\\')
         revCumCount -= count

@@ -127,7 +127,7 @@ class Cusum:
 
 def cusumArl(*, randFunc=None, N=1000, limit=10_000, seed=None,
              kp=1, km=-1, hp=3, hm=-3,
-             side='both', verbose=True):
+             side='both', verbose=False):
     side = side.lower()
     if side not in ("both", "upper", "lower"):
         raise ValueError("side = '{side}' is not supported.")
