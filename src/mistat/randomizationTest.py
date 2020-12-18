@@ -5,6 +5,7 @@ Created on Jun 19, 2020
 '''
 import pandas as pd
 import pingouin as pg
+import random
 
 
 def randomizationTest(a, b, sample_stat, aggregate_stats=None, n_boot=500, seed=None,
@@ -21,13 +22,13 @@ def randomizationTest(a, b, sample_stat, aggregate_stats=None, n_boot=500, seed=
 
     def apply_func_RSWOR(labels):
         # replace bootstrapped sample with RSWOR
-        import random
         labels = random.sample(sampleLabels, len(sampleLabels))
 
         stats = list(sample_values.groupby(labels).apply(sample_stat))
         if aggregate_stats is not None:
             stats = aggregate_stats(stats)
         return stats
+    random.seed(seed)
     B = pg.compute_bootci(sampleLabels, func=apply_func_RSWOR, n_boot=n_boot,
                           confidence=0.95, seed=seed, return_dist=True)
 
