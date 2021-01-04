@@ -4,7 +4,7 @@ Created on Dec 16, 2020
 @author: petergedeck
 '''
 import numpy as np
-from scipy.cluster.hierarchy import dendrogram
+from scipy.cluster.hierarchy import dendrogram, fcluster
 
 
 def plot_dendrogram(model, **kwargs):
@@ -25,5 +25,20 @@ def plot_dendrogram(model, **kwargs):
     linkage_matrix = np.column_stack([model.children_, model.distances_,
                                       counts]).astype(float)
 
+    threshold = kwargs.get('color_threshold')
+    if threshold is None and model.n_clusters_ is not None:
+        # find threshold for given number of clusters
+        threshold = np.max(model.distances_) / 2
+        delta = threshold / 2
+        while True:
+            count = len(set(fcluster(linkage_matrix, t=threshold, criterion='distance')))
+            if count == model.n_clusters_:
+                break
+            elif count > model.n_clusters_:
+                threshold = threshold + delta
+            else:
+                threshold = threshold - delta
+            delta = delta / 2
+
     # Plot the corresponding dendrogram
-    dendrogram(linkage_matrix, **kwargs)
+    dendrogram(linkage_matrix, color_threshold=threshold, **kwargs)

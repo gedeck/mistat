@@ -74,10 +74,13 @@ class PistonSimulator(MistatSimulation):
             values = np.array(list(repeat_elements(values, maxsize // len(values))))
             setattr(self, option, values)
 
+        self.errors = dict(errors)
+
     def simulate(self):
         size = len(self.m)
 
         # add errors
+        errors = self.errors
         m_s = self.m + norm.rvs(size=size, loc=0, scale=errors['m'])
         s_s = self.s + norm.rvs(size=size, loc=0, scale=errors['s'])
         s_s[s_s < 0.00001] = 0.00001

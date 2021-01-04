@@ -34,7 +34,7 @@ class ParetoChart:
             print(f'Pareto chart analysis: {self.title}')
         print(self.data)
 
-    def plot(self, ax=None, rotation=None):
+    def plot(self, ax=None, rotation=None, ha='center'):
         if ax is None:
             _, ax = plt.subplots(figsize=(8, 6))
 
@@ -52,7 +52,7 @@ class ParetoChart:
             bar.set_edgecolor('black')
 
         ax.set_xticks(range(0, nlevels))
-        ax.set_xticklabels(self.data['Labels'], rotation=rotation)
+        ax.set_xticklabels(self.data['Labels'], rotation=rotation, ha=ha)
         xlim = ax.get_xlim()
         ax.hlines(q, *ax.get_xlim(), linestyle='dotted', color='grey')
         ax.set_xlim(*xlim)

@@ -49,6 +49,6 @@ def runsTest(sequence, cutoff=None, alternative=None, verbose=False):
         print(f"""
 {result.method}
 
-Standard Normal = {result.statistic:.4f}, p-value = {result.statistic:.4f}
+Standard Normal = {result.statistic:.4f}, p-value = {result.pval:.4f}
 alternative hypothesis: {result.alternative}""")
     return result

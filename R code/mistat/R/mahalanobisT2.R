@@ -1,3 +1,14 @@
+library(mistat)
+data(DISS)
+x = DISS[, c("batch", "min15", "min90")]
+factor.name = 'batch'
+response.names = c('min15', 'min90')
+conf.level=0.95
+compare.to = c(15,15)
+plot=T
+
+
+
 mahalanobisT2 <- function(x, 
                           factor.name, 
                           response.names=names(x)[!names(x) %in% factor.name],

@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
+import matplotlib.transforms as transforms
 
 
 class MahalanobisT2:
@@ -101,6 +102,9 @@ class MahalanobisT2:
         ax1.plot(0, 0, marker='o', markeredgecolor='black', markerfacecolor='white')
         ax1.plot(self.coord[col1], self.coord[col2], color='red',
                  marker='o', markeredgecolor='black', markerfacecolor='black')
+        # Add confidence ellipse
+        radius = np.sqrt(self.Qf / self.K)
+        confidence_ellipse(self.D2.values, self.cov.values, ax=ax1, n_std=radius, edgecolor='grey')
         ax1.set_xlabel(f'difference {col1}')
         ax1.set_ylabel(f'difference {col2}')
 
@@ -124,6 +128,56 @@ class MahalanobisT2:
             y = self.mahalanobis_compare
             ax2.plot((left - 0.1, left + 1.1), (y, y), linewidth=2)
             ax2.text(left + 1.15, y, 'Comparison', verticalalignment='center')
-
         ax2.set_ylabel(r'Mahalanobis $T^2$')
+
         plt.tight_layout()
+        return ax1, ax2
+
+
+def confidence_ellipse(means, cov, ax, n_std=3.0, facecolor='none', **kwargs):
+    """
+    Create a plot of the covariance confidence ellipse of *x* and *y*.
+
+    Parameters
+    ----------
+    x, y : array-like, shape (n, )
+        Input data.
+
+    ax : matplotlib.axes.Axes
+        The axes object to draw the ellipse into.
+
+    n_std : float
+        The number of standard deviations to determine the ellipse's radiuses.
+
+    **kwargs
+        Forwarded to `~matplotlib.patches.Ellipse`
+
+    Returns
+    -------
+    matplotlib.patches.Ellipse
+    """
+    pearson = cov[0, 1] / np.sqrt(cov[0, 0] * cov[1, 1])
+    # Using a special case to obtain the eigenvalues of this
+    # two-dimensionl dataset.
+    ell_radius_x = np.sqrt(1 + pearson)
+    ell_radius_y = np.sqrt(1 - pearson)
+    ellipse = patches.Ellipse((0, 0), width=ell_radius_x * 2, height=ell_radius_y * 2,
+                              facecolor=facecolor, **kwargs)
+
+    # Calculating the stdandard deviation of x from
+    # the squareroot of the variance and multiplying
+    # with the given number of standard deviations.
+    scale_x = np.sqrt(cov[0, 0]) * n_std
+    mean_x = means[0]
+
+    # calculating the stdandard deviation of y ...
+    scale_y = np.sqrt(cov[1, 1]) * n_std
+    mean_y = means[1]
+
+    transf = transforms.Affine2D() \
+        .rotate_deg(45) \
+        .scale(scale_x, scale_y) \
+        .translate(mean_x, mean_y)
+
+    ellipse.set_transform(transf + ax.transData)
+    return ax.add_patch(ellipse)

@@ -19,7 +19,7 @@ import pandas as pd
 #                 newlabels, nsigmas = 3, confidence.level, rules = shewhart.rules, plot = TRUE, ...)
 class QualityControlChart:
     def __init__(self, data, qcc_type=qccStatistics.default, labels=None,
-                 center=None, std_dev=None, sizes=None,
+                 center=None, std_dev=None, limits=None, sizes=None,
                  nsigmas=3, confidence_level=None,
                  newdata=None):
         self.statistic = qccStatistics.get(qcc_type)
@@ -51,7 +51,10 @@ class QualityControlChart:
         else:
             self.confidence_level = confidence_level
             conf = confidence_level
-        self.limits = self.statistic.limits(self.center, self.std_dev, self.sizes, conf)
+        if limits is None:
+            self.limits = self.statistic.limits(self.center, self.std_dev, self.sizes, conf)
+        else:
+            self.limits = limits
 
         if newdata is not None:
             pass

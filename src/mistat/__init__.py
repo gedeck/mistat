@@ -9,3 +9,5 @@ from .randomizationTest import randomizationTest
 from .runsTest import runsTest
 from .simulation import PistonSimulator, SimulationResult, simulationGroup, PowerCircuitSimulation
 from .stem_leaf import stemLeafDiagram
+from .timeseries import optimalLinearPredictor, quadraticPredictor, masPredictor, normRandomWalk
+from .timeseries import dlmLinearGrowth, simulateARMA, predictARMA
