@@ -5,6 +5,7 @@ Created on Jan 15, 2021
 '''
 from pathlib import Path
 import os
+import sys
 from tempfile import NamedTemporaryFile
 import subprocess
 
@@ -17,7 +18,8 @@ def datafiles():
 
 
 def md_file(datafile):
-    return DATADIR / 'md' / datafile.with_suffix('').with_suffix('.md').name
+    from mistat.data import get_description_file
+    return Path(get_description_file(datafile.name))
 
 
 def rd_file(datafile):
@@ -26,7 +28,7 @@ def rd_file(datafile):
 
 def identify_missing_description():
     for datafile in sorted(datafiles()):
-        if not rd_file(datafile).exists():
+        if not md_file(datafile).exists():
             print(f'Missing description: {datafile.name}')
 
 
@@ -66,5 +68,7 @@ def prepare_md_files():
 
 
 if __name__ == '__main__':
-    # identify_missing_description()
+    sys.path.append(str(Path(__file__).resolve().parent / 'src'))
+    print(sys.path)
+    identify_missing_description()
     prepare_md_files()
