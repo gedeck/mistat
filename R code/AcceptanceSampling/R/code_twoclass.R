@@ -308,7 +308,9 @@ print(    prod(dhyper(x=x[1:k1], m=pmax(D.cum[1:k1],0),
     ## the appropriate probabilities.
 
     if(k==1) {
+      print(D)
       ## Only a single sampling stage to do - this is simple
+      print(c(c[1], D, N-D, n[1]))
       p.acc <- sapply(D, FUN=function(el){
         phyper(q=c[1], m=el, n=N-el, k=n[1])})
       print(p.acc)
@@ -356,6 +358,8 @@ print(    prod(dhyper(x=x[1:k1], m=pmax(D.cum[1:k1],0),
 }
 library(utils)
 assignInNamespace("calc.OChypergeom.pdi", calc.OChypergeom.pdi, ns="AcceptanceSampling")
+OC2c(n=50, c=1, type="hypergeom", N=100, pd=seq(0, 0.15, length.out=100))
+
 # x <- OC2c(c(125,125,125,125), c(1,3,11,20), c(6,9,13, 21), pd=[0, 0.1, 0.2, 0.3, 0.4, 0.5])
 x <- OC2c(c(10, 20, 30),c(1, 5, 15), r=c(8, 12, 16), type="hypergeom", N=5000, pd=c(0.3))
 

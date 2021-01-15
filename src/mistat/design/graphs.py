@@ -10,7 +10,7 @@ import pandas as pd
 import seaborn as sns
 
 
-def mainEffectsPlot(df, response, factors=None, col_wrap=None, aspect=0.4, continuous=False):
+def mainEffectsPlot(df, response, factors=None, col_wrap=None, aspect=0.4, height=3, continuous=False):
     factors = factors or [c for c in df.columns if c != response]
     col_wrap = col_wrap or len(factors)
     mainEffects = []
@@ -33,7 +33,7 @@ def mainEffectsPlot(df, response, factors=None, col_wrap=None, aspect=0.4, conti
     ylim = [mainEffects['mean'].min() - dy, mainEffects['mean'].max() + dy]
     meanEffect = df[response].mean()
 
-    g = sns.FacetGrid(mainEffects, col='factor', col_wrap=col_wrap,
+    g = sns.FacetGrid(mainEffects, col='factor', col_wrap=col_wrap, height=height,
                       sharex=False, aspect=aspect, despine=True, ylim=ylim)
     g.map(effectPlot, 'level', 'mean', meanEffect=meanEffect).set_titles('')
     g.fig.subplots_adjust(wspace=.02)
