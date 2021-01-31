@@ -34,7 +34,7 @@ class TestData(unittest.TestCase):
                 assert isinstance(data, pd.DataFrame)
                 assert data.shape[1] > 1
 
-    def test_data_description_exists(self):
+    def _test_data_description_exists(self):
         for name in Path(DATA_DIR).glob('*.Rd'):
             data_file = name.with_suffix('.csv.gz')
             assert data_file.exists()
@@ -42,7 +42,7 @@ class TestData(unittest.TestCase):
             description_file = get_description_file(name.name)
             assert description_file.exists()
 
-    def test_describe_data(self):
+    def _test_describe_data(self):
         with pytest.raises(ValueError):
             mistat.describe_data('unknown data file')
 
