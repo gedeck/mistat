@@ -1,5 +1,5 @@
 ###################################################
-### Chap08Start
+### Chap010Start
 ###################################################
 library(mistat)
 library(qcc)
@@ -169,12 +169,15 @@ X[51:55] <- X[51:55]*1.3
 
 Process <- qcc.groups(X, G)
 
+Par <- par(no.readonly = TRUE) 
+
 layout(matrix(1:2, 2, byrow=TRUE))
 
 invisible(qcc(Process, 
               type="xbar", 
               center=10, 
-              std.dev=2.236071))
+              std.dev=2.236071,
+              restore.par=FALSE))
 
 set.seed(123)
 
@@ -187,9 +190,12 @@ Process <- qcc.groups(X, G)
 invisible(qcc(Process, 
               type="xbar", 
               center=10, 
-              std.dev=2.236071))
+              std.dev=2.236071,
+              restore.par=FALSE))
 
 layout(1)
+
+par(Par)
 
 
 ###################################################
@@ -203,12 +209,15 @@ X[21:50] <- seq(12.5, 9.5, length.out=30)
 
 Process <- qcc.groups(X, G)
 
+Par <- par(no.readonly = TRUE) 
+
 layout(matrix(1:2, 2, byrow=TRUE))
 
 invisible(qcc(Process, 
               type="xbar", 
               center=10, 
-              std.dev=2.236071))
+              std.dev=2.236071,
+              restore.par=FALSE))
 
 set.seed(123)
 
@@ -221,7 +230,8 @@ Process <- qcc.groups(X, G)
 invisible(qcc(Process, 
               type="xbar", 
               center=10, 
-              std.dev=2.236071))
+              std.dev=2.236071,
+              restore.par=FALSE))
 
 points(c(5,7), c(12.5, 12.5), pch=15)
 
@@ -229,7 +239,9 @@ abline(h=10+2*2.236071/sqrt(5), lty="dotdash")
 
 layout(1)
 
-rm(Process, X, G)
+par(Par)
+
+rm(Process, X, G, Par)
 
 
 ###################################################
@@ -268,12 +280,21 @@ invisible(
 ###################################################
 data(GASTURBINE)
 
-invisible(qcc(GASTURBINE, type="xbar"))
+Par <- par(no.readonly = TRUE) 
 
-abline(h=0.4508481 + 0.04601819*2/sqrt(5), lty="dotdash")
+GtXbar <- invisible(qcc(GASTURBINE, type="xbar", restore.par=FALSE))
 
-abline(h=0.4508481 - 0.04601819*2/sqrt(5), lty="dotdash")
+St <- GtXbar$std.dev / sqrt(GtXbar$sizes[1])
 
+abline(h=GtXbar$center + 2 * St, 
+       lty="dotdash")
+
+abline(h=GtXbar$center - 2 * St, 
+       lty="dotdash")
+
+par(Par)
+
+rm(Par)
 
 ###################################################
 ### PlotPChartJanuaryData
@@ -308,7 +329,7 @@ invisible(qcc(CONTACTLEN, type="R"))
 
 
 ###################################################
-### Chap08End
+### Chap010End
 ###################################################
 rm(CONTACTLEN, CycleTime, GASTURBINE, Ps, 
    JANDEFECT, PBX, PsXbar)

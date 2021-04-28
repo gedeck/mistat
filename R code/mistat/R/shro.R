@@ -1,6 +1,5 @@
 
 .runLengthShroNorm <- function(x, mean, sigma, n, delta, ubd){
-runLengthShroNorm <- function(x, mean, sigma, n, delta, ubd){
   
   limit <- length(x)
   
@@ -13,13 +12,9 @@ runLengthShroNorm <- function(x, mean, sigma, n, delta, ubd){
     wm = 0 
     
     for(i in 1:(m - 1)){
-      print(c(i, x[m-i+1]))
       s1 = s1 + x[m - i + 1] - mean
-      print(c(-i * n * (delta ^ 2) / (2 * sigma ^ 2), n * delta * s1 / sigma ^ 2))
       wm = wm + exp(-i * n * (delta ^ 2) / (2 * sigma ^ 2) + n * delta * s1 / sigma ^ 2)
-      print(c(i, s1, wm))
     }
-    print(c('inner loop done', wm))
     
     wmv[m] <- wm
     
@@ -37,10 +32,8 @@ runLengthShroNorm <- function(x, mean, sigma, n, delta, ubd){
   }
   return(res)
 }
-runLengthShroNorm(y, 1, 1, 10, 1, 19)
 
 
-.runLengthShroPois <- function(x, rho, delta, ubd){
 .runLengthShroPois <- function(x, rho, delta, ubd){
   
   limit <- length(x)
@@ -74,7 +67,6 @@ runLengthShroNorm(y, 1, 1, 10, 1, 19)
   }
   return(res)
 }
-runLengthShroPois(y, 11/10, 1, 19)
 
 
 shroArlPfaCedNorm <- function (mean0=0, mean1=NA, sd=1,
@@ -145,8 +137,8 @@ shroArlPfaCedPois <- function (lambda0=10, lambda1=NA,
   if(is.na(tau)){
     data <- matrix(rpois(n=limit*N, lambda0), nrow=N)
   } else {
-    data <- matrix(rpois(n=(tau)*N, lambda0), nrow=N)
-    data <- cbind(data, matrix(rpois(n=(limit-tau)*N, lambda1), nrow=N))  
+    data <- matrix(rnorm(n=(tau)*N, lambda0), nrow=N)
+    data <- cbind(data, matrix(rnorm(n=(limit-tau)*N, lambda1), nrow=N))  
   }
   
   res <- list(run=apply(data, MARGIN=1, .runLengthShroPois, rho=rho, delta=delta, ubd=w))

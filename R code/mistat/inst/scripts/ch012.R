@@ -1,5 +1,5 @@
 ###################################################
-### Chap10Start
+### Chap012Start
 ###################################################
 library(mistat)
 library(qcc)
@@ -13,23 +13,27 @@ qcc.options(bg.margin = "white",
 ### MultivariateCC
 ###################################################
 data(ALMPIN)
-
+                                      
 Base <- ALMPIN[1:30,]                 
-
-MeansBase <- colMeans(Base)           
-
-CovBase <- cov(Base)                  
-
+                                      
+MeansBase <- colMeans(Base)         
+                                      
+CovBase <- cov(Base)                
+                                      
 AlmpinSubset <- ALMPIN[-(1:30),]              
-
+                                      
 library(qcc)                          
-
-Mqcc <- mqcc(data=AlmpinSubset,               
+                                      
+Mqcc <- mqcc(data=Base,               
              type="T2.single",        
              center=MeansBase,        
-             cov=CovBase,             
-             plot=T)                  
-
+             cov=CovBase,
+             pred.limits = TRUE,
+             newdata = AlmpinSubset,
+             confidence.level = 0.997,
+             add.stats = TRUE,
+             plot=TRUE)                  
+                                      
 summary(Mqcc)                         
 
 
@@ -37,11 +41,16 @@ summary(Mqcc)
 ### PlotT2ChartAluminiumPins
 ###################################################
 
-invisible(mqcc(data=AlmpinSubset, 
-               type="T2.single", 
-               center=MeansBase, 
-               cov=CovBase, 
-               plot=TRUE, main=""))
+invisible(mqcc(data=Base,               
+             type="T2.single",        
+             center=MeansBase,        
+             cov=CovBase,
+             pred.limits = TRUE,
+             newdata = AlmpinSubset,
+             confidence.level = 0.997,
+             add.stats = TRUE,
+             plot=TRUE,
+             main=""))
 
 rm(Base, CovBase, MeansBase, AlmpinSubset, Mqcc)
 
@@ -79,8 +88,8 @@ arrange <- function(..., nrow=NULL, ncol=NULL, as.table=FALSE) {
 data(PLACE)
 
 PLACE$code <- factor(c(rep("lDev", 9*16),
-                       rep("mDev", 3*16),
-                       rep("hDev", 14*16)))
+                     rep("mDev", 3*16),
+                     rep("hDev", 14*16)))
 
 P1 <- ggplot(PLACE, aes(xDev, yDev, colour=code))
 
@@ -98,6 +107,7 @@ P3 <- P3 + geom_point(alpha=8/10, size=2) + geom_density2d(alpha=8/10, size=0.2)
   scale_color_grey(start=0.4, end=0.8) + theme_bw() + theme(legend.position = "none")
 
 arrange(P1, P3, P2, nrow=2, ncol=2)
+
 rm(P1, P2, P3)
 
 
@@ -147,7 +157,7 @@ PLACE2$Dev <- factor(PLACE2$time)
 levels(PLACE2$Dev) <- c("xDev", "yDev")
 
 PLACE2$Deviation <- PLACE2$xDev
-
+  
 ggplot(data=PLACE2, 
        aes(x=crcBrd, y=Deviation, colour=code, shape=Dev)) + 
   geom_point(alpha=8/10, size=4) + 
@@ -165,17 +175,17 @@ rm(PLACE2)
 ### MultivariateCCPlace
 ###################################################
 data(PLACE)
-
+                                      
 Base <- subset(x=PLACE, subset=crcBrd <= 9, select=c("xDev", "yDev", "tDev"))                
-
+                                      
 MeansBase <- colMeans(Base)           
-
+                                      
 CovBase <- cov(Base)    
 
 Next <- subset(x=PLACE, 
                subset=crcBrd > 9, 
                select=c("xDev", "yDev", "tDev"))                             
-
+                                      
 library(qcc)           
 
 Mqcc <- mqcc(data=PLACE[, c("xDev", "yDev", "tDev")], 
@@ -185,7 +195,7 @@ Mqcc <- mqcc(data=PLACE[, c("xDev", "yDev", "tDev")],
              cov=CovBase,             
              plot=FALSE)
 
-
+                                      
 #summary(Mqcc)
 
 
@@ -229,13 +239,13 @@ ggplot(data=DISS,
 ### PlotMahalanobisT2Diss
 ###################################################
 invisible(mahalanobisT2(DISS[, c("batch", "min15", "min90")], 
-                        factor.name="batch", 
-                        plot=TRUE,
-                        compare.to=c(15, 15)))
+              factor.name="batch", 
+              plot=TRUE,
+              compare.to=c(15, 15)))
 
 
 ###################################################
-### Chap10End
+### Chap012End
 ###################################################
 rm(ALMPIN, PLACE, DISS)
 detach(package:qcc)

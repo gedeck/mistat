@@ -1,5 +1,5 @@
 ###################################################
-### Chap14Start
+### Chap016Start
 ###################################################
 library(mistat)
 library(car)
@@ -143,8 +143,10 @@ rm(B)
 
 
 ###################################################
-### Chap14End
+### Chap016End
 ###################################################
 rm(X, FAILTIME, SuRe)
 detach(package:boot)
+detach(package:car)
 detach(package:mistat)
+

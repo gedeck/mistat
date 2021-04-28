@@ -1,5 +1,5 @@
 ###################################################
-### Chap15Start
+### Chap017Start
 ###################################################
 library(mistat)
 
@@ -30,8 +30,8 @@ binomial.beta.mix(probs=Probs,
 Probs <- c(0.5, 0.5)
 
 GammaPar1 <- c(1, 1)  # Gamma parameters are expressed as 
-# shape and rate
-# scale is 1/rate
+                      # shape and rate
+                      # scale is 1/rate
 GammaPar2 <- c(15, 2) 
 
 Gammapar <- rbind(GammaPar1, GammaPar2)
@@ -46,9 +46,11 @@ poisson.gamma.mix(probs=Probs,
 
 
 ###################################################
-### Chap15End
+### Chap017End
 ###################################################
 rm(Betapar, Gammapar, BetaPar1, BetaPar2, 
    GammaPar1, GammaPar2, Data, Probs)
 detach(package:LearnBayes)
 detach(package:mistat)
+
+

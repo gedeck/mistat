@@ -1,5 +1,5 @@
 ###################################################
-### Chap04Start
+### Chap004Start
 ###################################################
 library(mistat)
 library(boot)
@@ -577,7 +577,7 @@ rm(X, Y)
 
 
 ###################################################
-### Chap04End
+### Chap004End
 ###################################################
 rm(HYBRID, HYBRID1, HYBRID2, B, CYCLT, ELECINDX, OELECT, 
    OELECT1, OTURB, onewayTestBoot, qbinomBoot)

@@ -1,5 +1,5 @@
 ###################################################
-### Chap09Start
+### Chap011Start
 ###################################################
 library(mistat)
 library(qcc)
@@ -52,9 +52,12 @@ Ps <- simulationGroup(Ps, 5)
 CycleTime <- qcc.groups(Ps$seconds, 
                         Ps$group)
 
+Par <- par(no.readonly = TRUE) 
+
 PsXbar <- invisible(
   qcc(CycleTime, 
-      type="xbar"))
+      type="xbar",
+      restore.par=FALSE))
 
 St <- PsXbar$std.dev / sqrt(PsXbar$sizes[1])
 
@@ -63,6 +66,8 @@ abline(h=PsXbar$center + 2 * St,
 
 abline(h=PsXbar$center - 2 * St, 
        lty="dotdash")
+
+par(Par)
 
 rm(Ps, CycleTime, PsXbar, St)
 
@@ -404,7 +409,7 @@ rm(Speed)
 
 
 ###################################################
-### Chap09End
+### Chap011End
 ###################################################
 rm(COAL, DOJO1935, FILMSP, IPL, JANDEFECT, RNORM10, THICKDIFF)
 detach(package:qcc)

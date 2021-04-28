@@ -1,5 +1,5 @@
 ###################################################
-### Chap02Start
+### Chap002Start
 ###################################################
 library(mistat)
 data(YARNSTRG)
@@ -449,7 +449,7 @@ IQR(OutVolt)/1.349  # Robust estimate of S
 
 
 ###################################################
-### Chap02End
+### Chap002End
 ###################################################
 rm(Oelect, OutVolt, mySummary)
 detach(package:mistat)

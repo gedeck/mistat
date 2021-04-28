@@ -7,17 +7,15 @@
   if(side %in% c("both", "upper")){
     z.p <- x - kp
     cusum.pos[1] <- max(0, z.p[1])
-    if(cusum.pos[1] > ubd) {
+    if(cusum.pos[1] > ubd)
       undercontrol <- FALSE
-    } else {
+    else
       undercontrol <- TRUE
-      }
     i <- 2
     
     while(undercontrol && i <= limit){
       cusum.pos[i] <- max(0, cusum.pos[i - 1] + 
                             z.p[i])
-      print(z.p[i], cusum.pos[i])
       if(cusum.pos[i] > ubd)
         undercontrol <- FALSE
       i <- i +1
@@ -30,11 +28,10 @@
     cusum.neg[1] <- min(0, z.m[1])
     if(is.na(undercontrol) || i < limit)
       limit <- i
-    if(cusum.neg[1] < lbd) {
+    if(cusum.neg[1] < lbd)
       undercontrol <- FALSE
-    } else {
+    else
       undercontrol <- TRUE
-    }
     i <- 2
     
     while(undercontrol && i <= limit){

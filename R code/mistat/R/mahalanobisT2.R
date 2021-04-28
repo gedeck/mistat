@@ -1,14 +1,3 @@
-library(mistat)
-data(DISS)
-x = DISS[, c("batch", "min15", "min90")]
-factor.name = 'batch'
-response.names = c('min15', 'min90')
-conf.level=0.95
-compare.to = c(15,15)
-plot=T
-
-
-
 mahalanobisT2 <- function(x, 
                           factor.name, 
                           response.names=names(x)[!names(x) %in% factor.name],
@@ -34,7 +23,6 @@ mahalanobisT2 <- function(x,
   K <- N^2/(2*N)*(2*N-P-1)/((2*N-2)*P)
   
   Qf <- qf(p=conf.level, df1=P, df2=2*N-P-1)
-  print(Qf)
     
   D2 <- as.matrix(D$V1 - D$V2)
   
