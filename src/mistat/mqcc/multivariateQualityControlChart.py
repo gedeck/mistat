@@ -43,8 +43,14 @@ class MultivariateQualityControlChart:
         self.stats = self.statistic.stats(data, center=center, cov=cov)
 
         if newdata is not None:
-            raise NotImplementedError()
+            self.newdata = newdata
+            self.newsizes = self.statistic.get_sizes(newdata)
+            self.newstats = self.statistic.stats(newdata, center=self.stats.center, cov=self.stats.cov)
+            self.newlabels = newlabels
+            if newlabels is None:
+                self.newlabels = list(range(len(data), len(data) + len(newdata)))
             # gives self.newdata, self.newstats, self.newsizes
+            pred_limits = True
         else:
             self.newdata = None
             self.newstats = None
@@ -70,9 +76,9 @@ class MultivariateQualityControlChart:
 
         self.violations = shewhartRules(self, run_length=0)
         self.violations['beyondPredLimits'] = shewhartRules(
-            self, run_length=0, limits=self.pred_limits)['beyondLimits']
+            self, run_length=0, limits=self.limits)['beyondLimits']
 
-    def plot(self, title=None, ax=None):
+    def plot(self, title=None, ax=None, show_legend=True):
         if ax is None:
             _, ax = plt.subplots(figsize=(8, 6))
         beyondLimits = [*self.violations['beyondLimits']['LCL'], *self.violations['beyondLimits']['UCL']]
@@ -80,32 +86,72 @@ class MultivariateQualityControlChart:
         df = pd.DataFrame({'x': self.labels, 'y': self.stats.statistics})
         ax = df.plot.line(x='x', y='y', style='-o', color='lightgrey',
                           marker='o', markerfacecolor='black', ax=ax)
+        if self.newdata is not None:
+            new_df = pd.DataFrame({'x': self.newlabels, 'y': self.newstats.statistics})
+            ax = new_df.plot.line(x='x', y='y', style='-o', color='lightgrey',
+                                  marker='o', markerfacecolor='black', ax=ax)
+            df = pd.concat([df, new_df])
+            ax.axvline(0.5 * (self.newlabels[0] + self.labels[-1]), color='black', linestyle='--')
+
         ax.plot(df.iloc[beyondLimits]['x'], df.iloc[beyondLimits]['y'], linestyle='None',
                 marker='s', markerfacecolor='red', markeredgecolor='red')
         ax.plot(df.iloc[violatingRuns]['x'], df.iloc[violatingRuns]['y'],
                 linestyle='None', marker='s', markerfacecolor='red', markeredgecolor='red')
+
         ax.legend().remove()
         ax.set_xlabel('Group')
         ax.set_ylabel('Group summary statistics')
 
-        if len(self.limits) == 1:
+        yticks = {'ticks': [], 'labels': []}
+        if self.limits is not None and len(self.limits) == 1:
             ax.axhline(self.limits.LCL[0], color='black', linestyle='--')
             ax.axhline(self.limits.UCL[0], color='black', linestyle='--')
+
+            yticks['ticks'].extend([self.limits.LCL[0], self.limits.UCL[0]])
+            yticks['labels'].extend(['LCL', 'UCL'])
+
+        if self.pred_limits is not None and len(self.pred_limits) == 1:
+            ax.axhline(self.pred_limits.LPL[0], color='black', linestyle=':')
+            ax.axhline(self.pred_limits.UPL[0], color='black', linestyle=':')
+
+            if yticks['ticks'] and yticks['ticks'][0] == self.pred_limits.LPL[0]:
+                yticks['labels'][0] = 'LCL/LPL'
+            else:
+                yticks['labels'].append('LPL')
+                yticks['ticks'].append(self.pred_limits.LPL[0])
+
+            yticks['labels'].append('UPL')
+            yticks['ticks'].append(self.pred_limits.UPL[0])
+
+        if yticks['ticks']:
             ax2 = ax.twinx()
             ax2.set_ylim(*ax.get_ylim())
             ax2.yaxis.tick_right()
-            ax2.set_yticks([self.limits.LCL[0], self.limits.UCL[0]])
-            ax2.set_yticklabels(['LCL', 'UCL'])
+            ax2.set_yticks(yticks['ticks'])
+            ax2.set_yticklabels(yticks['labels'])
 
         fig = ax.get_figure()
-        fig.subplots_adjust(bottom=0.2)
-        fig.text(0.1, 0.1, f'Number of groups = {len(self.labels)}', fontsize=12)
-        fig.text(0.1, 0.06, f'Sample size = {self.sizes.samples_sizes}', fontsize=12)
-        fig.text(0.1, 0.02, f'|S| = {linalg.det(self.stats.cov):.5g}', fontsize=12)
-        if len(self.limits) == 1:
-            fig.text(0.4, 0.06, f'LCL = {self.limits.LCL[0]:.5g}', fontsize=12)
-            fig.text(0.4, 0.02, f'UCL = {self.limits.UCL[0]:.5g}', fontsize=12)
-        fig.text(0.6, 0.06, f'Number beyond limits = {len(beyondLimits)}', fontsize=12)
+        if show_legend:
+            fig.subplots_adjust(bottom=0.2)
+            fig.text(0.1, 0.1, f'Number of groups = {len(self.labels)}', fontsize=12)
+            fig.text(0.1, 0.06, f'Sample size = {self.sizes.samples_sizes}', fontsize=12)
+            fig.text(0.1, 0.02, f'|S| = {linalg.det(self.stats.cov):.5g}', fontsize=12)
+            if self.limits is not None and len(self.limits) == 1:
+                fig.text(0.4, 0.1, f'LCL = {self.limits.LCL[0]:.5g}', fontsize=12)
+                fig.text(0.4, 0.06, f'UCL = {self.limits.UCL[0]:.5g}', fontsize=12)
+            if self.pred_limits is not None and len(self.pred_limits) == 1:
+                fig.text(0.6, 0.1, f'LPL = {self.pred_limits.LPL[0]:.5g}', fontsize=12)
+                fig.text(0.6, 0.06, f'UPL = {self.pred_limits.UPL[0]:.5g}', fontsize=12)
+            fig.text(0.4, 0.02, f'Number beyond limits = {len(beyondLimits)}', fontsize=12)
+
+        if self.newdata is not None:
+            ymax = max(*self.stats.statistics, *self.newstats.statistics)
+            ymin = min(*self.stats.statistics, *self.newstats.statistics)
+            ymax = 1.05 * ymax - 0.05 * ymin
+            xcalibration = 0.5 * (self.labels[0] + self.labels[-1])
+            xnewdata = 0.5 * (self.newlabels[0] + self.newlabels[-1])
+            ax.text(xcalibration, ymax, 'Calibration data', ha='center', va='top')
+            ax.text(xnewdata, ymax, 'New data', ha='center', va='top')
 
         fig_title = [f'{self.statistic.qcc_type} Chart']
         if title is not None:

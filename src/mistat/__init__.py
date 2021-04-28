@@ -13,3 +13,4 @@ from .simulation import PistonSimulator, SimulationResult, simulationGroup, Powe
 from .stem_leaf import stemLeafDiagram
 from .timeseries import dlmLinearGrowth, simulateARMA, predictARMA
 from .timeseries import optimalLinearPredictor, quadraticPredictor, masPredictor, normRandomWalk
+from .regression import stepwise_regression

@@ -4,7 +4,6 @@ Created on Jul 9, 2020
 @author: petergedeck
 '''
 from collections import namedtuple
-from string import ascii_uppercase
 
 from scipy import linalg
 from scipy import stats
@@ -127,8 +126,28 @@ class T2single_statistic:
         ucl = p * (m + 1) * (m - 1) / (m * (m - p)) * stats.f(p, m - p).ppf(conf)
         lcl = 0
         prediction = pd.DataFrame([{'LPL': lcl, 'UPL': ucl}])
-
         return {'control': control, 'prediction': prediction}
 
 
+"""
+> limits.T2.single
+function (ngroups, size = 1, nvars, conf) 
+{
+    m <- ngroups
+    n <- size
+    p <- nvars
+    ucl <- (m - 1)^2/m * qbeta(conf, p/2, (m - p - 1)/2)
+    lcl <- 0
+    ctrl.limits <- matrix(c(lcl, ucl), ncol = 2)
+    ucl <- p * (m + 1) * (m - 1)/(m * (m - p)) * qf(conf, p, 
+        m - p)
+    lcl <- 0
+    pred.limits <- matrix(c(lcl, ucl), ncol = 2)
+    rownames(ctrl.limits) <- rownames(pred.limits) <- rep("", 
+        nrow(pred.limits))
+    colnames(ctrl.limits) <- c("LCL", "UCL")
+    colnames(pred.limits) <- c("LPL", "UPL")
+    return(list(control = ctrl.limits, prediction = pred.limits))
+}
+"""
 mqccStatistics = MQCCStatistics()

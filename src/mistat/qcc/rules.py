@@ -26,11 +26,13 @@ def shewhartRules(qcc, **kwargs):
 
 
 def beyondLimits(qcc, limits=None, **kwargs):
-    limits = limits or qcc.limits
-    statistics = (qcc.newstats and qcc.newstats.statistics) or qcc.stats.statistics
+    limits = qcc.limits if limits is None else limits
+    statistics = list(qcc.stats.statistics)
+    if qcc.newstats:
+        statistics.extend(qcc.newstats.statistics)
     if isinstance(statistics, pd.Series):
         statistics = statistics.values
-    statistics = statistics.flatten()
+    statistics = np.array(statistics).flatten()
 
     if len(limits['UCL']) == 1:
         return {'beyondLimits': {'UCL': np.nonzero(statistics > limits['UCL'][0])[0],
@@ -46,6 +48,8 @@ def violatingRuns(qcc, run_length=7, **kwargs):
     statistics = list(qcc.stats.statistics)
     if qcc.newstats:
         statistics.extend(qcc.newstats.statistics)
+    if isinstance(statistics, pd.Series):
+        statistics = statistics.values
     statistics = np.array(statistics).flatten()
     if isinstance(center, Number) or len(center.shape) == 0:
         diffs = statistics - center

@@ -7,7 +7,8 @@ import unittest
 
 import pytest
 
-from mistat.qcc.shro import shroArlPfaCedNorm, runLengthShroNorm, runLengthShroPois
+from mistat.qcc.shro import shroArlPfaCedNorm, runLengthShroNorm, runLengthShroPois,\
+    shroArlPfaCedPois
 import numpy as np
 
 
@@ -30,6 +31,13 @@ class TestCusum(unittest.TestCase):
         for e1, e2 in zip(res['w'][1:], [0.3683780, 0.5031622, 0.5537946, 0.5718620, 0.5783402, 0.5807385]):
             assert e1 == pytest.approx(e2)
 
+        res = runLengthShroPois(x, 1.001, 0.9, 0.58)
+        assert res['rl'] == 4
+        assert len(res['w']) == 4
+        assert res['w'][0] is None
+        for e1, e2 in zip(res['w'][1:], [0.4071206, 0.5718245, 0.6399946]):
+            assert e1 == pytest.approx(e2)
+
         res = runLengthShroPois(x, 11 / 6, 1, 19)
         assert res['rl'] == np.inf
         assert len(res['w']) == 14
@@ -47,3 +55,25 @@ class TestCusum(unittest.TestCase):
         assert res['PFA'] == pytest.approx(0.1)
         assert res['CED'] == pytest.approx(1.22222222)
         assert res['CED-Std. Error'] == pytest.approx(3.72107039)
+
+    def test_shroArlPfaCedPois(self):
+        x = [12, 8, 15, 13, 11, 10, 8, 10, 17, 16,
+             89, 85, 120, 98, 109, 110, 93, 85, 98, 109]
+        res = runLengthShroPois(x, 1.1, 1, 19)
+        assert res['rl'] == 10
+
+        x = [7, 7, 6, 22, 16, 11, 11, 16, 9, 12,
+             112, 121, 95, 98, 114, 103, 99, 97, 86, 105]
+        res = runLengthShroPois(x, 1.1, 1, 19)
+        assert res['rl'] == 8
+
+        res = shroArlPfaCedPois(seed=1, verbose=False)['statistic']
+        assert res['ARL'] == pytest.approx(24.79)
+        assert res['Std. Error'] == pytest.approx(1.570178)
+
+        res = shroArlPfaCedPois(seed=1, tau=10, lambda1=100, verbose=False)['statistic']
+        assert res['ARL'] == pytest.approx(10.89)
+        assert res['Std. Error'] == pytest.approx(0.044486, abs=0.0001)
+        assert res['PFA'] == pytest.approx(0.03)
+        assert res['CED'] == pytest.approx(0.958763)
+        assert res['CED-Std. Error'] == pytest.approx(1.108611)

@@ -15,7 +15,7 @@ import pandas as pd
 from .mistatSimulation import MistatSimulation, repeat_elements, convert_to_list
 
 
-errors = {
+default_errors = {
     'm': 0.1,
     's': 0.01,
     'v0': 0.00025,
@@ -74,7 +74,7 @@ class PistonSimulator(MistatSimulation):
             values = np.array(list(repeat_elements(values, maxsize // len(values))))
             setattr(self, option, values)
 
-        self.errors = dict(errors)
+        self.errors = dict(default_errors)
 
     def simulate(self):
         size = len(self.m)

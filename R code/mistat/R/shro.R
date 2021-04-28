@@ -41,7 +41,7 @@ runLengthShroNorm(y, 1, 1, 10, 1, 19)
 
 
 .runLengthShroPois <- function(x, rho, delta, ubd){
-runLengthShroPois <- function(x, rho, delta, ubd){
+.runLengthShroPois <- function(x, rho, delta, ubd){
   
   limit <- length(x)
   
@@ -145,8 +145,8 @@ shroArlPfaCedPois <- function (lambda0=10, lambda1=NA,
   if(is.na(tau)){
     data <- matrix(rpois(n=limit*N, lambda0), nrow=N)
   } else {
-    data <- matrix(rnorm(n=(tau)*N, lambda0), nrow=N)
-    data <- cbind(data, matrix(rnorm(n=(limit-tau)*N, lambda1), nrow=N))  
+    data <- matrix(rpois(n=(tau)*N, lambda0), nrow=N)
+    data <- cbind(data, matrix(rpois(n=(limit-tau)*N, lambda1), nrow=N))  
   }
   
   res <- list(run=apply(data, MARGIN=1, .runLengthShroPois, rho=rho, delta=delta, ubd=w))
