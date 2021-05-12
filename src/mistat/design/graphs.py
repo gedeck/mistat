@@ -3,21 +3,42 @@ Created on Jul 4, 2020
 
 @author: petergedeck
 '''
+from itertools import combinations
 from itertools import product
 
+from scipy import stats
+import patsy
+
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
 
-def mainEffectsPlot(df, response, factors=None, col_wrap=None, aspect=0.4, height=3, continuous=False):
+def calculateMainEffects(df, response, factors=None):
+    if response not in df.columns:
+        raise ValueError(f'Response {response} not found in data')
     factors = factors or [c for c in df.columns if c != response]
-    col_wrap = col_wrap or len(factors)
     mainEffects = []
     for column in factors:
         for level, g in sorted(df[response].groupby(df[column])):
             mainEffects.append({'factor': column, 'level': level, 'mean': g.mean()})
-    mainEffects = pd.DataFrame(mainEffects)
+    return pd.DataFrame(mainEffects)
+
+
+def calculateInteractions(df, response, factors=None):
+    factors = factors or [c for c in df.columns if c != response]
+    interactions = []
+    for f1, f2 in product(factors, factors):
+        for (l1, l2), g in df[response].groupby([df[f1], df[f2]]):
+            interactions.append({'f1': f1, 'l1': l1, 'f2': f2, 'l2': l2, 'mean': g.mean()})
+    return pd.DataFrame(interactions)
+
+
+def mainEffectsPlot(df, response, factors=None, col_wrap=None, aspect=0.4, height=3, continuous=False):
+    factors = factors or [c for c in df.columns if c != response]
+    mainEffects = calculateMainEffects(df, response, factors)
+    col_wrap = col_wrap or len(factors)
 
     def effectPlot(x, y, **kwargs):
         ax = plt.gca()
@@ -43,11 +64,7 @@ def mainEffectsPlot(df, response, factors=None, col_wrap=None, aspect=0.4, heigh
 
 def interactionPlot(df, response, factors=None):
     factors = factors or [c for c in df.columns if c != response]
-    interactions = []
-    for f1, f2 in product(factors, factors):
-        for (l1, l2), g in df[response].groupby([df[f1], df[f2]]):
-            interactions.append({'f1': f1, 'l1': l1, 'f2': f2, 'l2': l2, 'mean': g.mean()})
-    interactions = pd.DataFrame(interactions)
+    interactions = calculateInteractions(df, response, factors)
 
     def setLimits(set_lim, values, f):
         v = sorted(set(values))
@@ -86,4 +103,83 @@ def interactionPlot(df, response, factors=None):
         g.axes[idx][0].set_ylabel('')
         ax = g.axes[idx][idx]
         ax.text(0.9, 0.5, column, transform=ax.transAxes, verticalalignment='center', horizontalalignment='right')
+    return ax
+
+
+def getModelMatrix(design, mod=0, maxscale=1):
+    ''' Convert design to model matrix. Will rescale design to code values '''
+    design = design - design.mean()
+    design = maxscale * design / design.max()
+
+    kvar = design.shape[1]
+    names = [f'x{i + 1}' for i in range(kvar)]
+    design.columns = names
+
+    formula = list(names)
+    if mod >= 1:
+        formula.extend(f'{f1}:{f2}' for f1, f2 in combinations(names, 2))
+    if mod == 2:
+        formula.extend(f'np.power({f1}, 2)' for f1 in names)
+
+    dm = patsy.dmatrix(f'~ {"+".join(formula)}', data=design, return_type='dataframe')  # @UndefinedVariable
+
+    def cleanColumnName(c):
+        if not c.startswith('np.power'):
+            return c
+        c = c.split('(')[1].split(',')[0]
+        return f'{c}**2'
+    dm.columns = [cleanColumnName(c) for c in dm.columns]
+    return dm
+
+
+def FDS_Plot(design, mod=0, ax=None, plotkw=None, label='y', maxscale=1):
+    ''' Fraction of design space plot '''
+    dm = getModelMatrix(design, mod=mod, maxscale=maxscale)
+#     design = design - design.mean()
+#     design = maxscale * design / design.max()
+#     kvar = design.shape[1]
+#     if not (1 < kvar < 8):
+#         raise ValueError('The design matrix must have between 2 and 7 variables')
+#     names = [f'x{i + 1}' for i in range(kvar)]
+#     design.columns = names
+#
+#     formula = list(names)
+#     if mod >= 1:
+#         formula.extend(f'{f1}:{f2}' for f1, f2 in combinations(names, 2))
+#     if mod == 2:
+#         formula.extend(f'np.power({f1}, 2)' for f1 in names)
+#
+#     dm = patsy.dmatrix(f'~ {"+".join(formula)}', data=design, return_type='dataframe')  # @UndefinedVariable
+
+    terms = dm.columns
+    kvar = design.shape[1]
+    names = [f'x{i + 1}' for i in range(kvar)]
+
+    XtX = np.matmul(np.transpose(dm).values, dm.values)
+    XtXI = pd.DataFrame(np.linalg.inv(XtX),
+                        index=terms, columns=terms)
+
+    fX = {'Int': [1] * 5000}
+    fX.update({f: stats.uniform.rvs(loc=-1, scale=2, size=5000) for f in names})
+    if mod >= 1:
+        for f1, f2 in combinations(names, 2):
+            fX[f'{f1}:{f2}'] = fX[f1] * fX[f2]
+    if mod == 2:
+        for f in names:
+            fX[f'np.power({f}, 2)'] = fX[f] * fX[f]
+    fX = pd.DataFrame(fX)
+    p1 = np.matmul(fX, XtXI)
+    v = np.diag(np.matmul(p1.values, np.transpose(fX.values)))
+    vi = np.sort(v)
+
+    # calculate fraction of design space
+    fs = np.arange(1, len(vi) + 1) / len(vi)
+    plotkw = plotkw or {}
+    plotkw['color'] = plotkw.get('color', 'black')
+    # plotkw['legend'] = False
+    ax = pd.DataFrame({'x': fs, label: vi}).plot(x='x', y=label, ax=ax, **plotkw)
+    ax.axvline(0.5, linestyle=':', color='grey')
+    ax.axhline((vi[2499] + vi[2500]) / 2, linestyle=':', color='grey')
+    ax.set_xlabel('Fraction of Space')
+    ax.set_ylabel('Relative Prediction Variance')
     return ax

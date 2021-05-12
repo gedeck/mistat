@@ -12,6 +12,7 @@ from scipy.stats import binom, hypergeom, poisson
 
 import numpy as np
 import pandas as pd
+from math import floor
 
 
 class OCtype(Enum):
@@ -104,7 +105,7 @@ class OChypergeom(OCdistribution):
         super().__post_init__()
         self.distribution = OCtype.hypergeom
         if not self.D:
-            self.D = [int(pdi * self.N) for pdi in self.pd]
+            self.D = [round(pdi * self.N) for pdi in self.pd]
 
         self.paccept = np.array([self.calcHypergeom(Di, self.n, self.c, self.r, self.N) for Di in self.D])
 
@@ -145,7 +146,7 @@ class OCpoisson(OCdistribution):
 
     def __post_init__(self):
         super().__post_init__()
-        self.distribution = OCtype.binomial
+        self.distribution = OCtype.poisson
 
         if self.pd is None:
             self.pd = np.linspace(0, 1, 101)
@@ -167,6 +168,7 @@ class OCpoisson(OCdistribution):
             x[k] = c[k] - np.sum(x, axis=1)
             for _, xi in x.iterrows():
                 p_acc += self.probAcc(xi.values, n, p_d)
+                print(x, p_acc)
         return p_acc
 
     @staticmethod

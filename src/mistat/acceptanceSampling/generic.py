@@ -5,13 +5,15 @@ Created on Jun 28, 2020
 '''
 from collections import namedtuple
 
-from mistat.acceptanceSampling.distributions import OChypergeom
+from mistat.acceptanceSampling.distributions import OChypergeom, OCpoisson
 from mistat.acceptanceSampling.oc import OC_TYPES
 import numpy as np
+from scipy import stats
 
 
 RiskPoint = namedtuple('RiskPoint', 'pdefect,paccept')
 Plan = namedtuple('Plan', 'n,c,r')
+PlanNormal = namedtuple('PlanNormal', 'n,k,s_type')
 
 
 def findPlan(PRP, CRP, oc_type='binomial', N=None, s_type='known'):
@@ -24,7 +26,7 @@ def findPlan(PRP, CRP, oc_type='binomial', N=None, s_type='known'):
     No consideration is given to "cost functions
     """
     oc_type = oc_type.lower()
-    if oc_type not in OC_TYPES:
+    if oc_type not in [*OC_TYPES, 'normal']:
         raise ValueError(f'Unknown type {oc_type}')
     PRP = checkRiskPoint(PRP, 'Producer risk point', oc_type)
     CRP = checkRiskPoint(CRP, 'Consumer risk point', oc_type)
@@ -32,6 +34,20 @@ def findPlan(PRP, CRP, oc_type='binomial', N=None, s_type='known'):
         raise ValueError('Consumer Risk Point quality must be greater than Producer Risk Point quality')
 
     if oc_type == 'binomial':
+        '''
+    c <- 0
+    n <- c+1
+    repeat {
+      if (calc.OCbinomial(n=n,c=c,r=c+1,pd=CRP[1]) > CRP[2])
+        n <- n + 1
+      else if (calc.OCbinomial(n=n,c=c,r=c+1,pd=PRP[1]) < PRP[2])
+        c <- c + 1
+      else
+        break
+    }
+    return(list(n=n, c=c, r=c+1))
+    '''
+
         raise NotImplementedError
     elif oc_type == 'hypergeom':
         if N is None:
@@ -46,6 +62,78 @@ def findPlan(PRP, CRP, oc_type='binomial', N=None, s_type='known'):
             else:
                 break
         return Plan(n[0], c[0], (c + 1)[0])
+
+    elif oc_type == 'poisson':
+        raise NotImplementedError
+        c = 0
+        n = c + 1
+        while True:
+            if OCpoisson(n=[n], c=[c], r=[c + 1], pd=CRP[0]).paccept > CRP[1]:
+                print(n, c, OCpoisson(n=[n], c=[c], r=[c + 1], pd=CRP[0]).paccept)
+                n += 1
+            elif OCpoisson(n=[n], c=[c], r=[c + 1], pd=PRP[0]).paccept < PRP[1]:
+                print(n, c, OCpoisson(n=[n], c=[c], r=[c + 1], pd=PRP[0]).paccept)
+                c += 1
+            else:
+                break
+            break
+        return Plan(n, c, c + 1)
+
+        '''
+    c <- 0
+    n <- c+1
+    repeat {
+      if (calc.OCpoisson(n=n,c=c,r=c+1,pd=CRP[1]) > CRP[2])
+        n <- n + 1
+      else if (calc.OCpoisson(n=n,c=c,r=c+1,pd=PRP[1]) < PRP[2])
+        c <- c + 1
+      else
+        break
+    }
+    return(list(n=n, c=c, r=c+1))
+  }
+    '''
+    elif oc_type == 'normal':
+        s_type = s_type.lower()
+        if s_type not in ['known', 'unknown']:
+            raise ValueError(f'Unknown s_type {s_type}')
+        # With known standard deviation
+        if s_type == 'known':
+            n = stats.norm.ppf(1 - PRP[1])[0] + stats.norm.ppf(CRP[1])[0]
+            n = n / (stats.norm.ppf(CRP[0])[0] - stats.norm.ppf(PRP[0])[0])
+            n = int(np.ceil(n * n))
+            k = stats.norm.ppf(1 - PRP[1])[0] / np.sqrt(n) - stats.norm.ppf(PRP[0])[0]
+            return PlanNormal(n, k, s_type)
+        elif s_type == 'unknown':
+            n = 2
+            k = find_k(n, PRP[0], PRP[1], interval=[0, 1000])
+            nc = - stats.norm.ppf(CRP[0])[0] * np.sqrt(n)
+            pa = 1 - stats.nct.cdf(k * np.sqrt(n), df=n - 1, nc=nc)
+            while pa > CRP[1]:
+                n = n + 1
+                k = find_k(n, PRP[0], PRP[1], interval=[0, 1000])
+                nc = - stats.norm.ppf(CRP[0])[0] * np.sqrt(n)
+                pa = 1 - stats.nct.cdf(k * np.sqrt(n), df=n - 1, nc=nc)
+            return PlanNormal(n, k, s_type)
+
+
+def findPlanApprox(PRP, CRP, N):
+    """ Calculate single-stage sampling plan using approximation of hypergeometric distribution """
+    alpha = (1 - PRP[1])
+    beta = CRP[1]
+    p0 = PRP[0]
+    pt = CRP[0]
+
+    za_pq0 = stats.norm.ppf(1 - alpha) * np.sqrt(p0 * (1 - p0))
+    zb_pqt = stats.norm.ppf(1 - beta) * np.sqrt(pt * (1 - pt))
+
+    # calculate approximation of n
+    n0 = ((za_pq0 + zb_pqt) / (pt - p0)) ** 2
+    nstar = int(round(n0 / (1 + n0 / N)))
+
+    # calculate approximation of c
+    cstar = int(round(nstar * p0 - 0.5 + za_pq0 * np.sqrt(nstar * (1 - nstar / N))))
+    return Plan(nstar, cstar, cstar + 1)
 
 
 def checkRiskPoint(RP, info, oc_type):
@@ -70,6 +158,24 @@ def checkRiskPoint(RP, info, oc_type):
             raise ValueError(f'{info}: all values of paccept must fall within [0, 1]')
 
     return RiskPoint(pdefect, paccept)
+
+
+# Utility to find k for a given n
+from scipy.optimize import root_scalar
+
+
+def find_k(n, pd, pa, interval=None):
+    """ find k for a given n """
+    if interval is None:
+        interval = [0, 5]
+    df = n - 1
+    sqrt_n = np.sqrt(n)
+    nc = - stats.norm.ppf(pd) * sqrt_n
+    pa = 1 - pa
+
+    def f(x):
+        return stats.nct.cdf(x * sqrt_n, df=df, nc=nc) - pa
+    return root_scalar(f, bracket=interval, method='brentq').root
 
 
 """
@@ -148,3 +254,9 @@ find.plan <- function(PRP, CRP,
   }
 }
 """
+
+
+def normalApproximationOfH(j, M, n, N):
+    P = N / M
+    Q = 1 - P
+    return stats.norm.cdf((j + 0.5 - n * P) / math.sqrt(n * P * Q * (1 - n / M)))

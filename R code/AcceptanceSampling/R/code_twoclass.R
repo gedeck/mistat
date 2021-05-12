@@ -375,15 +375,15 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
 {
   ## This is really a helper function - it does all the work for each
   ## value of pd.
-  print(c(pd, n, c, r))
+  # print(c(pd, n, c, r))
   k.s <- length(n) ## number of stages in this sampling
 
   prob.acc <- function(x, n, p){
-    print(x, n, p)
+    # print(x, n, p)
     k <- length(x)
     k1 <- k-1
-    print(c(x[k], n[k] * p, ppois(x[k], n[k]*p)))
-    print(1:k1, dpois(x[1:k1], n[1:k1]*p))
+    # print(c(x[k], n[k] * p, ppois(x[k], n[k]*p)))
+    # print(1:k1, dpois(x[1:k1], n[1:k1]*p))
     prod(dpois(x[1:k1], n[1:k1]*p))*ppois(x[k], n[k]*p)
   }
 
@@ -395,10 +395,10 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
 
     if(k==1) {
       ## Only a single sampling stage to do - this is simple
-      print(c('c', c[1], 'nc', n[1] * pd))
+      # print(c('c', c[1], 'nc', n[1] * pd))
       p.acc <- sapply(pd, FUN=function(el){
         ppois(q=c[1],lambda=n[1]*el)})
-      print(p.acc)
+      # print(p.acc)
       ## p.acc now exists and can be used in the following stages.
     }
     else if (k==2) {
@@ -411,7 +411,7 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
       ## the second stage
       x <- data.frame(X1=seq(c.s[1], r.s[1], by=1),
                       X.last=c[2]-seq(c.s[1], r.s[1], by=1))
-      print(x)
+      # print(x)
       p.acc <- p.acc + sum(apply(x, 1, FUN=prob.acc, n=n, p=pd))
     }
     else {
@@ -433,7 +433,7 @@ calc.OCpoisson.pdi <- function(pd,n,c,r)
         x[,i] <- x[,i]-x[,i-1]
       }
       x <- cbind(x, X.last=c[k] - rowSums(x[,1:(k-1)]))
-      print(x)
+      # print(x)
       p.acc <- p.acc + sum(apply(x, 1, FUN=prob.acc, n=n, p=pd))
     }
   }
