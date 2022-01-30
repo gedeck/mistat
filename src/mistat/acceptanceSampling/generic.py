@@ -4,11 +4,14 @@ Created on Jun 28, 2020
 @author: petergedeck
 '''
 from collections import namedtuple
+import math
+
+from scipy import stats
+from scipy.optimize import root_scalar
 
 from mistat.acceptanceSampling.distributions import OChypergeom, OCpoisson
 from mistat.acceptanceSampling.oc import OC_TYPES
 import numpy as np
-from scipy import stats
 
 
 RiskPoint = namedtuple('RiskPoint', 'pdefect,paccept')
@@ -161,7 +164,6 @@ def checkRiskPoint(RP, info, oc_type):
 
 
 # Utility to find k for a given n
-from scipy.optimize import root_scalar
 
 
 def find_k(n, pd, pa, interval=None):

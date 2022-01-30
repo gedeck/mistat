@@ -12,7 +12,6 @@ from scipy.stats import binom, hypergeom, poisson
 
 import numpy as np
 import pandas as pd
-from math import floor
 
 
 class OCtype(Enum):

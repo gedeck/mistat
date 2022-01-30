@@ -1,6 +1,5 @@
-\name{ALMPIN}
-\alias{ALMPIN}
-\alias{ALMPIN2}
+\name{HRA}
+\alias{HRA}
 \docType{data}
 \title{
 Annual customer satisfaction survey (19 dimensions)
@@ -46,10 +45,6 @@ were aggregated into 19 categories
   Wiley.
 }
 \examples{
-data(ALMPIN)
-
-cor(ALMPIN)
-
-plot(ALMPIN)
+data(HRA)
 }
 \keyword{datasets}

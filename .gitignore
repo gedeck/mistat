@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 /.pydevproject
 /.testmondata
+.Rproj.user

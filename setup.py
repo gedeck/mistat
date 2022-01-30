@@ -32,7 +32,7 @@ setuptools.setup(
     packages=setuptools.find_packages("src"),
     package_dir={'': 'src'},
     package_data={
-        "mistat": ["csvFiles/*.csv.gz"],
+        "mistat": ["csvFiles/*.csv.gz", "nlp/*.txt.gz"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
