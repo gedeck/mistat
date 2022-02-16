@@ -3,11 +3,10 @@ Created on Jun 12, 2020
 
 @author: gedeck
 '''
-from pathlib import Path
 import string
+from pathlib import Path
 
 import pandas as pd
-
 
 DATA_DIR = Path(__file__).parent / 'csvFiles'
 
@@ -17,6 +16,8 @@ def load_data(name):
     data_file = get_data_file(name)
     if not data_file.exists():
         raise ValueError('Data file {name} not found')
+    if name in SPECIAL_DATASETS:
+        return SPECIAL_DATASETS[name](data_file)
     data = pd.read_csv(data_file)
     if data.shape[1] == 1:
         return data[data.columns[0]]
@@ -53,3 +54,13 @@ def get_description_file(name):
         name = description_file.with_suffix('').name.rstrip(string.digits)
         description_file = DATA_DIR / 'md' / f'{name}.md'
     return description_file
+
+
+def load_process_segment(data_file):
+    data = pd.read_csv(data_file)
+    return {column: data[column].dropna() for column in data.columns}
+
+
+SPECIAL_DATASETS = {
+    'PROCESS_SEGMENT': load_process_segment,
+}

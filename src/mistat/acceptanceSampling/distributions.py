@@ -8,10 +8,9 @@ from enum import Enum
 from itertools import product
 from typing import List
 
-from scipy.stats import binom, hypergeom, poisson
-
 import numpy as np
 import pandas as pd
+from scipy.stats import binom, hypergeom, poisson
 
 
 class OCtype(Enum):
@@ -167,7 +166,7 @@ class OCpoisson(OCdistribution):
             x[k] = c[k] - np.sum(x, axis=1)
             for _, xi in x.iterrows():
                 p_acc += self.probAcc(xi.values, n, p_d)
-                print(x, p_acc)
+                # print(x, p_acc)
         return p_acc
 
     @staticmethod

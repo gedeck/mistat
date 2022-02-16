@@ -3,13 +3,12 @@ Created on Dec 30, 2020
 
 @author: petergedeck
 '''
-import numpy as np
-
-from scipy.linalg.special_matrices import toeplitz
-from scipy.linalg import inv
-from statsmodels.tsa.stattools import acf
-from scipy import stats
 from collections import namedtuple
+
+import numpy as np
+from scipy import stats
+from scipy.linalg import inv, toeplitz
+from statsmodels.tsa.stattools import acf
 
 
 def optimalLinearPredictor(x, n, nlags=10):

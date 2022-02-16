@@ -4,14 +4,13 @@ Applications in Python"
 
 (c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
 '''
-from pathlib import Path
 import unittest
+from pathlib import Path
 
-import pytest
-
-from mistat.data import DATA_DIR, get_description_file
 import mistat
 import pandas as pd
+import pytest
+from mistat.data import DATA_DIR, get_description_file
 
 
 class TestData(unittest.TestCase):
@@ -66,3 +65,9 @@ class TestData(unittest.TestCase):
         for name in Path(DATA_DIR / 'Rd').glob('*.Rd'):
             name = name.with_suffix('').name
             print(f'pandoc {name}.rst -t markdown -o {name}.md')
+
+    def test_specialDatasets(self):
+        data = mistat.load_data('PROCESS_SEGMENT')
+        print(data)
+        assert len(data['X']) == 1897
+        assert len(data['Z']) == 1002
