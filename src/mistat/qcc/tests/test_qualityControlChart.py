@@ -79,3 +79,12 @@ class TestQualityControlChart(unittest.TestCase):
 
     def test_S_chart(self):
         _ = QualityControlChart(self.cycleTime, qcc_type='S')
+
+    def test_p_chart(self):
+        abc = load_data('ABC')
+        equipment = ['q6', 'q7', 'q8', 'q9']
+        support = ['q12', 'q13', 'q14', 'q15', 'q16']
+        top5counts = (abc[equipment + support] == 5).sum()
+        qcc = QualityControlChart(top5counts[equipment], qcc_type='np', sizes=len(abc))
+        print(qcc.stats)
+        # 1/0

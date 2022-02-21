@@ -40,8 +40,7 @@ class QualityControlChart:
             self.sizes = [self.sizes] * len(self.data)
         else:
             self.stats = self.statistic.stats(self.data, self.sizes)
-        self.center = center or self.stats.center
-
+        self.center = float(center or self.stats.center)
         self.std_dev = self.statistic.sd(self.data, std_dev, self.sizes)
 
         if confidence_level is None:

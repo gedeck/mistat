@@ -1,0 +1,6 @@
+FROM mistat_test_1
+RUN pip install jupyter
+
+WORKDIR /src
+
+EXPOSE 8898
