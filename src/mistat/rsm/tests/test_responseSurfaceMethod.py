@@ -103,3 +103,28 @@ def loadModel(filename):
     formula = ('Ymean ~ (x1+x2+x3+x4)**2 + ' +
                'np.power(x1,2) + np.power(x2,2) + np.power(x3,2) + np.power(x4,2)')
     return {'codes': list(x2factor), 'model': smf.ols(formula, data=result).fit()}
+
+
+class TestRSMpackage(unittest.TestCase):
+    def test_RidgeRisingSituation(self):
+        data = pd.DataFrame({
+            'x1': [-1, 1, -1, 1, -1, 1, 0, 0, 0, 0, 0],
+            'x2': [-1, -1, 1, 1, 0, 0, -1, 1, 0, 0, 0],
+            'Response': [52.3, 5.3, 46.7, 44.2, 58.5, 33.5, 32.8, 49.2, 49.3, 50.2, 51.6],
+        })
+        codes = ['x1', 'x2']
+        model = smf.ols('Response ~ (x1 + x2)**2 + np.power(x1,2) + np.power(x2,2)', data=data).fit()
+        rsm = ResponseSurfaceMethod(model, codes)
+        np.testing.assert_allclose(rsm.stationary_point(),
+                                   np.array([-5.176505, -2.706733]), rtol=1e-4)
+        eigen = rsm.eigen()
+        np.testing.assert_allclose(eigen['eval'],
+                                   np.array([-0.509419, -12.706370]), rtol=1e-4)
+        np.testing.assert_allclose(eigen['evec'][:, 0],
+                                   np.array([0.8396245, 0.5431673]), rtol=1e-4)
+        np.testing.assert_allclose(eigen['evec'][:, 1],
+                                   np.array([-0.5431673, 0.8396245]), rtol=1e-4)
+
+        path = rsm.constrainedOptimization(start=(0, 0), distances=(0.5, 1))
+        np.testing.assert_allclose(path['y'],
+                                   np.array([50.263158, 55.556944, 58.742308]), rtol=1e-4)

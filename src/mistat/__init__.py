@@ -1,6 +1,7 @@
 from .data import load_data, describe_data
 from .design import mainEffectsPlot, interactionPlot, FDS_Plot
 from .design import getModelMatrix, calculateMainEffects, calculateInteractions
+from .design import addTreatments
 from .ecdf import plotECDF
 from .ml import plot_dendrogram
 from .mqcc import MultivariateQualityControlChart, MahalanobisT2

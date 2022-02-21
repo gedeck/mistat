@@ -3,11 +3,11 @@ Created on Jun 21, 2020
 
 @author: petergedeck
 '''
-from matplotlib import colors
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib import colors
+from matplotlib.patches import Rectangle
 
 
 class ParetoChart:
@@ -47,7 +47,8 @@ class ParetoChart:
                 marker='o', markerfacecolor='black', color='grey')
         ax.bar(range(0, nlevels), self.data['Frequency'])
         greys = plt.get_cmap('gray')(np.linspace(0, 1, nlevels + 3))[2:-1]
-        for bar, color in zip(ax.get_children(), greys):
+        bars = [child for child in ax.get_children() if isinstance(child, Rectangle)]
+        for bar, color in zip(bars, greys):
             bar.set_color(colors.to_hex(color))
             bar.set_edgecolor('black')
 

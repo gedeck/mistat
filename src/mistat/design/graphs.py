@@ -3,16 +3,14 @@ Created on Jul 4, 2020
 
 @author: petergedeck
 '''
-from itertools import combinations
-from itertools import product
-
-from scipy import stats
-import patsy
+from itertools import combinations, product
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import patsy
 import seaborn as sns
+from scipy import stats
 
 
 def calculateMainEffects(df, response, factors=None):
@@ -135,21 +133,6 @@ def getModelMatrix(design, mod=0, maxscale=1):
 def FDS_Plot(design, mod=0, ax=None, plotkw=None, label='y', maxscale=1):
     ''' Fraction of design space plot '''
     dm = getModelMatrix(design, mod=mod, maxscale=maxscale)
-#     design = design - design.mean()
-#     design = maxscale * design / design.max()
-#     kvar = design.shape[1]
-#     if not (1 < kvar < 8):
-#         raise ValueError('The design matrix must have between 2 and 7 variables')
-#     names = [f'x{i + 1}' for i in range(kvar)]
-#     design.columns = names
-#
-#     formula = list(names)
-#     if mod >= 1:
-#         formula.extend(f'{f1}:{f2}' for f1, f2 in combinations(names, 2))
-#     if mod == 2:
-#         formula.extend(f'np.power({f1}, 2)' for f1 in names)
-#
-#     dm = patsy.dmatrix(f'~ {"+".join(formula)}', data=design, return_type='dataframe')  # @UndefinedVariable
 
     terms = dm.columns
     kvar = design.shape[1]
@@ -168,7 +151,7 @@ def FDS_Plot(design, mod=0, ax=None, plotkw=None, label='y', maxscale=1):
         for f in names:
             fX[f'np.power({f}, 2)'] = fX[f] * fX[f]
     fX = pd.DataFrame(fX)
-    p1 = np.matmul(fX, XtXI)
+    p1 = np.matmul(fX.values, XtXI)
     v = np.diag(np.matmul(p1.values, np.transpose(fX.values)))
     vi = np.sort(v)
 

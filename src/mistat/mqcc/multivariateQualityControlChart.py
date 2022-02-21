@@ -3,12 +3,11 @@ Created on Jun 20, 2020
 
 @author: petergedeck
 '''
-from scipy import linalg
-
-from mistat.mqcc.statistics import mqccStatistics
-from mistat.qcc.rules import shewhartRules
 import matplotlib.pyplot as plt
 import pandas as pd
+from mistat.mqcc.statistics import mqccStatistics
+from mistat.qcc.rules import shewhartRules
+from scipy import linalg
 
 
 class MultivariateQualityControlChart:
@@ -84,11 +83,11 @@ class MultivariateQualityControlChart:
         beyondLimits = [*self.violations['beyondLimits']['LCL'], *self.violations['beyondLimits']['UCL']]
         violatingRuns = self.violations['violatingRuns']
         df = pd.DataFrame({'x': self.labels, 'y': self.stats.statistics})
-        ax = df.plot.line(x='x', y='y', style='-o', color='lightgrey',
+        ax = df.plot.line(x='x', y='y', style='-', color='lightgrey',
                           marker='o', markerfacecolor='black', ax=ax)
         if self.newdata is not None:
             new_df = pd.DataFrame({'x': self.newlabels, 'y': self.newstats.statistics})
-            ax = new_df.plot.line(x='x', y='y', style='-o', color='lightgrey',
+            ax = new_df.plot.line(x='x', y='y', style='-', color='lightgrey',
                                   marker='o', markerfacecolor='black', ax=ax)
             df = pd.concat([df, new_df])
             ax.axvline(0.5 * (self.newlabels[0] + self.labels[-1]), color='black', linestyle='--')

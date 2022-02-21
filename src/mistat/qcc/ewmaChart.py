@@ -3,10 +3,10 @@ Created on Jul 7, 2020
 
 @author: petergedeck
 '''
-from mistat.qcc.statistics import Base_statistic, qccStatistics
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from mistat.qcc.statistics import Base_statistic, qccStatistics
 
 
 def ewmaSmooth(y, x=None, smooth=0.20, start=None):
@@ -98,7 +98,7 @@ class EWMA:
         if ax is None:
             _, ax = plt.subplots(figsize=(7, 6))
 
-        pd.Series(self.statistics).plot(style='.', marker='+', color='black')
+        pd.Series(self.statistics).plot(marker='+', linestyle='None', color='black', ax=ax)
         v = np.array(self.violations)
         ax.plot(self.x, self.y, color='grey')
         ax.plot(self.x[v], self.y[v], linestyle='None', marker='s', color='red')

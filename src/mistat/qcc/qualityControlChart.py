@@ -5,13 +5,12 @@ Created on Jun 20, 2020
 '''
 from numbers import Number
 
-from scipy import stats
-
-from mistat.qcc.rules import shewhartRules
-from mistat.qcc.statistics import qccStatistics, GroupMeans
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from mistat.qcc.rules import shewhartRules
+from mistat.qcc.statistics import GroupMeans, qccStatistics
+from scipy import stats
 
 
 # qcc <- function(data, type = c("xbar", "R", "S", "xbar.one", "p", "np", "c", "u", "g"), sizes,
@@ -37,7 +36,7 @@ class QualityControlChart:
         self.labels = labels
 
         if isinstance(self.sizes, Number):
-            self.stats = GroupMeans((self.data.values / self.sizes).flatten(), np.mean(self.data))
+            self.stats = GroupMeans((self.data.values / self.sizes).flatten(), self.data.mean())
             self.sizes = [self.sizes] * len(self.data)
         else:
             self.stats = self.statistic.stats(self.data, self.sizes)
@@ -74,7 +73,7 @@ class QualityControlChart:
         beyondLimits = [*self.violations['beyondLimits']['LCL'], *self.violations['beyondLimits']['UCL']]
         violatingRuns = self.violations['violatingRuns']
         df = pd.DataFrame({'x': self.labels, 'y': self.stats.statistics})
-        ax = df.plot.line(x='x', y='y', style='-o', color='lightgrey',
+        ax = df.plot.line(x='x', y='y', style='-', color='lightgrey',
                           marker='o', markerfacecolor='black', ax=ax)
         ax.plot(df.iloc[beyondLimits]['x'], df.iloc[beyondLimits]['y'], linestyle='None',
                 marker='s', markerfacecolor='red', markeredgecolor='red')

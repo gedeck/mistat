@@ -6,6 +6,7 @@ Created on May 3, 2021
 import numpy as np
 import pandas as pd
 from scipy.linalg import eig
+from scipy.optimize import minimize, NonlinearConstraint
 
 
 class ResponseSurfaceMethod:
@@ -49,3 +50,43 @@ class ResponseSurfaceMethod:
         ev, evec = eig(self.B)
         indx = ev.real.argsort()[::-1]
         return {'eval': ev.real[indx], 'evec': evec[:, indx]}
+
+    def constrainedOptimization(self, start, distances=None, maximize=True, reverse=False):
+        if distances is None:
+            distances = np.arange(0.5, 5.1, 0.5)
+        x0 = start
+        if x0 is None:
+            x0 = self.stationary_point()
+        else:
+            x0 = pd.Series(x0, index=self.codes)
+
+        factor = -1 if maximize else 1
+
+        def fun(x):
+            df = pd.DataFrame({code: [value] for code, value in zip(self.codes, x)})
+            return factor * self.model.predict(df)
+        result = {'step': 0, 'distance': 0}
+        result.update({c: x0[c] for c in self.codes})
+        result['y'] = factor * fun(x0)[0]
+        results = [result]
+        x = x0
+        lastDistance = 0
+        for step, distance in enumerate(distances, 1):
+            result = {'step': 1, 'distance': distance}
+            gradient = self.gradient(x)
+            if reverse:
+                gradient = -gradient
+                reverse = False
+            x = x + (distance-lastDistance) * gradient
+
+            def distanceConstraint(x):
+                return np.sqrt(np.sum((x-x0)**2)) - distance
+
+            constraints = NonlinearConstraint(distanceConstraint, -0.0001, 0.0001)
+            minResult = minimize(fun, x, constraints=constraints)
+            x = pd.Series(minResult.x, index=self.codes)
+            result = {'step': step, 'distance': distance}
+            result.update({c: x[c] for c in self.codes})
+            result['y'] = factor * minResult.fun
+            results.append(result)
+        return pd.DataFrame(results)
