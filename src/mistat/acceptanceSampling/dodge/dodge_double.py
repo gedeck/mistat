@@ -15,90 +15,63 @@ def DSPlanBinomial(N, n1, n2, Ac1, Re1, Ac2, p=None):
     p = p if p is not None else np.arange(0, 0.255, 0.005)
     p = np.array(p)
 
-    _ = np.array([stats.binom.cdf(Ac1, n1, pi) for pi in p])
+    Pa1 = stats.binom.cdf(Ac1, n1, p)
     limits = list(range(Ac1 + 1, Re1))
-    # print(limits)
-    # TODO: write specs
+
+    Pa2 = np.zeros([len(p), len(limits)])
+    for i, d1 in enumerate(limits):
+        Pa2[:, i] = stats.binom.pmf(d1, n1, p) * stats.binom.cdf(Ac2-d1, n2, p)
+    Pa2 = np.sum(Pa2, axis=1)
+    OC = Pa1 + Pa2
+
+    ASN = n1 + n2 * (stats.binom.cdf((Re1 - 1), n1, p) -
+                     stats.binom.cdf(Ac1, n1, p))
+    AOQ = (p * Pa1 * (N - n1) + p * Pa2 * (N - n1 - n2)) / N
+    ATI = n1 * Pa1 + (n1 + n2) * Pa2 + (1 - OC) * N
+
+    return AcceptanceSamplingPlan(p=p, OC=OC, AOQ=AOQ, ATI=ATI, ASN=ASN, Pa1=Pa1, Pa2=Pa2)
 
 
-#     1.00000000 0.95111013 0.90438208 0.85973044 0.817072
-#
-#     OC = np.array([stats.binom(n, pi).cdf(Ac) for pi in p])
-#
-#     AOQ = (N - n) * p * OC / N
-#     ATI = n * OC + N * (1 - OC)
-#     return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)
-
-# DSPlanBinomial=function(N,n1,n2,Ac1,Re1, Ac2, p=seq(0,0.25,0.005), Plots=TRUE){
-
-
-def SSPlanHyper(N, n, Ac, p=None):
-    p = p if p is not None else np.arange(0, 0.3, 0.001)
+def DSPlanPoisson(N, n1, n2, Ac1, Re1, Ac2, p=None):
+    p = p if p is not None else np.arange(0, 0.255, 0.005)
     p = np.array(p)
 
-    OC = np.array([stats.hypergeom(N, round(n * pi), n).cdf(Ac) for pi in p])
+    Pa1 = stats.poisson.cdf(Ac1, n1*p)
+    limits = list(range(Ac1 + 1, Re1))
 
-    AOQ = (N - n) * p * OC / N
-    ATI = n * OC + N * (1 - OC)
-    return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)
+    Pa2 = np.zeros(len(p))
+    for d1 in limits:
+        Pa2 += stats.poisson.pmf(d1, n1*p) * stats.poisson.cdf(Ac2-d1, n2*p)
+
+    OC = Pa1 + Pa2
+    ASN = n1 + n2 * (stats.poisson.cdf((Re1 - 1), n1*p) -
+                     stats.poisson.cdf(Ac1, n1*p))
+    AOQ = (p * Pa1 * (N - n1) + p * Pa2 * (N - n1 - n2)) / N
+    ATI = n1 * Pa1 + (n1 + n2) * Pa2 + (1 - OC) * N
+    return AcceptanceSamplingPlan(p=p, OC=OC, AOQ=AOQ, ATI=ATI, ASN=ASN, Pa1=Pa1, Pa2=Pa2)
 
 
-def SSPlanPoisson(N, n, Ac, p=None):
-    p = p if p is not None else np.arange(0, 0.3, 0.001)
+def DSPlanNormal(N, n1, n2, Ac1, Re1, Ac2, p=None):
+    p = p if p is not None else np.arange(0, 0.255, 0.005)
     p = np.array(p)
 
-    OC = np.array([stats.poisson(n * pi).cdf(Ac) for pi in p])
+    dn1 = np.sqrt(n1*p*(1-p)*(1 - n1/N))
+    dn2 = np.sqrt(n2*p*(1-p)*(1 - n2/(N*n1)))
 
-    AOQ = (N - n) * p * OC / N
-    ATI = n * OC + N * (1 - OC)
-    return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)
+    Pa1 = stats.norm.cdf((Ac1 + 0.5 - n1*p) / dn1)
 
+    limits = list(range(Ac1 + 1, Re1))
 
-#' Single Sampling Plan Designs
-#'
-#' Design a single sampling plan for given AQL, alpha, LQL, and beta. Currently
-#' there are functions for the binomial and Poisson distributions.
-#'
-#' @param AQL Acceptable quality level
-#' @param alpha producer's risk
-#' @param LQL Limiting quality level
-#' @param beta consumers' risk
+    Pa2 = np.zeros(len(p))
+    for d1 in limits:
+        delta = (stats.norm.cdf((d1 + 0.5 - n1*p) / dn1) -
+                 stats.norm.cdf((d1 - 0.5 - n1*p) / dn1))
+        Pa2 += delta * stats.norm.cdf((Ac2-d1 + 0.5 - n2*p)/dn2)
 
-def SSPDesignBinomial(AQL, alpha, LQL, beta):
-    def nl(Ac, LQL, beta):
-        n = 1
-        while stats.binom(n, LQL).cdf(Ac) >= beta:
-            n += 1
-        return n
+    OC = Pa1 + Pa2
+    ASN = n1 + n2 * (stats.norm.cdf((Re1 - 0.5 - n1*p)/dn1) -
+                     stats.norm.cdf((Ac1 + 0.5 - n1*p)/dn1))
+    AOQ = (p * Pa1 * (N - n1) + p * Pa2 * (N - n1 - n2)) / N
+    ATI = n1 * Pa1 + (n1 + n2) * Pa2 + (1 - OC) * N
 
-    def nu(Ac, AQL, alpha):
-        n = 1
-        while stats.binom(n, AQL).cdf(Ac) >= 1 - alpha:
-            n += 1
-        return n
-
-    Ac = 0
-    while nl(Ac, LQL, beta) > nu(Ac, AQL, alpha):
-        Ac += 1
-    n = nl(Ac, LQL, beta)
-    return pd.Series({'n': n, 'Ac': Ac})
-
-
-def SSPDesignPoisson(AQL, alpha, LQL, beta):
-    def nl(Ac, LQL, beta):
-        n = 1
-        while stats.poisson(n * LQL).cdf(Ac) >= beta:
-            n += 1
-        return n
-
-    def nu(Ac, AQL, alpha):
-        n = 1
-        while stats.poisson(n * AQL).cdf(Ac) >= 1 - alpha:
-            n += 1
-        return n
-
-    Ac = 0
-    while nl(Ac, LQL, beta) > nu(Ac, AQL, alpha):
-        Ac += 1
-    n = nl(Ac, LQL, beta)
-    return pd.Series({'n': n, 'Ac': Ac})
+    return AcceptanceSamplingPlan(p=p, OC=OC, AOQ=AOQ, ATI=ATI, ASN=ASN, Pa1=Pa1, Pa2=Pa2)

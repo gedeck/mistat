@@ -68,6 +68,5 @@ class TestData(unittest.TestCase):
 
     def test_specialDatasets(self):
         data = mistat.load_data('PROCESS_SEGMENT')
-        print(data)
         assert len(data['X']) == 1897
         assert len(data['Z']) == 1002

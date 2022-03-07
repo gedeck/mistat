@@ -5,7 +5,7 @@ PYWASH_IMAGE=mistat_pywash_1
 TEST_IMAGE=mistat_test_1
 JUPYTER_IMAGE=mistat_dev_jupyter
 images: 
-	# docker build -t $(PYWASH_IMAGE) -f docker/Dockerfile.pywash .
+	docker build -t $(PYWASH_IMAGE) -f docker/Dockerfile.pywash .
 	docker build -t $(TEST_IMAGE) -f docker/Dockerfile.test .
 	docker build -t $(JUPYTER_IMAGE) -f docker/Dockerfile.jupyter .
 
@@ -22,10 +22,10 @@ bash-tests:
 	docker run -it --rm -v $(PWD)/src:/src $(TEST_IMAGE) bash
 
 pywash:
-	docker run -it --rm -p 5000:5000 $(PYWASH_IMAGE)
+	docker run -it --rm -p 5001:5000 $(PYWASH_IMAGE)
 
 bash-pywash:
-	docker run -it --rm -p 5000:5000 $(PYWASH_IMAGE) bash
+	docker run -it --rm $(PYWASH_IMAGE) bash
 
 jupyter:
 	docker run --rm -v $(PWD)/src:/src -p 8898:8898 $(JUPYTER_IMAGE) jupyter notebook --allow-root --port=8898 --ip 0.0.0.0 --no-browser

@@ -33,7 +33,7 @@ FO = function(...) {
     fo
 }
 
-#### I tried developing a formula interface for FO, TWI, and SO. 
+#### I tried developing a formula interface for FO, TWI, and SO.
 #### Decided it is NOT a good idea
 # # New version of FO that supports a formula
 # FO = function(...) {
@@ -101,11 +101,11 @@ TWI = function(..., formula) {
         trms = terms(formula)
         attr(trms, "intercept") = 0
         X = model.matrix(trms, data=parent.frame())[, attr(trms, "order")==2, drop=FALSE]
-       if(ncol(X) == 0) 
+       if(ncol(X) == 0)
             stop("Formula yields no two-way interactions. Re-specify or omit 'TWI' term from model")
         else if (ncol(X) == 1) {
             new.expr = paste("TWI(", gsub(":", ",", dimnames(X)[[2]]), ")", sep="")
-            stop(paste("Result is just one column. Revise the model using '", 
+            stop(paste("Result is just one column. Revise the model using '",
                        new.expr, "'", sep=""))
         }
         X
@@ -154,10 +154,10 @@ rsm = function (formula, data, ...) {
 #-DEPR    LM$labels = list(FO=list(idx=i.fo, lab=fonm))
     newlabs[i.fo] = fonm
 #-depr    names(LM$coef)[i.fo] = LM$labels
-    
+
     LM$B = matrix(0, k, k)
     dimnames(LM$B) = list(fonm, fonm)
-    
+
     i.twi = grep("TWI\\(", nm)
     if ((k > 1) & (length(i.twi) > 0)) {
         btwi = LM$coef[i.twi]
@@ -170,9 +170,9 @@ rsm = function (formula, data, ...) {
 # we can be sure to be able to parse "TWI(x1, x2)" into "x1:x2"
             lb = strsplit(s, "\\(|\\)")[[1]]
             if (length(lb) >= 3) rev(lb)[1]
-            else { 
+            else {
                 tmp = gsub(" ","", lb[2])
-                gsub(",", ":", tmp) 
+                gsub(",", ":", tmp)
             }
         })
         names(twi.lab) = NULL
@@ -185,9 +185,9 @@ rsm = function (formula, data, ...) {
                 twi.lab[i] = paste(twi.lab[i],"@", sep="")
         }
 #-DEPR        LM$labels$TWI = list(idx=i.twi, lab=twi.lab)
-        newlabs[i.twi] = twi.lab        
+        newlabs[i.twi] = twi.lab
     }
-        
+
     i.pq = grep("PQ\\(", nm)
     if (length(i.pq) > 0) {
         LM$order = 2
@@ -199,19 +199,19 @@ rsm = function (formula, data, ...) {
         vn = sapply(pq.lab, function(s) substr(s, 1, nchar(s)-2))
         for (i in 1:length(vn)) LM$B[vn[i],vn[i]] = LM$coef[i.pq[i]]
 #-DEPR        LM$labels$PQ = list(idx=i.pq, lab=pq.lab)
-        newlabs[i.pq] = pq.lab        
+        newlabs[i.pq] = pq.lab
     }
-LM$newlabs = newlabs    
-    
-    if (LM$order==1) 
+LM$newlabs = newlabs
+
+    if (LM$order==1)
         aliased = any(is.na(LM$b))
-    else 
+    else
         aliased = any(is.na(cbind(LM$B, LM$b)))
     if (aliased)
         warning("Some coefficients are aliased - cannot use 'rsm' methods.\n  Returning an 'lm' object.")
     else {
-        if (!is.null(data)) 
-            if (inherits(data, "coded.data")) 
+        if (!is.null(data))
+            if (inherits(data, "coded.data"))
                 LM$coding = attr(data, "codings")
         class(LM) = c("rsm", "lm")
     }
@@ -242,7 +242,7 @@ summary.rsm = function (object, adjust = rev(p.adjust.methods), ...) {
     # figure out which dots to pass to summary.lm
     dots = list(...)
     adjust = match.arg(adjust)
-    
+
     tidx = pmatch(names(dots), "threshold")
     if (!all(is.na(tidx))) {
         threshold = dots[!is.na(tidx)][1]
@@ -250,7 +250,7 @@ summary.rsm = function (object, adjust = rev(p.adjust.methods), ...) {
     }
     else
         threshold = 1e-4
-    
+
     dots$object = object
     SUM = do.call("summary.lm", dots)
     if (adjust != "none") {
@@ -279,25 +279,25 @@ summary.rsm = function (object, adjust = rev(p.adjust.methods), ...) {
 print.summary.rsm = function(x, ...) {
   ### --- replace: getS3method("print", "summary.lm") (x, ...)
   ### Just show the call and coefs; skip the resid summary
-  cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+  cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
   printCoefmat(x$coefficients, ...)
   adj = attr(x$coefficients, "adjust")
   if(!is.null(adj))
     cat(paste0("P-value adjustment: \"", adj, "\"\n"))
   cat("\n")
-  
+
   # This block is "borrowed" from print.summary.lm
   digits = list(...)$digits
   if (is.null(digits))
     digits = max(3L, getOption("digits") - 3L)
   if (!is.null(x$fstatistic)) {
     cat("Multiple R-squared: ", formatC(x$r.squared, digits = digits))
-    cat(",\tAdjusted R-squared: ", formatC(x$adj.r.squared, digits = digits), 
-        "\nF-statistic:", formatC(x$fstatistic[1L], digits = digits), 
-        "on", x$fstatistic[2L], "and", x$fstatistic[3L], 
-        "DF,  p-value:", format.pval(pf(x$fstatistic[1L], 
-          x$fstatistic[2L], x$fstatistic[3L], lower.tail = FALSE), 
+    cat(",\tAdjusted R-squared: ", formatC(x$adj.r.squared, digits = digits),
+        "\nF-statistic:", formatC(x$fstatistic[1L], digits = digits),
+        "on", x$fstatistic[2L], "and", x$fstatistic[3L],
+        "DF,  p-value:", format.pval(pf(x$fstatistic[1L],
+          x$fstatistic[2L], x$fstatistic[3L], lower.tail = FALSE),
           digits = digits))
     cat("\n")
   }
@@ -338,7 +338,8 @@ steepest = function (object, dist=seq(0,5,by=.5), descent=FALSE) {
     else {
         iden = diag (rep (1, length(object$b)))
         rng = range (eigen (object$B) $values)
-          
+        print(iden)
+
         soln = function (gam) {
             -0.5 * solve (object$B - gam*iden, object$b)
         }
@@ -358,28 +359,28 @@ steepest = function (object, dist=seq(0,5,by=.5), descent=FALSE) {
             }
             bd
         }
-        
+
         mind = min(dist[dist>.009])
         if (descent)
           bds = c(incr.out(rng[1]-5, -2, mind), rng[1]-.001)
-        else 
+        else
           bds = c(rng[2]+.001, incr.out(rng[2]+5, 2, mind))
 
         path = t(sapply(dist, find.pt, bds))
         cat(paste("Path of steepest", goal, "from ridge analysis:\n"))
     }
-    
+
     path = newdata = as.data.frame (round (path, 3))
     md = model.data(object)
     for (vn in names(md))
         if (is.null(newdata[[vn]])) {
             v = md[[vn]]
-            if(is.factor(v)) 
+            if(is.factor(v))
                 newdata[[vn]] = factor(levels(v)[1], levels=levels(v))
                 else newdata[[vn]] = mean(v)
         }
     yhat = predict(object, newdata=newdata)
-    
+
     path[["|"]] = factor("|")
     if (!is.null(object$coding)) {
         orig = code2val(path, object$coding)
@@ -388,8 +389,9 @@ steepest = function (object, dist=seq(0,5,by=.5), descent=FALSE) {
     ans = cbind(data.frame(dist=dist), path, yhat=round(yhat,3))
     ans
 }
+steepest(RRex.rsm)
 
-canonical.path = function(object, 
+canonical.path = function(object,
                           which = ifelse(descent, length(object$b), 1),
                           dist = seq(-5, 5, by=.5),
                           descent = FALSE,
@@ -402,12 +404,12 @@ canonical.path = function(object,
     can = canonical(object, threshold)
     dir = can$eigen$vectors[ , which]
     path = t(sapply(dist, function(d) can$xs + d*dir))
-    
+
     path = newdata = as.data.frame(round(path, 3))
     md = model.data(object)
     for (vn in names(md)) if (is.null(newdata[[vn]])) {
         v = md[[vn]]
-        if (is.factor(v)) 
+        if (is.factor(v))
             newdata[[vn]] = factor(levels(v)[1], levels = levels(v))
         else newdata[[vn]] = mean(v)
     }
@@ -421,12 +423,12 @@ canonical.path = function(object,
     ans
 }
 
-# Canonical analysis -- allows singular B matrix and may set a 
+# Canonical analysis -- allows singular B matrix and may set a
 # higher threshold on e'vals considered to be zero
 canonical = function(object, threshold = 1e-4) {
-    if (!inherits(object, "rsm")) 
+    if (!inherits(object, "rsm"))
         stop ("Not an 'rsm' object")
-    if (object$order == 1) 
+    if (object$order == 1)
         stop("Canonical analysis is not possible for first-order models")
     EA = eigen(object$B)
     active = which(abs(EA$values) > threshold)

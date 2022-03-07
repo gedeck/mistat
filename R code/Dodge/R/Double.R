@@ -1,8 +1,8 @@
 #' Double Sampling Plans
-#' 
+#'
 #' Double Sampling Plans for the binomial and Poisson distributions.
-#' 
-#' 
+#'
+#'
 #' @aliases DSPlanBinomial DoubleSamplingPlans DSPlanPoisson
 #' @param N the lot size
 #' @param n1 the sample size in the first stage of the plan
@@ -18,16 +18,20 @@
 #' Tables, Single and Double Sampling}, Second edition, John Wiley and Sons, New
 #' York.
 #' @examples
-#' 
+#'
 #' DSPlanBinomial(1000, 10, 10, 0, 2, 1)
 #' DSPlanPoisson(1000, 10, 10, 0,2, 1)
-#' 
+#'
 
 #' @export
 DSPlanBinomial=function(N,n1,n2,Ac1,Re1, Ac2, p=seq(0,0.25,0.005), Plots=TRUE){
 #N=1000;n1=10;n2=10;Ac1=0;Re1=2;Ac2=1
+N=150; n1=20; n2=40; Ac1=2; Re1=6; Ac2=6
+p = c(0, 0.05, 0.1, 0.15, 0.2, 0.25)
 
+Ac1; Re1
 Pa1=pbinom(Ac1, n1, p)
+
 limits=(Ac1+1):(Re1-1)
 
 i=0
@@ -38,8 +42,8 @@ for(d1 in limits)
   i=i+1
   pc=dbinom(d1,n1,p)*pbinom((Ac2-d1),n2,p)
   Pa2[,i]=pc
-  Pa2
 }
+Pa2
 Pa2=rowSums(Pa2)
 OC=Pa1+Pa2
 ASN =n1+n2*(pbinom((Re1-1), n1, p)- pbinom(Ac1, n1, p))
@@ -58,9 +62,11 @@ return(results)
 #' @export
 DSPlanPoisson=function(N,n1,n2,Ac1,Re1, Ac2, p=seq(0,0.25,0.005), Plots=TRUE){
 #N=1000;n1=10;n2=10;Ac1=0;Re1=2;Ac2=1
+  N=150; n1=20; n2=40; Ac1=2; Re1=6; Ac2=6
 
 Pa1=ppois(Ac1, n1*p)
 limits=(Ac1+1):(Re1-1)
+
 
 i=0
 Pa2=matrix(0, ncol=length(limits), nrow=length(p))

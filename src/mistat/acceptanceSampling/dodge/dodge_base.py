@@ -4,7 +4,7 @@ Created on Jun 30, 2020
 @author: petergedeck
 '''
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,11 +14,13 @@ import pandas as pd
 @dataclass
 class AcceptanceSamplingPlan:
     p: List[float]
-    n: List[float]
     OC: List[float]
     ASN: List[float]
     AOQ: List[float]
     ATI: List[float]
+    n: List[float] = None
+    Pa1: List[float] = None
+    Pa2: List[float] = None
 
     def plot(self, axes=None):
         if axes is None:

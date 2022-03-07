@@ -86,5 +86,3 @@ class TestQualityControlChart(unittest.TestCase):
         support = ['q12', 'q13', 'q14', 'q15', 'q16']
         top5counts = (abc[equipment + support] == 5).sum()
         qcc = QualityControlChart(top5counts[equipment], qcc_type='np', sizes=len(abc))
-        print(qcc.stats)
-        # 1/0

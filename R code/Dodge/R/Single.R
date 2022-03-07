@@ -1,9 +1,9 @@
 #' Single Sampling Plans
-#' 
+#'
 #' Single sampling plans for the binomial, hypergeometric and Poisson
 #' distributions.
-#' 
-#' 
+#'
+#'
 #' @aliases SSPlanBinomial SingleSamplingPlans SSPlanHyper SSPlanPoisson
 #' @param N the lot size
 #' @param n the sample size
@@ -17,15 +17,16 @@
 #' Tables, Single and Double Sampling}, Second edition, John Wiley and Sons, New
 #' York.
 #' @examples
-#' 
+#'
 #' SSPlanBinomial(1000, 20,1)
 #' SSPlanHyper(5000, 200,3)
 #' SSPlanPoisson(1000, 20,1)
-#' 
+#'
 
 #' @export
 SSPlanBinomial=function(N,n,Ac, p=seq(0, 0.3, .001), Plots=TRUE)
 {
+  N=1000; n=20; Ac=1; p=seq(0, 0.3, 0.05)
   OC = pbinom(Ac, n, p)
   AOQ=(N-n)*p*OC/N
   ATI= n*OC+N*(1-OC)
@@ -41,6 +42,8 @@ SSPlanBinomial=function(N,n,Ac, p=seq(0, 0.3, .001), Plots=TRUE)
 #' @export
 SSPlanHyper=function(N,n,Ac, p=seq(0, 0.3, .001), Plots=TRUE)
 {
+  N=5000; n=200; Ac=3; p=seq(0, 0.05, 0.01)
+
 OC = phyper(Ac, N*p, N*(1-p), n)
 AOQ=(N-n)*p*OC/N
 ATI= n*OC+N*(1-OC)
@@ -56,6 +59,7 @@ return(results)
 #' @export
 SSPlanPoisson=function(N, n,Ac, p=seq(0, 0.3, .001), Plots=TRUE)
 {
+  N=1000; n=20; Ac=1; p=seq(0, 0.3, 0.05)
 OC = ppois(Ac,n*p)
 AOQ=(N-n)*p*OC/N
 ATI= n*OC+N*(1-OC)
@@ -70,11 +74,11 @@ return(results)
 
 
 #' Single Sampling Plan Designs
-#' 
+#'
 #' Design a single sampling plan for given AQL, alpha, LQL, and beta. Currently
 #' there are functions for the binomial and Poisson distributions.
-#' 
-#' 
+#'
+#'
 #' @aliases SSPDesign SSPDesignBinomial SSPDesignPoisson
 #' @param AQL Acceptable quality level
 #' @param alpha producer's risk
@@ -85,10 +89,10 @@ return(results)
 #' Tables, Single and Double Sampling}, Second edition, John Wiley and Sons, New
 #' York.
 #' @examples
-#' 
+#'
 #' SSPDesignBinomial(0.01, 0.05, 0.04, 0.05)
 #' SSPDesignPoisson(0.01, 0.05, 0.04, 0.05)
-#' 
+#'
 
 
 
@@ -99,7 +103,7 @@ SSPDesignBinomial =function(AQL, alpha, LQL, beta){
     n=1
     while(pbinom(Ac, n, LQL) >= beta){
       n=n+1
-    } 
+    }
   n
   }
 #nl(5, 0.04, 0.05)
@@ -110,7 +114,7 @@ SSPDesignBinomial =function(AQL, alpha, LQL, beta){
     n=1
     while(pbinom(Ac, n, AQL) >= 1-alpha){
      n=n+1
-    } 
+    }
   n
   }
 #nl(5, 0.01, 0.05)
@@ -132,7 +136,7 @@ nl=function(Ac, LQL, beta)
 n=1
 while(ppois(Ac, n* LQL) >= beta){
 n=n+1
-} 
+}
 n
 }
 #nl(5, 0.04, 0.05)
@@ -143,7 +147,7 @@ nu=function(Ac,AQL,alpha)
 n=1
 while(ppois(Ac, n* AQL) >= 1-alpha){
 n=n+1
-} 
+}
 n
 }
 #nl(5, 0.01, 0.05)

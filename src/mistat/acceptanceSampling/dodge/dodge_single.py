@@ -11,13 +11,13 @@ import pandas as pd
 from .dodge_base import AcceptanceSamplingPlan
 
 
-#' Single sampling plans for the binomial, hypergeometric and Poisson
-#' distributions.
+# ' Single sampling plans for the binomial, hypergeometric and Poisson
+# ' distributions.
 def SSPlanBinomial(N, n, Ac, p=None):
     p = p if p is not None else np.arange(0, 0.3, 0.001)
     p = np.array(p)
 
-    OC = np.array([stats.binom(n, pi).cdf(Ac) for pi in p])
+    OC = stats.binom.cdf(Ac, n, p)
 
     AOQ = (N - n) * p * OC / N
     ATI = n * OC + N * (1 - OC)
@@ -28,7 +28,7 @@ def SSPlanHyper(N, n, Ac, p=None):
     p = p if p is not None else np.arange(0, 0.3, 0.001)
     p = np.array(p)
 
-    OC = np.array([stats.hypergeom(N, round(n * pi), n).cdf(Ac) for pi in p])
+    OC = stats.hypergeom.cdf(Ac, N, np.round(N*p), n)
 
     AOQ = (N - n) * p * OC / N
     ATI = n * OC + N * (1 - OC)
@@ -39,22 +39,21 @@ def SSPlanPoisson(N, n, Ac, p=None):
     p = p if p is not None else np.arange(0, 0.3, 0.001)
     p = np.array(p)
 
-    OC = np.array([stats.poisson(n * pi).cdf(Ac) for pi in p])
-
+    OC = stats.poisson.cdf(Ac, n*p)
     AOQ = (N - n) * p * OC / N
     ATI = n * OC + N * (1 - OC)
     return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)
 
 
-#' Single Sampling Plan Designs
-#'
-#' Design a single sampling plan for given AQL, alpha, LQL, and beta. Currently
-#' there are functions for the binomial and Poisson distributions.
-#'
-#' @param AQL Acceptable quality level
-#' @param alpha producer's risk
-#' @param LQL Limiting quality level
-#' @param beta consumers' risk
+# ' Single Sampling Plan Designs
+# '
+# ' Design a single sampling plan for given AQL, alpha, LQL, and beta. Currently
+# ' there are functions for the binomial and Poisson distributions.
+# '
+# ' @param AQL Acceptable quality level
+# ' @param alpha producer's risk
+# ' @param LQL Limiting quality level
+# ' @param beta consumers' risk
 
 def SSPDesignBinomial(AQL, alpha, LQL, beta):
     def nl(Ac, LQL, beta):

@@ -7,9 +7,9 @@ import unittest
 
 import pytest
 
-from mistat.acceptanceSampling.dodge.dodge_double import DSPlanBinomial
+from mistat.acceptanceSampling.dodge.dodge_double import DSPlanBinomial, DSPlanNormal, DSPlanPoisson
 from mistat.acceptanceSampling.dodge.dodge_sequential import sequentialDesign
-from mistat.acceptanceSampling.dodge.dodge_single import SSPDesignBinomial, SSPDesignPoisson
+from mistat.acceptanceSampling.dodge.dodge_single import SSPDesignBinomial, SSPDesignPoisson, SSPlanBinomial, SSPlanHyper, SSPlanPoisson
 import numpy as np
 
 
@@ -57,7 +57,71 @@ class TestDodge(unittest.TestCase):
         assert design.n == 297
         assert design.Ac == 6
 
-    def test_doubleSamplingPlan(self):
-        # R: DSPlanPoisson(1000, 10, 10, 0,2, 1)
-        _ = DSPlanBinomial(1000, 10, 10, 0, 2, 1)
-        # TODO: write asserts
+    def test_SSPlanBinomial(self):
+        dsPlan = SSPlanBinomial(1000, 20, 1, p=(0, 0.05, 0.1, 0.15, 0.2, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.p,
+                                             (0.00, 0.05, 0.10, 0.15, 0.20, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.OC,
+                                             (1, 0.73584, 0.39175, 0.17556, 0.06918, 0.02431), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.AOQ,
+                                             (0, 0.03606, 0.03839, 0.02581, 0.01356, 0.00596), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ATI,
+                                             (20, 278.8773, 616.0879, 827.9533, 932.2082, 976.1736), decimal=4)
+
+    def test_SSPlanHyper(self):
+        dsPlan = SSPlanHyper(5000, 200, 3, p=(0, 0.01, 0.02, 0.03, 0.04, 0.05))
+        np.testing.assert_array_almost_equal(dsPlan.p,
+                                             (0, 0.01, 0.02, 0.03, 0.04, 0.05))
+        np.testing.assert_array_almost_equal(dsPlan.OC,
+                                             (1, 0.86182, 0.42754, 0.14179, 0.03679, 0.00810), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.AOQ,
+                                             (0, 0.00827, 0.00821, 0.00408, 0.00141, 0.00039), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ATI,
+                                             (200, 863.2879, 2947.8071, 4319.4236, 4823.4055, 4961.1010), decimal=4)
+
+    def test_SSPlanPoisson(self):
+        dsPlan = SSPlanPoisson(1000, 20, 1, p=(0, 0.05, 0.1, 0.15, 0.2, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.p,
+                                             (0, 0.05, 0.1, 0.15, 0.2, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.OC,
+                                             (1, 0.73576, 0.40601, 0.19915, 0.09158, 0.04043), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.AOQ,
+                                             (0, 0.03605, 0.03979, 0.02927, 0.01795, 0.00990), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ATI,
+                                             (20, 278.9563, 602.1143, 804.8347, 910.2534, 960.3809), decimal=4)
+
+    def test_DSPlanBinomial(self):
+        dsPlan = DSPlanBinomial(150, 20, 40, 2, 6, 6, p=(0, 0.05, 0.1, 0.15, 0.2, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.p,
+                                             (0.00, 0.05, 0.10, 0.15, 0.20, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.OC,
+                                             (1, 0.98578, 0.77994, 0.44660, 0.21392, 0.09211), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ASN,
+                                             (20, 23.00618, 32.47280, 41.11183, 43.92492, 41.03649), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.AOQ,
+                                             (0, 0.04190, 0.06485, 0.05639, 0.03666, 0.019901), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ATI,
+                                             (20, 24.29895, 52.72791, 93.61006, 122.50399, 138.05959), decimal=5)
+
+        dsPlan = DSPlanBinomial(1000, 200, 400, 3, 9, 9, p=(0.01, 0.03))
+        np.testing.assert_array_almost_equal(dsPlan.OC, (0.9573, 0.1512), decimal=4)
+        dsPlan = DSPlanBinomial(1000, 120, 240, 0, 7, 7, p=(0.01, 0.03))
+        np.testing.assert_array_almost_equal(dsPlan.OC, (0.9709, 0.1637), decimal=4)
+
+    def test_DSPlanNormal(self):
+        dsPlan = DSPlanNormal(1000, 100, 200, 3, 6, 6, p=(0.01, 0.03, 0.09))
+        np.testing.assert_array_almost_equal(dsPlan.OC, (0.9985, 0.6397, 0.0214), decimal=4)
+        np.testing.assert_array_almost_equal(dsPlan.ASN, (100.8083, 163.4957, 115.4561), decimal=4)
+
+    def test_DSPlanPoisson(self):
+        dsPlan = DSPlanPoisson(150, 20, 40, 2, 6, 6, p=(0, 0.05, 0.1, 0.15, 0.2, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.p,
+                                             (0.00, 0.05, 0.10, 0.15, 0.20, 0.25))
+        np.testing.assert_array_almost_equal(dsPlan.OC,
+                                             (1, 0.98386, 0.77968, 0.46923, 0.24954, 0.12668), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ASN,
+                                             (20, 23.18829, 32.27040, 39.71568, 41.88108, 39.65235), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.AOQ,
+                                             (0, 0.04178, 0.06483, 0.05916, 0.04264, 0.02731), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ATI,
+                                             (20, 24.66388, 52.76153, 90.84187, 118.01710, 133.61303), decimal=5)
