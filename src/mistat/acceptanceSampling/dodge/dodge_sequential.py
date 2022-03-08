@@ -9,7 +9,11 @@ from .dodge_base import SequentialSamplePlan
 
 
 def sequentialDesign(AQL, alpha, LQL, beta, oc_type='binomial', N=None):
-    # R: dodge.SequentialBinomial
+    """ Create a sequential sampling plan
+
+    Selects the appropriate sequential sampling plan from the given inputs
+    """
+    # R: dodge.SeqDesignBinomial
     a = np.log((1 - beta) / alpha)
     b = np.log((1 - alpha) / beta)
     g1 = np.log(LQL / AQL)

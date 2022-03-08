@@ -6,6 +6,7 @@ Created on Jun 30, 2020
 import unittest
 
 import pytest
+from mistat.acceptanceSampling.dodge.dodge_curtailed import curtailedBinomial
 
 from mistat.acceptanceSampling.dodge.dodge_double import DSPlanBinomial, DSPlanNormal, DSPlanPoisson
 from mistat.acceptanceSampling.dodge.dodge_sequential import sequentialDesign
@@ -125,3 +126,8 @@ class TestDodge(unittest.TestCase):
                                              (0, 0.04178, 0.06483, 0.05916, 0.04264, 0.02731), decimal=5)
         np.testing.assert_array_almost_equal(dsPlan.ATI,
                                              (20, 24.66388, 52.76153, 90.84187, 118.01710, 133.61303), decimal=5)
+
+    def test_curtailedBinomial(self):
+        dsPlan = curtailedBinomial(100, 10, p=np.arange(0, 1.1, 0.2))
+        dsPlan = curtailedBinomial(20, 1, p=np.arange(0, 1.1, 0.2))
+        

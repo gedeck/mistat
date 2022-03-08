@@ -29,3 +29,10 @@ bash-pywash:
 
 jupyter:
 	docker run --rm -v $(PWD)/src:/src -p 8898:8898 $(JUPYTER_IMAGE) jupyter notebook --allow-root --port=8898 --ip 0.0.0.0 --no-browser
+
+
+isort:
+	docker run -it --rm -v $(PWD)/src:/src $(TEST_IMAGE) isort 
+
+mypy:
+	docker run -it --rm -v $(PWD)/src:/src $(TEST_IMAGE) mypy

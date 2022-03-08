@@ -9,4 +9,5 @@ WORKDIR /src
 COPY ./requirements.txt /requirements.txt
 RUN pip install --requirement /requirements.txt
 RUN pip install pytest pytest-watch pytest-testmon
+RUN pip install mypy isort
 RUN pip3 install --upgrade pip
