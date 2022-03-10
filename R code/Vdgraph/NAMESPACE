@@ -1,7 +1,0 @@
-useDynLib(Vdgraph)
-
-export(Vdgraph,
-      Compare2Vdg,
-      FDSPlot,
-      Compare2FDS
-       )

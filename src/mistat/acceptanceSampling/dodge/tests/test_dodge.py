@@ -153,6 +153,12 @@ class TestDodge(unittest.TestCase):
         np.testing.assert_array_almost_equal(plan.AOQ, (0, 0.01842, 0.01196, 0.00570, 0.00226, 0.00078), decimal=5)
         np.testing.assert_array_almost_equal(plan.ATI, (20, 631.6, 880.4, 962.0, 988.7, 996.9), decimal=1)
 
+    def test_chainPlanPoisson(self):
+        plan = ChainPlanPoisson(1000, 20, 3, p=np.arange(0, 0.3, 0.05))
+        np.testing.assert_array_almost_equal(plan.OC, (1, 0.3862, 0.13601, 0.04981, 0.01832, 0.00674), decimal=5)
+        np.testing.assert_array_almost_equal(plan.AOQ, (0, 0.01892, 0.01333, 0.00732, 0.00359, 0.00165), decimal=5)
+        np.testing.assert_array_almost_equal(plan.ATI, (20, 621.5, 866.7, 951.2, 982, 993.4), decimal=1)
+
     def test_lotSensitiveComplianceSampPlan(self):
         plan = lotSensitiveComplianceSampPlan(1000, 0.04, 0.05, p=np.arange(0, 0.11, 0.025))
         np.testing.assert_array_almost_equal(plan.OC, (1, 0.15376, 0.02364, 0.00363, 0.00056), decimal=5)

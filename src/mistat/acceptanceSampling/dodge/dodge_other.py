@@ -5,10 +5,8 @@ Industrial Statistics: A Computer Based Approach with Python
 
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-from dataclasses import dataclass
 from typing import List, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -31,7 +29,8 @@ from .dodge_base import AcceptanceSamplingPlan
 # ' Technology} \bold{10}(2), pp47-51.
 
 
-def lotSensitiveComplianceSampPlan(N: int, LTPD: float, beta: float, p: Union[List[float], np.ndarray] = None) -> AcceptanceSamplingPlan:
+def lotSensitiveComplianceSampPlan(N: int, LTPD: float, beta: float,
+                                   p: Union[List[float], np.ndarray] = None) -> AcceptanceSamplingPlan:
     if p is None:
         p = np.arange(0, 0.301, 0.001)
     p = np.array(p)
@@ -41,7 +40,8 @@ def lotSensitiveComplianceSampPlan(N: int, LTPD: float, beta: float, p: Union[Li
     OC = (1 - f)**(N * p)
     AOQ = (N - n) * p * OC / N
     ATI = n * OC + N * (1 - OC)
-    return AcceptanceSamplingPlan(p=list(p), OC=list(OC), n=[n] * len(p), AOQ=list(AOQ), ATI=list(ATI), ASN=None)
+    return AcceptanceSamplingPlan(p=list(p), OC=list(OC), n=[n] * len(p), AOQ=list(AOQ),
+                                  ATI=list(ATI), ASN=None)
 
 
 # ' Variable Sampling Plans
@@ -64,7 +64,8 @@ def lotSensitiveComplianceSampPlan(N: int, LTPD: float, beta: float, p: Union[Li
 # ' VSPUnknown(1000, 20,1)
 # '
 
-def variableSampPlanKnown(N: int, n: int, k: float, pa: Union[List[float], np.ndarray] = None) -> AcceptanceSamplingPlan:
+def variableSampPlanKnown(N: int, n: int, k: float,
+                          pa: Union[List[float], np.ndarray] = None) -> AcceptanceSamplingPlan:
     if pa is None:
         pa = np.arange(0, 1.001, 0.001)
     pa = np.array(pa)
@@ -78,7 +79,8 @@ def variableSampPlanKnown(N: int, n: int, k: float, pa: Union[List[float], np.nd
     return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)
 
 
-def variableSampPlanUnknown(N: int, n: int, k: float, pa: Union[List[float], np.ndarray] = None) -> AcceptanceSamplingPlan:
+def variableSampPlanUnknown(N: int, n: int, k: float,
+                            pa: Union[List[float], np.ndarray] = None) -> AcceptanceSamplingPlan:
     if pa is None:
         pa = np.arange(0, 1.001, 0.001)
     pa = np.array(pa)
