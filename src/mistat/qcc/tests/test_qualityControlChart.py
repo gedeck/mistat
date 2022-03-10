@@ -1,8 +1,8 @@
 '''
-Utility functions for "Data Mining for Business Analytics: Concepts, Techniques, and 
-Applications in Python"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 
@@ -85,4 +85,4 @@ class TestQualityControlChart(unittest.TestCase):
         equipment = ['q6', 'q7', 'q8', 'q9']
         support = ['q12', 'q13', 'q14', 'q15', 'q16']
         top5counts = (abc[equipment + support] == 5).sum()
-        qcc = QualityControlChart(top5counts[equipment], qcc_type='np', sizes=len(abc))
+        _ = QualityControlChart(top5counts[equipment], qcc_type='np', sizes=len(abc))

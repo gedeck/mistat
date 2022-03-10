@@ -28,7 +28,7 @@ errors = {
 
 
 @dataclass
-class PowerCircuitSimulation(MistatSimulation):
+class PowerCircuitSimulation(MistatSimulation):  # pylint: disable=too-many-instance-attributes
     rsA: float = 8_200
     rsB: float = 220_000
     rsC: float = 1_000
@@ -122,7 +122,7 @@ class PowerCircuitSimulation(MistatSimulation):
         return SimulationResult(data)
 
     @staticmethod
-    def vCircuit(rsA, rsB, rsC, rsD, rsE, rsF, rsG, rsH, rsI, rsJ, trK, trL, trM):
+    def vCircuit(rsA, rsB, rsC, rsD, rsE, rsF, rsG, rsH, rsI, rsJ, trK, trL, trM):  # pylint: disable=too-many-arguments
         a = rsB / (rsA + rsB)
         b = (rsA * rsB / (rsA + rsB) + rsC) / (trL * trM) + rsI
         c = rsE + 0.5 * rsG

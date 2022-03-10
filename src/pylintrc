@@ -31,8 +31,6 @@ limit-inference-results=100
 
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
-load-plugins=pylint_django
-django-settings-module=bioharmony.django.server.settings.debug
 
 # Pickle collected data for later comparisons.
 persistent=yes

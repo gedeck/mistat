@@ -49,9 +49,9 @@ class ParetoChart:
         ax.bar(range(0, nlevels), self.data['Frequency'])
         greys = plt.get_cmap('gray')(np.linspace(0, 1, nlevels + 3))[2:-1]
         bars = [child for child in ax.get_children() if isinstance(child, Rectangle)]
-        for bar, color in zip(bars, greys):
-            bar.set_color(colors.to_hex(color))
-            bar.set_edgecolor('black')
+        for barObj, color in zip(bars, greys):
+            barObj.set_color(colors.to_hex(color))
+            barObj.set_edgecolor('black')
 
         ax.set_xticks(range(0, nlevels))
         ax.set_xticklabels(self.data['Labels'], rotation=rotation, ha=ha)

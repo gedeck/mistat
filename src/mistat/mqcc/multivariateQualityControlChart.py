@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments,too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -34,7 +35,7 @@ class MultivariateQualityControlChart:
 
         if confidence_level is None:
             confidence_level = (1 - 0.0027) ** p
-        if not (0 < confidence_level < 1):
+        if not 0 < confidence_level < 1:
             raise ValueError('confidence.level must be a numeric value in the range (0,1)')
 
         if labels is None:

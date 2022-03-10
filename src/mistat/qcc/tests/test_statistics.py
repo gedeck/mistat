@@ -1,14 +1,14 @@
 '''
-Utility functions for "Data Mining for Business Analytics: Concepts, Techniques, and 
-Applications in Python"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 
 import numpy as np
 import pytest
-from scipy.special import gammaln
+from scipy.special import gammaln  # pylint: disable=no-name-in-module
 
 from mistat.data import load_data
 from mistat.qcc import statistics
@@ -179,8 +179,9 @@ class Test_qccStatistics(unittest.TestCase):
         # np.testing.assert_allclose(conf_limits, np.array([[0.1047873, 0.3924825]]), rtol=1e-4)
 
     def test_Xbar_one_statistic(self):
-        data = [2.23, 2.53, 2.62, 2.63, 2.58, 2.44, 2.49, 2.34, 2.95, 2.54, 2.60, 2.45, 2.17, 2.58, 2.57, 2.44,
-                2.38, 2.23, 2.23, 2.54, 2.66, 2.84, 2.81, 2.39, 2.56, 2.70, 3.00, 2.81, 2.77, 2.89, 2.54, 2.98, 2.35, 2.53]
+        data = [2.23, 2.53, 2.62, 2.63, 2.58, 2.44, 2.49, 2.34, 2.95, 2.54, 2.60, 2.45, 2.17, 2.58,
+                2.57, 2.44, 2.38, 2.23, 2.23, 2.54, 2.66, 2.84, 2.81, 2.39, 2.56, 2.70, 3.00, 2.81,
+                2.77, 2.89, 2.54, 2.98, 2.35, 2.53]
 
         XbarOne = self.qccStatistics.get('xbarone')
         assert isinstance(XbarOne, statistics.Xbar_one_statistic)

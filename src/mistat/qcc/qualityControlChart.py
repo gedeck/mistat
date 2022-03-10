@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments, too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -113,8 +114,8 @@ class QualityControlChart:
     def oc_curves(self, nsigmas=None, ax=None):
         if self.qcc_type in ['p' or 'np']:
             return oc_curves_p(self, ax=ax)
-        else:
-            raise NotImplementedError()
+
+        raise NotImplementedError()
 
 
 def oc_curves_p(qcc, ax=None):

@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments, too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -159,12 +160,3 @@ class ProcessCapability:
         fig.text(col[3], row[2], f'Obs<LSL = {self.obs_LSL:.2g}%', **options)
         fig.text(col[3], row[3], f'Obs>USL = {self.obs_USL:.2g}%', **options)
         return ax
-
-
-# process.capability <- function(object, spec.limits, target, std.dev, nsigmas, confidence.level = 0.95, breaks="scott", add.stats=TRUE, print=TRUE, digits = getOption("digits"), restore.par=TRUE)
-# {
-# # Computes process capability indices for a qcc object of type "xbar"
-# # and plot the histogram
-
-#   title <- paste("Process Capability Analysis\nfor", object$data.name)
-#

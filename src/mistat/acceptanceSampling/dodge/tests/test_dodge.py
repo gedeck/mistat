@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -9,10 +10,13 @@ import unittest
 import numpy as np
 import pytest
 
+from mistat.acceptanceSampling.dodge.dodge_chain import (ChainPlanBinomial,
+                                                         ChainPlanPoisson)
 from mistat.acceptanceSampling.dodge.dodge_curtailed import curtailedBinomial
 from mistat.acceptanceSampling.dodge.dodge_double import (DSPlanBinomial,
                                                           DSPlanNormal,
                                                           DSPlanPoisson)
+from mistat.acceptanceSampling.dodge.dodge_other import VSPDesign, lotSensitiveComplianceSampPlan, variableSampPlanKnown, variableSampPlanUnknown
 from mistat.acceptanceSampling.dodge.dodge_sequential import sequentialDesign
 from mistat.acceptanceSampling.dodge.dodge_single import (SSPDesignBinomial,
                                                           SSPDesignPoisson,
@@ -136,5 +140,39 @@ class TestDodge(unittest.TestCase):
 
     def test_curtailedBinomial(self):
         dsPlan = curtailedBinomial(100, 10, p=np.arange(0, 1.1, 0.2))
+        np.testing.assert_array_almost_equal(dsPlan.ASNsemi, (100, 54.95368, 27.5, 18.33333, 13.75, 11), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ASNfull, (90, 54.94922, 27.5, 18.33333, 13.75, 11), decimal=5)
+
         dsPlan = curtailedBinomial(20, 1, p=np.arange(0, 1.1, 0.2))
-        
+        np.testing.assert_array_almost_equal(dsPlan.ASNsemi, (20, 9.596477, 4.998598, 3.333333, 2.5, 2), decimal=5)
+        np.testing.assert_array_almost_equal(dsPlan.ASNfull, (19, 9.58207, 4.99854, 3.33333,  2.5, 2), decimal=5)
+
+    def test_chainPlanBinomial(self):
+        plan = ChainPlanBinomial(1000, 20, 3, p=np.arange(0, 0.3, 0.05))
+        np.testing.assert_array_almost_equal(plan.OC, (1, 0.37587, 0.12206, 0.03877, 0.01153, 0.00317), decimal=5)
+        np.testing.assert_array_almost_equal(plan.AOQ, (0, 0.01842, 0.01196, 0.00570, 0.00226, 0.00078), decimal=5)
+        np.testing.assert_array_almost_equal(plan.ATI, (20, 631.6, 880.4, 962.0, 988.7, 996.9), decimal=1)
+
+    def test_lotSensitiveComplianceSampPlan(self):
+        plan = lotSensitiveComplianceSampPlan(1000, 0.04, 0.05, p=np.arange(0, 0.11, 0.025))
+        np.testing.assert_array_almost_equal(plan.OC, (1, 0.15376, 0.02364, 0.00363, 0.00056), decimal=5)
+        np.testing.assert_array_almost_equal(plan.AOQ, (0, 0.00357, 0.00110, 0.00025, 0.00005), decimal=5)
+        np.testing.assert_array_almost_equal(plan.ATI, (72, 857.3, 978.1, 996.6, 999.5), decimal=1)
+
+    def test_variableSampPlanKnown(self):
+        plan = variableSampPlanKnown(1000, 20, 1, pa=(0, 0.1, 0.2, 0.3, 0.4))
+        np.testing.assert_array_almost_equal(plan.OC, (0, 0.1, 0.2, 0.3, 0.4), decimal=5)
+        np.testing.assert_array_almost_equal(plan.AOQ, (0, 0.02330, 0.04086, 0.05547, 0.06772), decimal=5)
+        np.testing.assert_array_almost_equal(plan.ATI, (1000, 902, 804, 706, 608), decimal=1)
+
+    def test_variableSampPlanUnknown(self):
+        plan = variableSampPlanUnknown(1000, 20, 1, pa=(0, 0.1, 0.2, 0.3, 0.4))
+        np.testing.assert_array_almost_equal(plan.OC, (0, 0.1, 0.2, 0.3, 0.4), decimal=5)
+        np.testing.assert_array_almost_equal(plan.AOQ, (0, 0.02530, 0.04328, 0.05759, 0.06900), decimal=5)
+        np.testing.assert_array_almost_equal(plan.ATI, (1000, 902, 804, 706, 608), decimal=1)
+
+    def test_VSPDesign(self):
+        result = VSPDesign(AQL=0.01, alpha=0.05, LQL=0.04, beta=0.05)
+        assert result['k'] == pytest.approx(2.038517)
+        assert result['n'] == 33
+        assert result['n_unknown'] == pytest.approx(101.566599)

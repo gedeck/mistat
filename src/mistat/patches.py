@@ -115,9 +115,8 @@ def qqplot_patched(x, dist='norm', sparams=(), confidence=.95, figsize=(5, 4),
         sparams = (sparams,)
     # For fancier distributions, check that the required parameters are passed
     if len(sparams) < dist.numargs:
-        raise ValueError("The following sparams are required for this "
-                         "distribution: %s. See scipy.stats.%s for details."
-                         % (dist.shapes, dist.name))
+        raise ValueError("The following sparams are required for this " +
+                         f"distribution: {dist.shapes}. See scipy.stats.{dist.name} for details.")
 
     # Extract quantiles and regression
     quantiles = stats.probplot(x, sparams=sparams, dist=dist, fit=False)
@@ -137,7 +136,7 @@ def qqplot_patched(x, dist='norm', sparams=(), confidence=.95, figsize=(5, 4),
 
     # Start the plot
     if ax is None:
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        _, ax = plt.subplots(1, 1, figsize=figsize)
 
     ax.plot(theor, observed, 'bo')
 
@@ -158,7 +157,7 @@ def qqplot_patched(x, dist='norm', sparams=(), confidence=.95, figsize=(5, 4),
     ax.plot(theor, fit_val, 'r-', lw=2)
     posx = end_pts[0] + 0.60 * (end_pts[1] - end_pts[0])
     posy = end_pts[0] + 0.10 * (end_pts[1] - end_pts[0])
-    ax.text(posx, posy, "$R^2=%.3f$" % r**2)
+    ax.text(posx, posy, f'$R^2={r**2:.3f}$')
 
     if confidence is not False:
         # Confidence envelope

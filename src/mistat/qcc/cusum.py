@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments,too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -27,7 +28,7 @@ class Cusum:
         if decision_interval <= 0:
             raise ValueError('decision_interval must be positive')
 
-        if not (0 <= head_start < decision_interval):
+        if not 0 <= head_start < decision_interval:
             raise ValueError('head_start must be non-negative and less than decision_interval')
 
         qcc_type = 'xbarone' if any(size == 1 for size in sizes) else 'xbar'
@@ -37,7 +38,7 @@ class Cusum:
 
         qccStatistic = qccStatistics.get(qcc_type)
         statistics = qccStatistic.stats(data, sizes)
-        center = center
+
         if center is None:
             center = statistics.center
         std_dev = qccStatistic.sd(data, std_dev, sizes=sizes)
@@ -86,9 +87,9 @@ class Cusum:
 
         if self.newdata is not None:
             raise NotImplementedError()
-        else:
-            statistics = self.statistics
-            indices = list(range(len(statistics)))
+
+        statistics = self.statistics
+        indices = list(range(len(statistics)))
 
         if title is not None:
             ax.set_title(title)
@@ -121,8 +122,8 @@ class Cusum:
 
         fig.text(0.5, 0.1, f'Decision interval (std. err.) = {self.decision_interval}', fontsize=12)
         fig.text(0.5, 0.06, f'Shift detection (std. err.) {self.se_shift}', fontsize=12)
-        fig.text(
-            0.5, 0.02, f"No. of points beyond limits = {len(self.violations['upper']) + len(self.violations['lower'])}", fontsize=12)
+        nrBeyondLimits = len(self.violations['upper']) + len(self.violations['lower'])
+        fig.text(0.5, 0.02, f"No. of points beyond limits = {nrBeyondLimits}", fontsize=12)
 
 
 def cusumArl(*, randFunc=None, N=1000, limit=10_000, seed=None,
@@ -146,8 +147,8 @@ def cusumArl(*, randFunc=None, N=1000, limit=10_000, seed=None,
         'Std. Error': np.sqrt((np.mean(rls ** 2) - np.mean(rls)) / N),
     }
     if verbose:
-        stats = result['statistic']
-        print(f"ARL {stats['ARL']:.5g}  Std. Error {stats['Std. Error']:.5g}")
+        statistic = result['statistic']
+        print(f"ARL {statistic['ARL']:.5g}  Std. Error {statistic['Std. Error']:.5g}")
     return result
 
 
@@ -180,8 +181,8 @@ def cusumPfaCed(*, randFunc1=None, randFunc2=None,
         'Std. Error': se
     }
     if verbose:
-        stats = result['statistic']
-        print(f"PFA {stats['PFA']:.5g}  CED {stats['CED']:.5g}  Std. Error {stats['Std. Error']:.5g}")
+        statistic = result['statistic']
+        print(f"PFA {statistic['PFA']:.5g}  CED {statistic['CED']:.5g}  Std. Error {statistic['Std. Error']:.5g}")
     return result
 
 
@@ -191,7 +192,8 @@ def cusumPfaCed(*, randFunc1=None, randFunc2=None,
 #
 #   pfa <- sum(res$rls < tau)/nrow(data)
 #   ced = sum(res$rls[res$rls >= tau])/(nrow(data) - sum(res$rls < tau)) - tau
-#   se = sqrt((sum(res$rls[res$rls >= tau]^2)/(nrow(data) - sum(res$rls < tau)) - ced ^ 2) / (nrow(data) - sum(res$rls < tau)))
+#   se = sqrt((sum(res$rls[res$rls >= tau]^2)/(nrow(data) - sum(res$rls < tau)) - ced ^ 2) /
+#            (nrow(data) - sum(res$rls < tau)))
 #
 #   res$statistic <- c(pfa, ced, se)
 #   names(res$statistic) <- c("PFA", "CED", "Std. Error")

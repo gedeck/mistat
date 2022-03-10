@@ -54,11 +54,11 @@ class CurtailedSamplePlan:
     oc_type: str = 'binomial'
 
     def __repr__(self):
-        return pd.Series({
+        return str(pd.DataFrame({
             'p': self.p,
             'ASNsemi': self.ASNsemi,
             'ASNfull': self.ASNfull,
-        })
+        }))
 
     def plot(self, ax=None):
         if ax is None:

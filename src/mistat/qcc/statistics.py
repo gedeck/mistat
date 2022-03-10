@@ -11,7 +11,7 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.special import gammaln
+from scipy.special import gammaln  # pylint: disable=no-name-in-module
 
 GroupMeans = namedtuple('GroupMeans', 'statistics,center')
 
@@ -56,11 +56,19 @@ class QCCStatistics:
 
 
 class SD_estimator(Enum):
-    uwave_r = 'UWAVE-R'  # UnWeighted AVErage of subgroup estimates based on subgroup Ranges
-    uwave_sd = 'UWAVE-SD'  # UnWeighted AVErage of subgroup estimates based on subgroup Standard Deviations
-    mvlue_r = 'MVLUE-R'  # Minimum Variance Linear Unbiased Estimator computed as a weighted average of subgroups estimates based on subgroup Ranges
-    mvlue_sd = 'MVLUE-SD'  # Minimum Variance Linear Unbiased Estimator computed as a weighted average of subgroup estimates based on subgroup Standard Deviations
-    rmsdf = 'RMSDF'  # Root-Mean-Square estimator computed as a weighted average of subgroup estimates based on subgroup Standard Deviations
+    # UnWeighted AVErage of subgroup estimates based on subgroup Ranges
+    uwave_r = 'UWAVE-R'
+    # UnWeighted AVErage of subgroup estimates based on subgroup Standard Deviations
+    uwave_sd = 'UWAVE-SD'
+    # Minimum Variance Linear Unbiased Estimator computed as a weighted average of subgroups
+    # estimates based on subgroup Ranges
+    mvlue_r = 'MVLUE-R'
+    # Minimum Variance Linear Unbiased Estimator computed as a weighted average of subgroup
+    # estimates based on subgroup Standard Deviations
+    mvlue_sd = 'MVLUE-SD'
+    # Root-Mean-Square estimator computed as a weighted average of subgroup estimates based
+    # on subgroup Standard Deviations
+    rmsdf = 'RMSDF'
     mr = 'MR'
     sd = 'SD'
 
@@ -87,8 +95,12 @@ _exp_R_unscaled = [np.NaN, np.NaN, 1.128, 1.693, 2.059, 2.326, 2.534, 2.704, 2.8
 # se.R.unscaled a vector specifying, for each sample size, the standard error of the relative range
 # (i.e. R/σ) for a normal distribution. This appears as d3 on most tables containing factors for
 # the construction of control charts.
-_se_R_unscaled = [np.NaN, np.NaN, 0.8525033, 0.8883697, 0.8798108, 0.8640855, 0.8480442, 0.8332108, 0.8198378, 0.8078413, 0.7970584, 0.7873230, 0.7784873, 0.7704257, 0.7630330, 0.7562217, 0.7499188, 0.7440627, 0.7386021, 0.7334929, 0.7286980, 0.7241851, 0.7199267, 0.7158987, 0.7120802,
-                  0.7084528, 0.7050004, 0.7017086, 0.6985648, 0.6955576, 0.6926770, 0.6899137, 0.6872596, 0.6847074, 0.6822502, 0.6798821, 0.6775973, 0.6753910, 0.6732584, 0.6711952, 0.6691976, 0.6672619, 0.6653848, 0.6635632, 0.6617943, 0.6600754, 0.6584041, 0.6567780, 0.6551950, 0.6536532, 0.6521506]
+_se_R_unscaled = [np.NaN, np.NaN, 0.8525033, 0.8883697, 0.8798108, 0.8640855, 0.8480442, 0.8332108, 0.8198378,
+                  0.8078413, 0.7970584, 0.7873230, 0.7784873, 0.7704257, 0.7630330, 0.7562217, 0.7499188, 0.7440627,
+                  0.7386021, 0.7334929, 0.7286980, 0.7241851, 0.7199267, 0.7158987, 0.7120802, 0.7084528, 0.7050004,
+                  0.7017086, 0.6985648, 0.6955576, 0.6926770, 0.6899137, 0.6872596, 0.6847074, 0.6822502, 0.6798821,
+                  0.6775973, 0.6753910, 0.6732584, 0.6711952, 0.6691976, 0.6672619, 0.6653848, 0.6635632, 0.6617943,
+                  0.6600754, 0.6584041, 0.6567780, 0.6551950, 0.6536532, 0.6521506]
 
 
 class Base_statistic:
@@ -131,28 +143,27 @@ class Xbar_statistic(Base_statistic):
             r = np.nanmax(data, axis=1) - np.nanmin(data, axis=1)
             d2 = [_exp_R_unscaled[size] for size in sizes]
             return np.mean(r / d2)
-        elif std_dev == SD_estimator.uwave_sd:
+        if std_dev == SD_estimator.uwave_sd:
             s = np.nanstd(data, axis=1, ddof=1)
             c4 = np.array([qcc_c4(size) for size in sizes])
             return np.mean(s / c4)
-        elif std_dev == SD_estimator.mvlue_r:
+        if std_dev == SD_estimator.mvlue_r:
             r = np.nanmax(data, axis=1) - np.nanmin(data, axis=1)
             d2 = np.array([_exp_R_unscaled[size] for size in sizes])
             d3 = np.array([_se_R_unscaled[size] for size in sizes])
             w = (d2 / d3) ** 2
             return np.sum(w * r / d2) / np.sum(w)
-        elif std_dev == SD_estimator.mvlue_sd:
+        if std_dev == SD_estimator.mvlue_sd:
             s = np.nanstd(data, axis=1, ddof=1)
             c4 = np.array([qcc_c4(size) for size in sizes])
             w = c4 ** 2 / (1 - c4**2)
             return np.sum(w * s / c4) / np.sum(w)
-        elif std_dev == SD_estimator.rmsdf:
+        if std_dev == SD_estimator.rmsdf:
             s = np.nanstd(data, axis=1, ddof=1)
             w = np.array([size - 1 for size in sizes])
             return np.sqrt(np.sum(w * s**2) / np.sum(w)) / qcc_c4(np.sum(w) + 1)
 
-        else:
-            raise NotImplementedError()
+        raise NotImplementedError()
 
     def limits(self, center, std_dev, sizes, conf):
         if conf < 0:
@@ -179,7 +190,6 @@ class Xbar_one_statistic(Base_statistic):
 
     @staticmethod
     def getSizes(data):
-        pass  # not required
         return [1 for _ in data]
 
     def stats(self, data, sizes=None):
@@ -187,7 +197,7 @@ class Xbar_one_statistic(Base_statistic):
             data = data.values
         return GroupMeans(np.array(data).flatten(), np.mean(data))
 
-    def sd(self, data, std_dev=None, sizes=None, k=2):
+    def sd(self, data, std_dev=None, sizes=None, k=2):  # pylint: disable=unused-import, arguments-differ
         if isinstance(std_dev, numbers.Number):
             return std_dev
 
@@ -206,10 +216,11 @@ class Xbar_one_statistic(Base_statistic):
                 group = data[i:i + k]
                 d += np.max(group) - np.min(group)
             return d / ((len(data) - k + 1) * _exp_R_unscaled[k])
-        elif std_dev == SD_estimator.sd:
+
+        if std_dev == SD_estimator.sd:
             return np.std(data, ddof=1) / qcc_c4(len(data))
-        else:
-            raise NotImplementedError(f'estimator {std_dev}')
+
+        raise NotImplementedError(f'estimator {std_dev}')
 
     def limits(self, center, std_dev, sizes, conf):
         if conf < 0:

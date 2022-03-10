@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from mistat.data import load_data
 from mistat.qcc.qualityControlChart import QualityControlChart, qcc_groups
 from mistat.qcc.rules import run_length_encoding
 
@@ -24,7 +23,7 @@ class TestRules(unittest.TestCase):
         pistonrings = pd.read_csv(Path(__file__).parent / 'data' / 'pistonrings.csv')
         pistonrings = pistonrings.drop(pistonrings.index[out])
         diameter = qcc_groups(pistonrings['diameter'], pistonrings['sample'])
-        qcc = QualityControlChart(diameter, qcc_type='xbar', center=74, std_dev=0.0098)
+        _ = QualityControlChart(diameter, qcc_type='xbar', center=74, std_dev=0.0098)
 
     def test_run_length_encoding(self):
         assert run_length_encoding('abbccc') == [(1, 'a'), (2, 'b'), (3, 'c')]

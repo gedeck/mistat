@@ -1,15 +1,15 @@
+# pylint: disable=line-too-long
 '''
-Utility functions for "Data Mining for Business Analytics: Concepts, Techniques, and 
-Applications in Python"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from mistat.qcc.qualityControlChart import QualityControlChart, qcc_groups
 from mistat.qcc.statistics import QCCStatistics, SD_estimator
@@ -21,18 +21,18 @@ class TestComparisonWithR(unittest.TestCase):
         pistonrings = pd.read_csv(Path(__file__).parent / 'data' / 'pistonrings.csv')
         diameter = qcc_groups(pistonrings['diameter'], pistonrings['sample'])
         data = diameter[:25, ]
-        newdata = diameter[25:, ]
+        # newdata = diameter[25:, ]
 
         qcc = QualityControlChart(data, qcc_type='xbar')
         assertQCC(qcc, 74.00118, 0.009785039, [73.98805, 74.0143])
         assertQCCviolations(qcc)
-#         qcc(diameter[1:25,], type="xbar", newdata=diameter[26:40,])
-#         assertNewQCC(qcc, 74.00118, 0.009785039, [73.98805, 74.0143])
+        # qcc(diameter[1:25,], type="xbar", newdata=newdata)
+        # assertNewQCC(qcc, 74.00118, 0.009785039, [73.98805, 74.0143])
         qcc = QualityControlChart(data, qcc_type='xbar', nsigmas=2)
         assertQCC(qcc, 74.00118, 0.009785039, [73.99242, 74.00993])
         assertQCCviolations(qcc, beyondLimits={'UCL': [0], 'LCL': [13]})
-#         qcc(diameter[1:25,], type="xbar", newdata=diameter[26:40,])
-#         assertNewQCC(qcc, 74.00118, 0.009785039, [73.98805, 74.0143])
+        # qcc(diameter[1:25,], type="xbar", newdata=newdata)
+        # assertNewQCC(qcc, 74.00118, 0.009785039, [73.98805, 74.0143])
 
         qcc = QualityControlChart(data, qcc_type='R')
         assertQCC(qcc, 0.02276, 0.009785039, [0, 0.04812533])
@@ -53,14 +53,14 @@ class TestComparisonWithR(unittest.TestCase):
         qcc(diameter[1:25,], type="S")
         qcc(diameter[1:25,], type="xbar", newdata=diameter[26:40,])
         qcc(diameter[1:25,], type="R", newdata=diameter[26:40,])
-        qcc(diameter[1:25,], type="S", newdata=diameter[26:40,])        
+        qcc(diameter[1:25,], type="S", newdata=diameter[26:40,])
         """
         out = [idx - 1 for idx in [9, 10, 30, 35, 45, 64, 65, 74, 75, 85, 99, 100]]
         pistonrings = pd.read_csv(Path(__file__).parent / 'data' / 'pistonrings.csv')
         pistonrings = pistonrings.drop(pistonrings.index[out])
         diameter = qcc_groups(pistonrings['diameter'], pistonrings['sample'])
         data = diameter[:25, ]
-        newdata = diameter[25:, ]
+        # newdata = diameter[25:, ]
 
         qcc = QualityControlChart(data, qcc_type='xbar')
         assertQCC(qcc, 74.00075, 0.009856701, [[73.98753, 74.01398], [73.98368, 74.01782], [73.98753, 74.01398]])
@@ -93,7 +93,7 @@ class TestComparisonWithR(unittest.TestCase):
         """
         oj = pd.read_csv(Path(__file__).parent / 'data' / 'orangejuice.csv')
         data = oj[oj['trial']]
-        newdata = oj[~oj['trial']]
+        # newdata = oj[~oj['trial']]
 
         qcc = QualityControlChart(data['D'], sizes=data['size'], qcc_type='p')
         assertQCC(qcc, 0.2313333, 0.421685, [0.05242755, 0.4102391])
@@ -104,8 +104,8 @@ class TestComparisonWithR(unittest.TestCase):
         assertQCC(qcc, 0.215, 0.4108223, [0.04070284, 0.3892972])
         assertQCCviolations(qcc, beyondLimits={'UCL': [19], 'LCL': []})
 
-#         qcc = QualityControlChart(dataRed['D'], newdata=newdata, sizes=dataRed['size'], qcc_type='p')
-#         assertQCC(qcc, 0.215, 0.4108223, [0.04070284, 0.3892972])
+        # qcc = QualityControlChart(dataRed['D'], newdata=newdata, sizes=dataRed['size'], qcc_type='p')
+        # assertQCC(qcc, 0.215, 0.4108223, [0.04070284, 0.3892972])
 
     def test_orangejuice2(self):
         """
@@ -118,14 +118,14 @@ class TestComparisonWithR(unittest.TestCase):
         """
         oj = pd.read_csv(Path(__file__).parent / 'data' / 'orangejuice2.csv')
         data = oj[oj['trial']]
-        newdata = oj[~oj['trial']]
+        # newdata = oj[~oj['trial']]
 
         qcc = QualityControlChart(data['D'], sizes=data['size'], qcc_type='p')
         assertQCC(qcc, 0.1108333, 0.3139256, [0, 0.2440207])
         assertQCCviolations(qcc)
 
-#         qcc = QualityControlChart(dataRed['D'], newdata=newdata, sizes=dataRed['size'], qcc_type='p')
-#         assertQCC(qcc, 0.215, 0.4108223, [0.04070284, 0.3892972])
+        # qcc = QualityControlChart(dataRed['D'], newdata=newdata, sizes=dataRed['size'], qcc_type='p')
+        # assertQCC(qcc, 0.215, 0.4108223, [0.04070284, 0.3892972])
 
     def test_xbar_one(self):
         # viscosity data (Montgomery, pag. 242)

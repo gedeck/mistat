@@ -1,12 +1,10 @@
 '''
-Utility functions for "Data Mining for Business Analytics: Concepts, Techniques, and 
-Applications in Python"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
-
-import pytest
 
 from mistat.data import load_data
 from mistat.mqcc.multivariateQualityControlChart import \
@@ -22,5 +20,5 @@ class TestMultivariateQualityControlChart(unittest.TestCase):
         center = base.mean()
         cov = base.cov()
 
-        mqcc = MultivariateQualityControlChart(almpinSubset, qcc_type='T2single',
-                                               center=center, cov=cov)
+        _ = MultivariateQualityControlChart(almpinSubset, qcc_type='T2single',
+                                            center=center, cov=cov)

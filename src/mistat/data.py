@@ -1,3 +1,4 @@
+# mypy: disallow_untyped_defs,disallow_untyped_calls
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -6,13 +7,16 @@ Industrial Statistics: A Computer Based Approach with Python
 '''
 import string
 from pathlib import Path
+from typing import Dict, Union
 
 import pandas as pd
 
 DATA_DIR = Path(__file__).parent / 'csvFiles'
 
+DatasetType = Union[pd.DataFrame, pd.Series, Dict[str, pd.Series]]
 
-def load_data(name):
+
+def load_data(name: str) -> DatasetType:
     """ Returns the data either as a Pandas data frame or series """
     data_file = get_data_file(name)
     if not data_file.exists():
@@ -21,11 +25,11 @@ def load_data(name):
         return SPECIAL_DATASETS[name](data_file)
     data = pd.read_csv(data_file)
     if data.shape[1] == 1:
-        return data[data.columns[0]]
+        return data[data.columns[0]]  # pylint: disable=unsubscriptable-object
     return data
 
 
-def describe_data(name):
+def describe_data(name: str) -> str:
     """ Return information about the data file """
     description_file = get_description_file(name)
     if not description_file.exists():
@@ -35,7 +39,7 @@ def describe_data(name):
     return text
 
 
-def get_data_file(name):
+def get_data_file(name: str) -> Path:
     if name.endswith('.gz'):
         name = name[:-3]
     if name.endswith('.csv'):
@@ -43,7 +47,7 @@ def get_data_file(name):
     return DATA_DIR / f'{name}.csv.gz'
 
 
-def get_description_file(name):
+def get_description_file(name: str) -> Path:
     if name.endswith('.gz'):
         name = name[:-3]
     if name.endswith('.csv'):
@@ -57,7 +61,7 @@ def get_description_file(name):
     return description_file
 
 
-def load_process_segment(data_file):
+def load_process_segment(data_file: Path) -> Dict[str, pd.Series]:
     data = pd.read_csv(data_file)
     return {column: data[column].dropna() for column in data.columns}
 

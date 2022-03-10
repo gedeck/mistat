@@ -29,7 +29,7 @@ default_errors = {
 
 
 @dataclass
-class PistonSimulator(MistatSimulation):
+class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-attributes
     m: float = 60
     s: float = 0.02
     v0: float = 0.01
@@ -104,7 +104,7 @@ class PistonSimulator(MistatSimulation):
         return SimulationResult(result)
 
     @staticmethod
-    def cycleTime(m, s, v0, k, p0, t, t0):
+    def cycleTime(m, s, v0, k, p0, t, t0):  # pylint: disable=too-many-arguments
         Mg = 0.2 * k
         A = p0 * s + 2 * Mg - k * v0 / s
         V = s * (np.sqrt(A**2 + 4 * k * p0 * v0 * t / t0) - A) / (2 * k)

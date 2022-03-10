@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments,too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -10,12 +11,12 @@ from functools import lru_cache
 import numpy as np
 from scipy import stats
 
-N = 10
-p = 0.95
-al = 0.5
-k = 10
-gam = 0.95
-Ns = 1000
+# N = 10
+# p = 0.95
+# al = 0.5
+# k = 10
+# gam = 0.95
+# Ns = 1000
 
 Stats = namedtuple('Stats', 'mean,std')
 SimulateOABResult = namedtuple('SimulateOABResult', 'mgamma,reward')

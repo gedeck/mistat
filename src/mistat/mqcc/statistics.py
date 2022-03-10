@@ -18,7 +18,7 @@ DataSizes = namedtuple('DataSizes', 'num_samples,samples_sizes,num_variables')
 
 class MQCCStatistics(QCCStatistics):
 
-    def __init__(self):
+    def __init__(self):  # pylint: disable=super-init-not-called
         self.default = None
         self.statistics = {}
         self.register(T2_statistic, default=True)
@@ -113,7 +113,7 @@ class T2single_statistic:
 
     def limits(self, ngroups, size, nvars, conf):
         m = ngroups  # num. of samples
-        n = size  # samples sizes # @UnusedVariable
+        # n = size  # samples sizes # @UnusedVariable
         p = nvars  # num. of variables
 
         # Phase 1 control limits
@@ -128,25 +128,24 @@ class T2single_statistic:
         return {'control': control, 'prediction': prediction}
 
 
-"""
-> limits.T2.single
-function (ngroups, size = 1, nvars, conf) 
-{
-    m <- ngroups
-    n <- size
-    p <- nvars
-    ucl <- (m - 1)^2/m * qbeta(conf, p/2, (m - p - 1)/2)
-    lcl <- 0
-    ctrl.limits <- matrix(c(lcl, ucl), ncol = 2)
-    ucl <- p * (m + 1) * (m - 1)/(m * (m - p)) * qf(conf, p, 
-        m - p)
-    lcl <- 0
-    pred.limits <- matrix(c(lcl, ucl), ncol = 2)
-    rownames(ctrl.limits) <- rownames(pred.limits) <- rep("", 
-        nrow(pred.limits))
-    colnames(ctrl.limits) <- c("LCL", "UCL")
-    colnames(pred.limits) <- c("LPL", "UPL")
-    return(list(control = ctrl.limits, prediction = pred.limits))
-}
-"""
+# > limits.T2.single
+# function (ngroups, size = 1, nvars, conf)
+# {
+#     m <- ngroups
+#     n <- size
+#     p <- nvars
+#     ucl <- (m - 1)^2/m * qbeta(conf, p/2, (m - p - 1)/2)
+#     lcl <- 0
+#     ctrl.limits <- matrix(c(lcl, ucl), ncol = 2)
+#     ucl <- p * (m + 1) * (m - 1)/(m * (m - p)) * qf(conf, p,
+#         m - p)
+#     lcl <- 0
+#     pred.limits <- matrix(c(lcl, ucl), ncol = 2)
+#     rownames(ctrl.limits) <- rownames(pred.limits) <- rep("",
+#         nrow(pred.limits))
+#     colnames(ctrl.limits) <- c("LCL", "UCL")
+#     colnames(pred.limits) <- c("LPL", "UPL")
+#     return(list(control = ctrl.limits, prediction = pred.limits))
+# }
+
 mqccStatistics = MQCCStatistics()

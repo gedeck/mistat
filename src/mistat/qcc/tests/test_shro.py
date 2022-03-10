@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python

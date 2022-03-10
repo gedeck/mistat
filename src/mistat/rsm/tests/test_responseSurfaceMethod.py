@@ -53,7 +53,7 @@ class TestResponseSurfaceMethod(unittest.TestCase):
         rsm = ResponseSurfaceMethod(model, codes)
 
         # first test the complex eigenvalues
-        eigen = rsm._eigen()
+        eigen = rsm._eigen()  # pylint: disable=protected-access
         ev = sorted(eigen['eval'].real, reverse=True)
         np.testing.assert_allclose(ev, np.array(
             [0.034424442, 0.008661927, 0.003316576, -0.001943580]), rtol=1e-4)
@@ -91,11 +91,11 @@ def loadModel(filename):
     center = {factor: 0.5 * (max(values) + min(values)) for factor, values in factors.items()}
     unit = {factor: 0.5 * (max(values) - min(values)) for factor, values in factors.items()}
 
-    # define helper function to convert code co-ordinates to factor co-ordinates
-    def toFactor(code, codeValue):
-        ''' convert code to factor co-ordinates '''
-        factor = x2factor[code]
-        return center[factor] + codeValue * unit[factor]
+    # # define helper function to convert code co-ordinates to factor co-ordinates
+    # def toFactor(code, codeValue):
+    #     ''' convert code to factor co-ordinates '''
+    #     factor = x2factor[code]
+    #     return center[factor] + codeValue * unit[factor]
 
     # add code levels to table
     for c in factors:

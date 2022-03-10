@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments,too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -9,16 +10,15 @@ from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 
 @dataclass
 class AcceptanceSamplingPlan:
     p: List[float]
     OC: List[float]
-    ASN: List[float]
     AOQ: List[float]
-    ATI: List[float]
+    ASN: Optional[List[float]] = None
+    ATI: Optional[List[float]] = None
     n: Optional[List[float]] = None
     Pa1: Optional[List[float]] = None
     Pa2: Optional[List[float]] = None
@@ -82,9 +82,6 @@ class SequentialSamplePlan:
 
     N: Optional[int] = None  # lot size, required for hypergeometric
     oc_type: str = 'binomial'
-
-    def __repr__(self):
-        return pd.Series({'h1': self.h1, 'h2': self.h2, 's': self.s})
 
     def __post_init__(self):
         k1 = ((1 - self.beta) / self.alpha) ** self.h

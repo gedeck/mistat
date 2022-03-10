@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments,too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -13,22 +14,22 @@ from mistat.qcc.statistics import Base_statistic, qccStatistics
 
 def ewmaSmooth(y, x=None, smooth=0.20, start=None):
     """
-    Exponential-Weighted Moving Average 
+    Exponential-Weighted Moving Average
 
-    Return smooth values based on 
+    Return smooth values based on
 
-    z_t = smooth*y_t + (1-smooth)*z_t-1      
+    z_t = smooth*y_t + (1-smooth)*z_t-1
 
-    where 0<= smooth <=1 is the parameter which controls the weights applied 
+    where 0<= smooth <=1 is the parameter which controls the weights applied
     to the data, and start is the starting value.
 
     Returns a list with elements:
     x = ordered x-values
     y = smoothed fitted values of y
 
-    if x is provided, y values will be reordered 
+    if x is provided, y values will be reordered
     """
-    if not (0 <= abs(smooth) <= 1):
+    if not 0 <= abs(smooth) <= 1:
         raise ValueError('smooth parameter must be between 0 and 1')
     if x is None:
         x = list(range(len(y)))
@@ -64,7 +65,6 @@ class EWMA:
         qccStatistic = qccStatistics.get(qcc_type)
         statistics = qccStatistic.stats(data, sizes)
 
-        center = center
         if center is None:
             center = statistics.center
         std_dev = qccStatistic.sd(data, std_dev, sizes=sizes)

@@ -35,7 +35,7 @@ def plot_dendrogram(model, **kwargs):
             count = len(set(fcluster(linkage_matrix, t=threshold, criterion='distance')))
             if count == model.n_clusters_:
                 break
-            elif count > model.n_clusters_:
+            if count > model.n_clusters_:
                 threshold = threshold + delta
             else:
                 threshold = threshold - delta

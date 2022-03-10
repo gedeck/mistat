@@ -1,5 +1,9 @@
+# pylint: disable=too-many-arguments
 '''
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import io
 import unittest
@@ -12,7 +16,6 @@ import pytest
 
 from mistat.qcc.processCapability import ProcessCapability
 from mistat.qcc.qualityControlChart import QualityControlChart, qcc_groups
-from mistat.qcc.statistics import QCCStatistics, SD_estimator
 from mistat.qcc.tests.utilities import assertQCC
 
 

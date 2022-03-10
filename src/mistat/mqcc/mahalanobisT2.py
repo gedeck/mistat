@@ -1,3 +1,4 @@
+# pylint: disable=too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -6,12 +7,11 @@ Industrial Statistics: A Computer Based Approach with Python
 '''
 from string import ascii_uppercase
 
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-import matplotlib.transforms as transforms
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
+from matplotlib import patches, transforms
 from matplotlib.gridspec import GridSpec
 from scipy import linalg, optimize, stats
 
@@ -36,7 +36,7 @@ class MahalanobisT2:
         cov = cov / nfactors
         self.cov = cov
 
-        N = np.unique(x.groupby('factor').apply(lambda x: len(x)))
+        N = np.unique(x.groupby('factor').apply(len))
         if len(N) > 1:
             print(f'different number of measures by factor, using n={N[0]}')
         N = N[0]

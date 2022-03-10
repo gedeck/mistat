@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python

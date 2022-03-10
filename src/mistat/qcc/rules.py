@@ -75,6 +75,7 @@ def violatingRuns(qcc, run_length=7, **kwargs):
 def run_length_encoding(sequence, as_list=False):
     rle = [(len(list(g)), k) for k, g in groupby(sequence)]
     if as_list:
-        def flatten(x): return itertools.chain(*x)
+        def flatten(x):
+            return itertools.chain(*x)
         rle = np.array(list(flatten([count] * count for count, _ in rle)))
     return rle

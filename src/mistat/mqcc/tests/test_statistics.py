@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -8,10 +9,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
-import pytest
-from scipy.special import gammaln
 
-from mistat.data import load_data
 from mistat.mqcc.statistics import (MQCCStatistics, T2_statistic,
                                     T2single_statistic)
 

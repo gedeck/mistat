@@ -1,17 +1,15 @@
+# pylint: disable=too-many-arguments
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
 
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
+
+ARL, PFA and CED of Shiryayev-Roberts procedure
 '''
 import numpy as np
 import pandas as pd
 from scipy import stats
-
-
-"""
-ARL, PFA and CED of Shiryayev-Roberts procedure
-"""
 
 
 def shroArlPfaCedNorm(mean0=0, mean1=None, sd=1, n=10, delta=1, tau=None,

@@ -11,7 +11,7 @@ from scipy.optimize import NonlinearConstraint, minimize
 
 
 class ResponseSurfaceMethod:
-    ''' Class provides information about the response surface defined by a 
+    ''' Class provides information about the response surface defined by a
     second order regression model
 
      See section on "Canonical representation" in book for mathematical details'''
@@ -81,7 +81,7 @@ class ResponseSurfaceMethod:
             x = x + (distance-lastDistance) * gradient
 
             def distanceConstraint(x):
-                return np.sqrt(np.sum((x-x0)**2)) - distance
+                return np.sqrt(np.sum((x-x0)**2)) - distance  # pylint: disable=cell-var-from-loop
 
             constraints = NonlinearConstraint(distanceConstraint, -0.0001, 0.0001)
             minResult = minimize(fun, x, constraints=constraints)

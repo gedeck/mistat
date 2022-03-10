@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments,too-many-instance-attributes
 '''
 Modern Statistics: A Computer Based Approach with Python
 Industrial Statistics: A Computer Based Approach with Python
@@ -5,7 +6,6 @@ Industrial Statistics: A Computer Based Approach with Python
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import numpy as np
-import pandas as pd
 from scipy import stats
 
 from .dodge_base import AcceptanceSamplingPlan
