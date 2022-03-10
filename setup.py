@@ -1,8 +1,8 @@
 '''
-Utility functions for "Data Mining for Business Analytics: Concepts, Techniques, and 
-Applications in Python"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from pathlib import Path
 
@@ -32,12 +32,15 @@ setuptools.setup(
     packages=setuptools.find_packages("src"),
     package_dir={'': 'src'},
     package_data={
-        "mistat": ["csvFiles/*.csv.gz"],
+        "mistat": ["csvFiles/*.csv.gz", "nlp/*.txt.gz"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
+        # "Programming Language :: Python :: 3.6",
+        # "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],

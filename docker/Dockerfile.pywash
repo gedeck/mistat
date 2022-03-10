@@ -1,0 +1,43 @@
+FROM python:3.6-slim
+# FROM continuumio/miniconda3
+
+RUN apt-get update && \
+    apt upgrade -y && \
+    apt -y install build-essential
+
+RUN apt -y install git
+
+RUN cd / && git clone https://github.com/pywash/pywash.git
+RUN pip install --upgrade pip
+
+# RUN cd /pywash && pip3 install -r requirements.txt
+RUN pip3 install seaborn==0.9.0 \
+    dash==0.43.0 \
+    dash_table==3.7.0 \
+    dash_html_components==0.16.0 \
+    dash_core_components==0.48.0 \
+    chardet==3.0.4 \
+    numpy==1.19.5 \
+    pandas==1.1.5 \
+    scipy==1.4.1 \
+    cycler==0.11.0 \
+    matplotlib==3.3.4 \
+    pillow==8.4.0 \
+    pyparsing==3.0.7 \
+    python-dateutil==2.8.2 \
+    flask==2.0.3 \
+    sd_material_ui==3.0.2 \
+    pyod==0.7.6 \
+    liac-arff==2.4.0 \
+    fancyimpute==0.5.5 \
+    keras==2.4.3 \
+    tensorflow==2.2.0 \
+    chardet==3.0.4 \
+    clevercsv==0.7.1 \
+    scikit_learn==0.21.2 \
+    psutil
+
+
+WORKDIR /pywash
+
+CMD ["flask", "run", "--host=0.0.0.0"]

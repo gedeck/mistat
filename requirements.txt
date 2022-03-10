@@ -1,3 +1,10 @@
 pandas
 scikit-learn
 matplotlib
+pytest-regressions
+statsmodels
+pingouin
+pytest-watch 
+pytest-testmon 
+pytest-xdist
+doepy

@@ -1,0 +1,6 @@
+FROM mistat_test_1
+RUN pip install mypy isort data-science-types types-setuptools pylint
+
+WORKDIR /src
+
+EXPOSE 8898

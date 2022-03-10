@@ -1,0 +1,12 @@
+FROM python:3.9-slim
+RUN apt-get update && \
+    apt upgrade -y && \
+    apt -y install build-essential libmariadb-dev-compat libmariadb-dev git libffi-dev && \
+    pip3 install --upgrade pip && \
+    mkdir /src
+WORKDIR /src
+
+COPY ./requirements.txt /requirements.txt
+RUN pip install --requirement /requirements.txt
+RUN pip install pytest pytest-watch pytest-testmon
+RUN pip3 install --upgrade pip

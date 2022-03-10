@@ -2,11 +2,10 @@
 conda create --name mistat-dev python=3.8
 conda activate mistat-dev
 
-# conda install matplotlib
-pip install pandas
-# conda install scikit-learn
+pip install numpy scipy pandas matplotlib
 
-pip install tox twine pytest==5.3
+pip install pytest==5.3 pytest-regressions
+pip install tox twine 
 ```
 
 ```

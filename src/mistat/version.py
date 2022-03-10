@@ -1,6 +1,7 @@
 '''
-Utility functions for "Modern Industrial Statistics"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2020 Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-__version__ = '0.0.3'
+__version__ = '0.1.4'

@@ -1,0 +1,12 @@
+{
+    "restructuredtext.confPath": "",
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "python"
+    ]
+}

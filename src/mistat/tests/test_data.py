@@ -1,17 +1,17 @@
 '''
-Utility functions for "Data Mining for Business Analytics: Concepts, Techniques, and 
-Applications in Python"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-from pathlib import Path
 import unittest
+from pathlib import Path
 
+import pandas as pd
 import pytest
 
-from mistat.data import DATA_DIR, get_description_file
 import mistat
-import pandas as pd
+from mistat.data import DATA_DIR, get_description_file
 
 
 class TestData(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestData(unittest.TestCase):
                 assert isinstance(data, pd.DataFrame)
                 assert data.shape[1] > 1
 
-    def test_data_description_exists(self):
+    def _test_data_description_exists(self):
         for name in Path(DATA_DIR).glob('*.Rd'):
             data_file = name.with_suffix('.csv.gz')
             assert data_file.exists()
@@ -42,7 +42,7 @@ class TestData(unittest.TestCase):
             description_file = get_description_file(name.name)
             assert description_file.exists()
 
-    def test_describe_data(self):
+    def _test_describe_data(self):
         with pytest.raises(ValueError):
             mistat.describe_data('unknown data file')
 
@@ -66,3 +66,8 @@ class TestData(unittest.TestCase):
         for name in Path(DATA_DIR / 'Rd').glob('*.Rd'):
             name = name.with_suffix('').name
             print(f'pandoc {name}.rst -t markdown -o {name}.md')
+
+    def test_specialDatasets(self):
+        data = mistat.load_data('PROCESS_SEGMENT')
+        assert len(data['X']) == 1897
+        assert len(data['Z']) == 1002
