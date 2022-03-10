@@ -126,6 +126,5 @@ class TestRSMpackage(unittest.TestCase):
                                    np.array([-0.5431673, 0.8396245]), rtol=1e-4)
 
         path = rsm.constrainedOptimization(start=(0, 0), distances=(0.5, 1))
-        print(path['y'])
         np.testing.assert_allclose(path['y'],
                                    np.array([50.263158, 55.556944, 58.742308]), rtol=1e-4)
