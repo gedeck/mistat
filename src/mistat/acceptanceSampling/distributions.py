@@ -116,8 +116,8 @@ class OChypergeom(OCdistribution):
             raise ValueError('N must be provided in class initialization')
         if self.r is None:
             raise ValueError('r must be provided in class initialization')
-        if self.pd is None:
-            raise ValueError('pd must be provided in class initialization')
+        if self.pd is None and self.D is None:
+            raise ValueError('One of D or pd must be provided in class initialization')
 
         self.distribution = OCtype.hypergeom
         if not self.D:

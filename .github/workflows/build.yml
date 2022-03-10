@@ -31,4 +31,4 @@ jobs:
         with:
           python-version: '3.10'
       - run: pip install --upgrade pip pylint matplotlib pandas scikit-learn pytest
-      - run: cd src; pylint dmba
+      - run: cd src; pylint mistat
