@@ -1,16 +1,18 @@
 '''
-Created on Jun 20, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from numbers import Number
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats
+
 from mistat.qcc.rules import shewhartRules
 from mistat.qcc.statistics import GroupMeans, qccStatistics
-from scipy import stats
 
 
 # qcc <- function(data, type = c("xbar", "R", "S", "xbar.one", "p", "np", "c", "u", "g"), sizes,

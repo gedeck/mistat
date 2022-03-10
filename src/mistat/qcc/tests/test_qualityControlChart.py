@@ -6,14 +6,14 @@ Applications in Python"
 '''
 import unittest
 
+import numpy as np
 import pytest
 
 from mistat.data import load_data
-from mistat.qcc.qualityControlChart import qcc_groups, QualityControlChart,\
-    qcc_overdispersion_test
+from mistat.qcc.qualityControlChart import (QualityControlChart, qcc_groups,
+                                            qcc_overdispersion_test)
 from mistat.simulation.mistatSimulation import simulationGroup
 from mistat.simulation.pistonSimulation import PistonSimulator
-import numpy as np
 
 
 def test_qcc_groups(num_regression):

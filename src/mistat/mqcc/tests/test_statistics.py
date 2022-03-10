@@ -1,19 +1,19 @@
 '''
-Created on Jul 9, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-
 import unittest
 
-from scipy.special import gammaln
-import pytest
-
-from mistat.data import load_data
-from mistat.mqcc.statistics import MQCCStatistics, T2_statistic,\
-    T2single_statistic
 import numpy as np
 import pandas as pd
+import pytest
+from scipy.special import gammaln
+
+from mistat.data import load_data
+from mistat.mqcc.statistics import (MQCCStatistics, T2_statistic,
+                                    T2single_statistic)
 
 
 class Test_mqccStatistics(unittest.TestCase):

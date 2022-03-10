@@ -1,13 +1,15 @@
 '''
-Created on Jun 20, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy import linalg
+
 from mistat.mqcc.statistics import mqccStatistics
 from mistat.qcc.rules import shewhartRules
-from scipy import linalg
 
 
 class MultivariateQualityControlChart:

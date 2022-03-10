@@ -1,12 +1,14 @@
 '''
-Created on Jun 22, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 
-from mistat.qcc.ewmaChart import ewmaSmooth
 import numpy as np
+
+from mistat.qcc.ewmaChart import ewmaSmooth
 
 
 class TestCusum(unittest.TestCase):

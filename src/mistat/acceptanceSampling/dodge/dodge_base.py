@@ -1,7 +1,8 @@
 '''
-Created on Jun 30, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
 from typing import List, Optional
@@ -18,9 +19,9 @@ class AcceptanceSamplingPlan:
     ASN: List[float]
     AOQ: List[float]
     ATI: List[float]
-    n: List[float] = None
-    Pa1: List[float] = None
-    Pa2: List[float] = None
+    n: Optional[List[float]] = None
+    Pa1: Optional[List[float]] = None
+    Pa2: Optional[List[float]] = None
 
     def plot(self, axes=None):
         if axes is None:
@@ -79,7 +80,7 @@ class SequentialSamplePlan:
     accept: List[float]
     reject: List[float]
 
-    N: int = None  # lot size, required for hypergeometric
+    N: Optional[int] = None  # lot size, required for hypergeometric
     oc_type: str = 'binomial'
 
     def __repr__(self):

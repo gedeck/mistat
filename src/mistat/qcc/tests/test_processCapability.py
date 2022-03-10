@@ -1,19 +1,19 @@
 '''
 
 '''
-from contextlib import redirect_stdout
-from pathlib import Path
 import io
 import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from mistat.qcc.processCapability import ProcessCapability
-from mistat.qcc.qualityControlChart import qcc_groups, QualityControlChart
-from mistat.qcc.statistics import SD_estimator, QCCStatistics
+from mistat.qcc.qualityControlChart import QualityControlChart, qcc_groups
+from mistat.qcc.statistics import QCCStatistics, SD_estimator
 from mistat.qcc.tests.utilities import assertQCC
-import numpy as np
-import pandas as pd
 
 
 class TestProcessCapability(unittest.TestCase):

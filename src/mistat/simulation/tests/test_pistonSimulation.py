@@ -8,7 +8,8 @@ import unittest
 
 import pytest
 
-from mistat.simulation.pistonSimulation import PistonSimulator, uniformSumDistribution
+from mistat.simulation.pistonSimulation import (PistonSimulator,
+                                                uniformSumDistribution)
 
 
 class TestPistonSimulation(unittest.TestCase):

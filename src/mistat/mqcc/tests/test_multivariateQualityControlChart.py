@@ -9,7 +9,8 @@ import unittest
 import pytest
 
 from mistat.data import load_data
-from mistat.mqcc.multivariateQualityControlChart import MultivariateQualityControlChart
+from mistat.mqcc.multivariateQualityControlChart import \
+    MultivariateQualityControlChart
 
 
 class TestMultivariateQualityControlChart(unittest.TestCase):

@@ -1,18 +1,18 @@
 '''
-Created on Dec 30, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-
-
-from pathlib import Path
 import unittest
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+import statsmodels.formula.api as smf
 
 from mistat.rsm.responseSurfaceMethod import ResponseSurfaceMethod
-import pandas as pd
-import numpy as np
-import statsmodels.formula.api as smf
-import pytest
 
 
 class TestResponseSurfaceMethod(unittest.TestCase):

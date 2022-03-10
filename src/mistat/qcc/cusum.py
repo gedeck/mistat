@@ -1,17 +1,17 @@
 '''
-Created on Jul 6, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from collections import namedtuple
-
-from scipy import stats
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats
 
-from .statistics import qccStatistics, Base_statistic
+from .statistics import Base_statistic, qccStatistics
 
 
 class Cusum:

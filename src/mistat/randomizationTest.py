@@ -1,11 +1,13 @@
 '''
-Created on Jun 19, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
+import random
+
 import pandas as pd
 import pingouin as pg
-import random
 
 
 def randomizationTest(a, b, sample_stat, aggregate_stats=None, n_boot=500, seed=None,

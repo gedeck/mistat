@@ -1,7 +1,8 @@
 '''
-Created on Dec 16, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import numpy as np
 from scipy.cluster.hierarchy import dendrogram, fcluster

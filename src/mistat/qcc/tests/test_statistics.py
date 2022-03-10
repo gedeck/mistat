@@ -6,13 +6,13 @@ Applications in Python"
 '''
 import unittest
 
-from scipy.special import gammaln
+import numpy as np
 import pytest
+from scipy.special import gammaln
 
 from mistat.data import load_data
 from mistat.qcc import statistics
 from mistat.qcc.statistics import QCCStatistics, SD_estimator, qcc_c4
-import numpy as np
 
 
 class Test_qccStatistics(unittest.TestCase):

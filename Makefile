@@ -3,10 +3,12 @@ RUN=docker run -it --rm -p 5000:5000
 
 PYWASH_IMAGE=mistat_pywash_1
 TEST_IMAGE=mistat_test_1
+DEV_IMAGE=mistat_devtools
 JUPYTER_IMAGE=mistat_dev_jupyter
 images: 
 	docker build -t $(PYWASH_IMAGE) -f docker/Dockerfile.pywash .
 	docker build -t $(TEST_IMAGE) -f docker/Dockerfile.test .
+	docker build -t $(DEV_IMAGE) -f docker/Dockerfile.devtools .
 	docker build -t $(JUPYTER_IMAGE) -f docker/Dockerfile.jupyter .
 
 
@@ -32,7 +34,13 @@ jupyter:
 
 
 isort:
-	docker run -it --rm -v $(PWD)/src:/src $(TEST_IMAGE) isort 
+	docker run -it --rm -v $(PWD)/src:/src $(DEV_IMAGE) isort mistat
 
 mypy:
-	docker run -it --rm -v $(PWD)/src:/src $(TEST_IMAGE) mypy
+	docker run -it --rm -v $(PWD)/src:/src $(DEV_IMAGE) mypy --install-types mistat
+
+pylint:
+	docker run -it --rm -v $(PWD)/src:/src $(DEV_IMAGE) pylint mistat
+
+bash-dev:
+	docker run -it --rm -v $(PWD)/src:/src $(DEV_IMAGE) bash

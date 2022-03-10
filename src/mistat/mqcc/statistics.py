@@ -1,17 +1,16 @@
 '''
-Created on Jul 9, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from collections import namedtuple
 
-from scipy import linalg
-from scipy import stats
-
-from mistat.qcc.statistics import QCCStatistics
 import numpy as np
 import pandas as pd
+from scipy import linalg, stats
 
+from mistat.qcc.statistics import QCCStatistics
 
 GroupStatistics = namedtuple('GroupStatistics', 'statistics,means,center,cov')
 DataSizes = namedtuple('DataSizes', 'num_samples,samples_sizes,num_variables')

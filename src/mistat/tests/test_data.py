@@ -1,15 +1,16 @@
 '''
-Utility functions for "Data Mining for Business Analytics: Concepts, Techniques, and 
-Applications in Python"
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-(c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 from pathlib import Path
 
-import mistat
 import pandas as pd
 import pytest
+
+import mistat
 from mistat.data import DATA_DIR, get_description_file
 
 

@@ -1,12 +1,13 @@
 '''
-Created on Jun 21, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib import colors
+from matplotlib import colors  # type: ignore
 from matplotlib.patches import Rectangle
 
 

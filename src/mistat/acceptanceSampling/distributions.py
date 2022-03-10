@@ -1,12 +1,13 @@
 '''
-Created on Jun 16, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass, field
 from enum import Enum
 from itertools import product
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -95,7 +96,7 @@ class OCbinomial(OCdistribution):
 
 @dataclass
 class OChypergeom(OCdistribution):
-    N: int = None
+    N: Optional[int] = None
     pd: List[float] = field(default_factory=list)
     D: List[int] = field(default_factory=list)
 

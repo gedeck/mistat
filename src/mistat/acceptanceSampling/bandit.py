@@ -1,15 +1,14 @@
 '''
-Created on Jan 16, 2021
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from collections import namedtuple
 from functools import lru_cache
 
-from scipy import stats
-
 import numpy as np
-
+from scipy import stats
 
 N = 10
 p = 0.95
@@ -18,7 +17,7 @@ k = 10
 gam = 0.95
 Ns = 1000
 
-Stats = namedtuple('OABresult', 'mean,std')
+Stats = namedtuple('Stats', 'mean,std')
 SimulateOABResult = namedtuple('SimulateOABResult', 'mgamma,reward')
 OptimalOABResult = namedtuple('OptimalOABResult', 'max_reward,rewards')
 

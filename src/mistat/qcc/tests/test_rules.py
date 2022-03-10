@@ -1,16 +1,18 @@
 '''
-Created on Jun 22, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-from pathlib import Path
 import unittest
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 
 from mistat.data import load_data
 from mistat.qcc.qualityControlChart import QualityControlChart, qcc_groups
 from mistat.qcc.rules import run_length_encoding
-import numpy as np
-import pandas as pd
 
 
 class TestRules(unittest.TestCase):

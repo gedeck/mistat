@@ -8,7 +8,7 @@ import unittest
 
 import pytest
 
-from mistat.simulation import simulationGroup,  PistonSimulator
+from mistat.simulation import PistonSimulator, simulationGroup
 from mistat.simulation.mistatSimulation import repeat_elements
 
 

@@ -1,14 +1,16 @@
 '''
-Created on Jun 30, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
 from typing import List
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
-import matplotlib.pyplot as plt
 
 # R: dodge.CurtBinomial
 

@@ -1,12 +1,15 @@
 '''
-Created on Jun 26, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 
-from mistat.acceptanceSampling.bandit import simulateOAB, optimalOAB, optimalOAB2
 import pytest
+
+from mistat.acceptanceSampling.bandit import (optimalOAB, optimalOAB2,
+                                              simulateOAB)
 
 
 class TestBandit(unittest.TestCase):

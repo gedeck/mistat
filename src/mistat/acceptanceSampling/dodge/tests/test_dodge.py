@@ -1,17 +1,24 @@
 '''
-Created on Jun 30, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 
-import pytest
-from mistat.acceptanceSampling.dodge.dodge_curtailed import curtailedBinomial
-
-from mistat.acceptanceSampling.dodge.dodge_double import DSPlanBinomial, DSPlanNormal, DSPlanPoisson
-from mistat.acceptanceSampling.dodge.dodge_sequential import sequentialDesign
-from mistat.acceptanceSampling.dodge.dodge_single import SSPDesignBinomial, SSPDesignPoisson, SSPlanBinomial, SSPlanHyper, SSPlanPoisson
 import numpy as np
+import pytest
+
+from mistat.acceptanceSampling.dodge.dodge_curtailed import curtailedBinomial
+from mistat.acceptanceSampling.dodge.dodge_double import (DSPlanBinomial,
+                                                          DSPlanNormal,
+                                                          DSPlanPoisson)
+from mistat.acceptanceSampling.dodge.dodge_sequential import sequentialDesign
+from mistat.acceptanceSampling.dodge.dodge_single import (SSPDesignBinomial,
+                                                          SSPDesignPoisson,
+                                                          SSPlanBinomial,
+                                                          SSPlanHyper,
+                                                          SSPlanPoisson)
 
 
 class TestDodge(unittest.TestCase):

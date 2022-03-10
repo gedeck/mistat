@@ -1,10 +1,11 @@
 '''
-Created on Jan 10, 2021
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
 def plotECDF(data):

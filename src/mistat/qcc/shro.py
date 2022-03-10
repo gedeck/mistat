@@ -1,16 +1,17 @@
 '''
-Created on Jul 8, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+
 """
 ARL, PFA and CED of Shiryayev-Roberts procedure
 """
-
-from scipy import stats
-
-import numpy as np
-import pandas as pd
 
 
 def shroArlPfaCedNorm(mean0=0, mean1=None, sd=1, n=10, delta=1, tau=None,

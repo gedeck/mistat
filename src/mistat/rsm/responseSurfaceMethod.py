@@ -1,12 +1,13 @@
 '''
-Created on May 3, 2021
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import numpy as np
 import pandas as pd
 from scipy.linalg import eig
-from scipy.optimize import minimize, NonlinearConstraint
+from scipy.optimize import NonlinearConstraint, minimize
 
 
 class ResponseSurfaceMethod:

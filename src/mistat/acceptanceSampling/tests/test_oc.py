@@ -1,11 +1,14 @@
 '''
-Created on Jun 26, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
-from mistat.acceptanceSampling.oc import OperatingCharacteristics2c
+
 import numpy as np
+
+from mistat.acceptanceSampling.oc import OperatingCharacteristics2c
 
 
 class TestOperatingCharacteristics2c(unittest.TestCase):

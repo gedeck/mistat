@@ -4,16 +4,16 @@ Applications in Python"
 
 (c) 2019 Galit Shmueli, Peter C. Bruce, Peter Gedeck 
 '''
-from pathlib import Path
 import unittest
+from pathlib import Path
 
-import pytest
-
-from mistat.qcc.qualityControlChart import qcc_groups, QualityControlChart
-from mistat.qcc.statistics import SD_estimator, QCCStatistics
-from mistat.qcc.tests.utilities import assertQCC, assertQCCviolations
 import numpy as np
 import pandas as pd
+import pytest
+
+from mistat.qcc.qualityControlChart import QualityControlChart, qcc_groups
+from mistat.qcc.statistics import QCCStatistics, SD_estimator
+from mistat.qcc.tests.utilities import assertQCC, assertQCCviolations
 
 
 class TestComparisonWithR(unittest.TestCase):

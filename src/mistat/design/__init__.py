@@ -1,3 +1,3 @@
-from .graphs import mainEffectsPlot, interactionPlot, FDS_Plot
-from .graphs import calculateMainEffects, calculateInteractions, getModelMatrix
 from .doeUtilities import addTreatments
+from .graphs import (FDS_Plot, calculateInteractions, calculateMainEffects,
+                     getModelMatrix, interactionPlot, mainEffectsPlot)

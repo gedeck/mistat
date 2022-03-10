@@ -1,3 +1,9 @@
+'''
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
+
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
+'''
 import matplotlib.pyplot as plt
 import numpy as np
 import pingouin

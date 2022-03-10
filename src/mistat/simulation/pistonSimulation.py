@@ -1,19 +1,21 @@
 '''
-Created on Jun 13, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
+from typing import Optional
 
+import numpy as np
+import pandas as pd
 from scipy import stats
 from scipy.stats import norm
 
 from mistat.simulation.mistatSimulation import SimulationResult
-import numpy as np
-import pandas as pd
 
-from .mistatSimulation import MistatSimulation, repeat_elements, convert_to_list
-
+from .mistatSimulation import (MistatSimulation, convert_to_list,
+                               repeat_elements)
 
 default_errors = {
     'm': 0.1,
@@ -37,7 +39,7 @@ class PistonSimulator(MistatSimulation):
     t0: float = 360
 
     n_simulation: int = 50  # desired number of simulations
-    seed: float = None
+    seed: Optional[float] = None
     check: bool = True
 
     def __post_init__(self):

@@ -1,14 +1,15 @@
 '''
-Created on Jun 20, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-from scipy import stats
-
-from mistat.qcc.qualityControlChart import QualityControlChart
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats
+
+from mistat.qcc.qualityControlChart import QualityControlChart
 
 
 class ProcessCapability:

@@ -1,18 +1,18 @@
 '''
-Created on Jun 28, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-from collections import namedtuple
 import math
+from collections import namedtuple
 
+import numpy as np
 from scipy import stats
 from scipy.optimize import root_scalar
 
 from mistat.acceptanceSampling.distributions import OChypergeom, OCpoisson
 from mistat.acceptanceSampling.oc import OC_TYPES
-import numpy as np
-
 
 RiskPoint = namedtuple('RiskPoint', 'pdefect,paccept')
 Plan = namedtuple('Plan', 'n,c,r')

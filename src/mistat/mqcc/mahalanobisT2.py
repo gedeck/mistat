@@ -1,20 +1,19 @@
 '''
-Created on Jul 9, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from string import ascii_uppercase
 
-from matplotlib.gridspec import GridSpec
-from scipy import linalg, optimize
-from scipy import stats
-
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import matplotlib.transforms as transforms
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
-import matplotlib.transforms as transforms
+from matplotlib.gridspec import GridSpec
+from scipy import linalg, optimize, stats
 
 
 class MahalanobisT2:

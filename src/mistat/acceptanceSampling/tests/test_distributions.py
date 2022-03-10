@@ -1,15 +1,16 @@
 '''
-Created on Jun 16, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
 
+import numpy as np
 import pytest
 
-from mistat.acceptanceSampling.distributions import getDistribution, OCtype,\
-    OCbinomial, OChypergeom
-import numpy as np
+from mistat.acceptanceSampling.distributions import (OCbinomial, OChypergeom,
+                                                     OCtype, getDistribution)
 
 
 class TestData(unittest.TestCase):

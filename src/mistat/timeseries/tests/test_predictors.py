@@ -1,17 +1,18 @@
 '''
-Created on Dec 30, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-
-
 import unittest
+
 import numpy as np
 
-
-from mistat.timeseries.predictors import optimalLinearPredictor, quadraticPredictor, masPredictor,\
-    normRandomWalk, dlmLinearGrowth, simulateARMA, predictARMA
 from mistat import load_data
+from mistat.timeseries.predictors import (dlmLinearGrowth, masPredictor,
+                                          normRandomWalk,
+                                          optimalLinearPredictor, predictARMA,
+                                          quadraticPredictor, simulateARMA)
 
 
 class TestPredictors(unittest.TestCase):
@@ -22,14 +23,14 @@ class TestPredictors(unittest.TestCase):
              -2.5097180, -2.0452979, 0.5629472]), rtol=1e-4)
 
         dow1941 = load_data('DOW1941.csv')
-        predicted = optimalLinearPredictor(dow1941, 20, nlags=10)
+        _ = optimalLinearPredictor(dow1941, 20, nlags=10)
 
     def test_quadraticPredictor(self):
         res = quadraticPredictor([1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3], 5, 1)
         np.testing.assert_allclose(res, np.array(
             [1.1,  2.1, 3.1,  1.2,  2.2,  0.88, 4.2,  1.72, 0.98]), rtol=1e-4)
         dow1941 = load_data('DOW1941.csv')
-        predicted = optimalLinearPredictor(dow1941, 20, 1)
+        _ = optimalLinearPredictor(dow1941, 20, 1)
 
     def test_masPredictor(self):
         res = masPredictor([1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3, 1.4, 2.4, 3.4], 4, 1)
@@ -51,7 +52,8 @@ class TestPredictors(unittest.TestCase):
         X = list(range(1, 10))
         res = dlmLinearGrowth(X, C0, 3, W, M0)
         np.testing.assert_allclose(res, np.array(
-            [133.92250, 114.85984, 94.59632,  76.92095,  62.98001,  52.58327,  45.10165,  39.87351,  36.33951]), rtol=1e-4)
+            [133.92250, 114.85984, 94.59632,  76.92095,  62.98001,
+             52.58327,  45.10165,  39.87351,  36.33951]), rtol=1e-4)
 
     def test_predictARMA(self):
         a = [0.5, 0.3, 0.1]

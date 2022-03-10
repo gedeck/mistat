@@ -1,10 +1,11 @@
 '''
-Created on Jun 25, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-import pytest
 import numpy as np
+import pytest
 
 
 def assertQCC(qcc, center, std_dev, limits):

@@ -1,22 +1,20 @@
 '''
-Created on Jun 22, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
-#
-# Functions used to signal points out of control
-
-#
+import itertools
 from itertools import groupby
 from numbers import Number
-import itertools
 
 import numpy as np
 import pandas as pd
 
-
 RUN_LENGTH = 7
 
+
+# Functions used to signal points out of control
 
 def shewhartRules(qcc, **kwargs):
     return {

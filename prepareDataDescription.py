@@ -1,7 +1,8 @@
 '''
-Created on Jan 15, 2021
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from pathlib import Path
 import os

@@ -1,18 +1,17 @@
 '''
-Created on Jun 20, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
+import numbers
 from collections import namedtuple
 from enum import Enum
-import numbers
-
-from scipy import stats
-from scipy.special import gammaln
 
 import numpy as np
 import pandas as pd
-
+from scipy import stats
+from scipy.special import gammaln
 
 GroupMeans = namedtuple('GroupMeans', 'statistics,center')
 

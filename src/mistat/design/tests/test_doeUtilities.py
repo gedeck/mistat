@@ -1,5 +1,7 @@
 import unittest
-from mistat.design.doeUtilities import _reduceTreatment, aliasesInSubgroup, subgroupOfDefining
+
+from mistat.design.doeUtilities import (_reduceTreatment, aliasesInSubgroup,
+                                        subgroupOfDefining)
 
 
 class TestDoeUtilities(unittest.TestCase):

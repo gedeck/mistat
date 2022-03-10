@@ -1,15 +1,17 @@
 '''
-Created on Jun 26, 2020
+Modern Statistics: A Computer Based Approach with Python
+Industrial Statistics: A Computer Based Approach with Python
 
-@author: petergedeck
+(c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 import unittest
+from unittest.case import skip
 
-from mistat.acceptanceSampling.generic import findPlan, Plan, PlanNormal, find_k,\
-    findPlanApprox
 import numpy as np
 import pandas as pd
-from unittest.case import skip
+
+from mistat.acceptanceSampling.generic import (Plan, PlanNormal, find_k,
+                                               findPlan, findPlanApprox)
 
 
 class TestGeneric(unittest.TestCase):
@@ -49,7 +51,7 @@ class TestGeneric(unittest.TestCase):
         result = findPlan(PRP=(0.01, 0.95), CRP=(0.03, 0.05), oc_type="normal", N=500, s_type='unknown')
         assert result == PlanNormal(176, 2.105480330251979, 'unknown')
 
-    @skip
+    @skip('Not implemented')
     def test_findPlan_poisson(self):
         result = findPlan(PRP=(0.01, 0.95), CRP=(0.03, 0.05), oc_type="poisson", N=500)
         assert result == Plan(524, 9, 10)
