@@ -121,6 +121,7 @@ class OChypergeom(OCdistribution):
 
         self.distribution = OCtype.hypergeom
         if not self.D:
+            assert self.pd is not None
             self.D = [round(pdi * self.N) for pdi in self.pd]
 
         self.paccept = np.array([self.calcHypergeom(Di, self.n, self.c, self.r, self.N) for Di in self.D])

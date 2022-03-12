@@ -76,7 +76,7 @@ def variableSampPlanKnown(N: int, n: int, k: float,
     OC = pa
     AOQ = (N - n) * p * OC / N
     ATI = n * OC + N * (1 - OC)
-    return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)
+    return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)  # type: ignore
 
 
 def variableSampPlanUnknown(N: int, n: int, k: float,
@@ -92,7 +92,7 @@ def variableSampPlanUnknown(N: int, n: int, k: float,
     OC = pa
     AOQ = (N - n) * p * OC / N
     ATI = n * OC + N * (1 - OC)
-    return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)
+    return AcceptanceSamplingPlan(p=p, OC=OC, n=[n] * len(p), AOQ=AOQ, ATI=ATI, ASN=None)  # type: ignore
 
 # ' Variable Sampling Plan Design
 # '
@@ -110,7 +110,7 @@ def variableSampPlanUnknown(N: int, n: int, k: float,
 # ' VSPDesign(AQL=0.01, alpha=0.05, LQL=0.04, beta=0.05)
 
 
-def VSPDesign(AQL: float, alpha: float, LQL: float, beta: float):
+def VSPDesign(AQL: float, alpha: float, LQL: float, beta: float) -> pd.Series:
     zp1 = stats.norm.ppf(1-AQL)
     zp2 = stats.norm.ppf(1-LQL)
     zpa1 = stats.norm.ppf(1-alpha)
