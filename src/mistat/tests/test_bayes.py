@@ -8,7 +8,6 @@ import unittest
 
 import pytest
 
-import mistat
 from mistat import bayes
 
 

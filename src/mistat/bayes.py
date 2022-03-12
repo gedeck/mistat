@@ -6,7 +6,8 @@ Industrial Statistics: A Computer Based Approach with Python
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
-from typing import Dict, cast, List, Union
+from typing import Dict, List, cast
+
 import numpy as np
 from scipy import stats
 

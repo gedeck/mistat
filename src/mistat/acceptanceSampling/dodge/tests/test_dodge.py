@@ -16,7 +16,9 @@ from mistat.acceptanceSampling.dodge.dodge_curtailed import curtailedBinomial
 from mistat.acceptanceSampling.dodge.dodge_double import (DSPlanBinomial,
                                                           DSPlanNormal,
                                                           DSPlanPoisson)
-from mistat.acceptanceSampling.dodge.dodge_other import VSPDesign, lotSensitiveComplianceSampPlan, variableSampPlanKnown, variableSampPlanUnknown
+from mistat.acceptanceSampling.dodge.dodge_other import (
+    VSPDesign, lotSensitiveComplianceSampPlan, variableSampPlanKnown,
+    variableSampPlanUnknown)
 from mistat.acceptanceSampling.dodge.dodge_sequential import sequentialDesign
 from mistat.acceptanceSampling.dodge.dodge_single import (SSPDesignBinomial,
                                                           SSPDesignPoisson,

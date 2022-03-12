@@ -12,6 +12,7 @@ import pandas as pd
 from scipy import stats
 
 from .dodge_base import AcceptanceSamplingPlan
+
 # ' Lot Sensitive Compliance Sampling Plans
 # '
 # ' The lot sensitive compliance sampling plans for given parameters.
