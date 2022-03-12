@@ -22,11 +22,14 @@ class BetaDistribution(Distribution):
     a: int
     b: int
 
+    def theta(self):
+        return self.a / (self.a + self.b)
+
 
 @dataclass
 class GammaDistribution(Distribution):
     shape: float
-    scale: float  # scale is 1/rate
+    rate: float  # scale is 1/rate
 
 
 @ dataclass
@@ -81,9 +84,9 @@ def updateGammaMixture(mixture: Mixture, data: Dict[str, List[float]]) -> Mixtur
     t = data['t']
     ysum = np.sum(y)
     tsum = np.sum(t)
-    postGamma = [GammaDistribution(shape=d.shape + ysum, scale=d.scale+tsum)
+    postGamma = [GammaDistribution(shape=d.shape + ysum, rate=d.rate+tsum)
                  for d in distributions]
-    L = np.array([d.shape / d.scale for d in postGamma])
+    L = np.array([d.shape / d.rate for d in postGamma])
 
     loglike = np.zeros(len(L))
     for yi, ti in zip(y, t):
@@ -92,8 +95,8 @@ def updateGammaMixture(mixture: Mixture, data: Dict[str, List[float]]) -> Mixtur
     mProb = np.zeros(len(L))
     for i, (Li, bd, postBd) in enumerate(zip(L, distributions, postGamma)):
         mProb[i] = np.exp(loglike[i] +
-                          stats.gamma(bd.shape, scale=1/bd.scale).logpdf(Li) -
-                          stats.gamma(postBd.shape, scale=1/postBd.scale).logpdf(Li))
+                          stats.gamma(bd.shape, scale=1/bd.rate).logpdf(Li) -
+                          stats.gamma(postBd.shape, scale=1/postBd.rate).logpdf(Li))
     # update the probabilities of the prior
     postProbs = (probabilities * mProb) / np.sum(probabilities * mProb)
     return Mixture(probabilities=list(postProbs), distributions=list(postGamma))
