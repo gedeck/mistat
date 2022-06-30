@@ -65,7 +65,6 @@ disable=missing-function-docstring,
         too-few-public-methods,
         wrong-import-order,
         invalid-name,
-        no-self-use,
         unused-argument,
         import-outside-toplevel,
         too-many-locals,
@@ -77,8 +76,9 @@ disable=missing-function-docstring,
         duplicate-code,
         no-member, 
         abstract-method,
-        too-many-ancestors,
-        imported-auth-user
+        too-many-ancestors
+        # no-self-use,
+        # imported-auth-user
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

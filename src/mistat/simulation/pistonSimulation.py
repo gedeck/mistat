@@ -41,6 +41,7 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
     n_simulation: int = 50  # desired number of simulations
     seed: Optional[float] = None
     check: bool = True
+    actuals: Optional[SimulationResult] = None
 
     def __post_init__(self):
         if self.seed is not None:

@@ -24,7 +24,7 @@ class Cusum:
         elif isinstance(sizes, int):
             sizes = np.array([sizes] * len(data))
         elif len(sizes) != len(data):
-            raise ValueError('sizes length doesn'' match with data')
+            raise ValueError("sizes length doesn't match with data")
         if decision_interval <= 0:
             raise ValueError('decision_interval must be positive')
 
