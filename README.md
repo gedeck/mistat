@@ -6,12 +6,10 @@
 
 Collection of utility functions
 
-
-
 Install the `mistat` package using 
 ```
 pip3 install mistat
 ```
 
 ## Notebooks and solutions
-Go to https://github.com/gedeck/mistat-code-solutions to access notebooks and solutions
+For instructions to install a python environment and access to notebooks and solutions go to https://github.com/gedeck/mistat-code-solutions
