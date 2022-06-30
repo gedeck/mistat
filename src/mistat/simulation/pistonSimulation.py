@@ -101,6 +101,16 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
 
         result = {option: getattr(self, option) for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0')}
         result['seconds'] = res
+        self.actuals = SimulationResult({
+            'm': m_s,
+            's': s_s,
+            'v0': v0_s,
+            'k': k_s,
+            'p0': p0_s,
+            't': t_s,
+            't0': t0_s,
+            'seconds': res,
+        })
         return SimulationResult(result)
 
     @staticmethod

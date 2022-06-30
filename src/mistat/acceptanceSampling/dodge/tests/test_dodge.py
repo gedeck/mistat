@@ -13,7 +13,7 @@ import pytest
 from mistat.acceptanceSampling.dodge.dodge_chain import (ChainPlanBinomial,
                                                          ChainPlanPoisson)
 from mistat.acceptanceSampling.dodge.dodge_curtailed import curtailedBinomial
-from mistat.acceptanceSampling.dodge.dodge_double import (DSPlanBinomial,
+from mistat.acceptanceSampling.dodge.dodge_double import (DSPlanBinomial, DSPlanHypergeom,
                                                           DSPlanNormal,
                                                           DSPlanPoisson)
 from mistat.acceptanceSampling.dodge.dodge_other import (
@@ -126,6 +126,14 @@ class TestDodge(unittest.TestCase):
         dsPlan = DSPlanNormal(1000, 100, 200, 3, 6, 6, p=(0.01, 0.03, 0.09))
         np.testing.assert_array_almost_equal(dsPlan.OC, (0.9985, 0.6397, 0.0214), decimal=4)
         np.testing.assert_array_almost_equal(dsPlan.ASN, (100.8083, 163.4957, 115.4561), decimal=4)
+
+    def test_DSPlanHypergeom(self):
+        dsPlan = DSPlanHypergeom(1000, 100, 200, 3, 6, 6, p=(0.01, 0.02, 0.03, 0.04, 0.05))
+        np.testing.assert_array_almost_equal(dsPlan.OC, (0.998, 0.8972, 0.658, 0.421, 0.243), decimal=3)
+        np.testing.assert_array_almost_equal(dsPlan.ASN, (102.4, 124.1, 156.4, 175.6, 174.7), decimal=1)
+
+        dsPlan = DSPlanHypergeom(150, 20, 40, 2, 6, 6, p=(0, 0.025, 0.05, 0.075))
+        np.testing.assert_array_almost_equal(dsPlan.OC, (1, 1, 0.997, 0.958), decimal=3)
 
     def test_DSPlanPoisson(self):
         dsPlan = DSPlanPoisson(150, 20, 40, 2, 6, 6, p=(0, 0.05, 0.1, 0.15, 0.2, 0.25))
