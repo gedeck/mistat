@@ -7,3 +7,7 @@ Collection of utility functions
 
 
 
+Install the `mistat` package using 
+```
+pip3 install mistat
+```
