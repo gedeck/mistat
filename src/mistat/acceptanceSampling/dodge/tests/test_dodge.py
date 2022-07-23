@@ -13,7 +13,8 @@ import pytest
 from mistat.acceptanceSampling.dodge.dodge_chain import (ChainPlanBinomial,
                                                          ChainPlanPoisson)
 from mistat.acceptanceSampling.dodge.dodge_curtailed import curtailedBinomial
-from mistat.acceptanceSampling.dodge.dodge_double import (DSPlanBinomial, DSPlanHypergeom,
+from mistat.acceptanceSampling.dodge.dodge_double import (DSPlanBinomial,
+                                                          DSPlanHypergeom,
                                                           DSPlanNormal,
                                                           DSPlanPoisson)
 from mistat.acceptanceSampling.dodge.dodge_other import (

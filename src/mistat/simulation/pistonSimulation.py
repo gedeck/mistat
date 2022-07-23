@@ -5,22 +5,22 @@ Industrial Statistics: A Computer Based Approach with Python
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
-from typing import Optional, NamedTuple, Tuple
+from typing import List, NamedTuple, Optional
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.stats import norm
 
-from mistat.simulation.mistatSimulation import SimulationResult
-
-from mistat.simulation.mistatSimulation import (MistatSimulation, convert_to_list,
+from mistat.simulation.mistatSimulation import (MistatSimulation,
+                                                SimulationResult,
+                                                convert_to_list,
                                                 repeat_elements)
 
 
 class Configuration(NamedTuple):
     default: float
-    limits: list[float]
+    limits: List[float]
     error: float
     label: str
     unit: str
@@ -113,10 +113,7 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
         return values
 
     def simulate(self):
-        size = len(self.m)
-
         # add errors
-        errors = self.errors
         m = self.with_added_errors('m')
         s = self.with_added_errors('s')
         v0 = self.with_added_errors('v0')
@@ -127,8 +124,6 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
 
         A = p0 * s + 2 * m * 9.81 - k * v0 / s
         V = s / (2 * k) * (np.sqrt(A**2 + 4 * k*t*p0 * v0 / t0) - A)
-        self.A = A
-        self.V = V
         res = 2 * np.pi * np.sqrt(m / (k + s**2 * p0 * (t / (t0 * V**2))))
 
         result = {option: getattr(self, option) for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0')}
