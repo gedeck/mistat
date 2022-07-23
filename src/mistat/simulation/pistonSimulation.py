@@ -103,14 +103,7 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
         values = getattr(self, parameter)
         size = len(values)
         # add random error to values
-        error = configuration.error
-        values = values + norm.rvs(size=size, loc=0, scale=error)
-        # restrict values to fall within limits +/- 3 error
-        lower = configuration.limits[0] - 3 * error
-        upper = configuration.limits[1] + 3 * error
-        values[values < lower] = lower
-        values[values > upper] = upper
-        return values
+        return values + norm.rvs(size=size, loc=0, scale=configuration.error)
 
     def simulate(self):
         # add errors
