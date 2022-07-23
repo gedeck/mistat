@@ -26,12 +26,11 @@ class TestPistonSimulation(unittest.TestCase):
             assert all(-3 <= rv <= 0 for rv in rvs)
 
     def test_cycleTime(self):
-        assert PistonSimulator.cycleTime(60, 0.02, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.3859461)
-        assert PistonSimulator.cycleTime(60, 0.02, 0.01, 5000, 110000, 100000, 360) == pytest.approx(0.4813737)
-        assert PistonSimulator.cycleTime(60, 0.02, 0.01, 5000, 110000, 296, 3600) == pytest.approx(0.2260668)
-        assert PistonSimulator.cycleTime(70, 0.02, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.4168694)
-        assert PistonSimulator.cycleTime(60, 0.2, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.06090253)
-        assert PistonSimulator.cycleTime(60, 0.2, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.06090253)
+        assert PistonSimulator.cycleTime(60, 0.02, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.05589640114142739)
+        assert PistonSimulator.cycleTime(60, 0.02, 0.01, 5000, 110000, 100000, 360) == pytest.approx(0.06773050714332678)
+        assert PistonSimulator.cycleTime(60, 0.02, 0.01, 5000, 110000, 296, 3600) == pytest.approx(0.037228518689142114)
+        assert PistonSimulator.cycleTime(70, 0.02, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.057737003491984906)
+        assert PistonSimulator.cycleTime(60, 0.2, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.006329772978006459)
 
     def test_PistonSimulator(self):
         s = [0.005] * 100

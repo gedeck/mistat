@@ -5,7 +5,7 @@ Industrial Statistics: A Computer Based Approach with Python
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, NamedTuple, Tuple
 
 import numpy as np
 import pandas as pd
@@ -14,29 +14,38 @@ from scipy.stats import norm
 
 from mistat.simulation.mistatSimulation import SimulationResult
 
-from .mistatSimulation import (MistatSimulation, convert_to_list,
-                               repeat_elements)
+from mistat.simulation.mistatSimulation import (MistatSimulation, convert_to_list,
+                                                repeat_elements)
 
-default_errors = {
-    'm': 0.1,
-    's': 0.01,
-    'v0': 0.00025,
-    'k': 50,
-    'p0': 0.01,
-    't': 0.13,
-    't0': 0.13
+
+class Configuration(NamedTuple):
+    default: float
+    limits: list[float]
+    error: float
+    label: str
+    unit: str
+
+
+configurations = {
+    'm': Configuration(45, (30, 60), 0.1, 'Piston weight m', 'kg'),
+    's': Configuration(0.0125, (0.005, 0.02), 0.001, 'Piston surface area s', 'm^2'),
+    'k': Configuration(3_000, (1_000, 5_000), 50, 'Value of initial gas volume v0', 'm^3'),
+    't': Configuration(293, (290, 296), 0.3, 'Value of spring coefficient k', 'N/m'),
+    'p0': Configuration(100_000, (90_000, 110_000), 0.01, 'Value of atmospheric pressure p0', 'N/m^2'),
+    'v0': Configuration(0.006, (0.002, 0.01), 0.0005, 'Value of filling gas temperature t0', 'K'),
+    't0': Configuration(350, (340, 360), 0.3, 'Value of ambient temperature t', 'K'),
 }
 
 
 @dataclass
 class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-attributes
-    m: float = 60
-    s: float = 0.02
-    v0: float = 0.01
-    k: float = 5_000
-    p0: float = 110_000
-    t: float = 296
-    t0: float = 360
+    m: float = configurations['m'].default
+    s: float = configurations['s'].default
+    k: float = configurations['k'].default
+    t: float = configurations['t'].default
+    p0: float = configurations['p0'].default
+    v0: float = configurations['v0'].default
+    t0: float = configurations['t0'].default
 
     n_simulation: int = 50  # desired number of simulations
     seed: Optional[float] = None
@@ -44,19 +53,11 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
     actuals: Optional[SimulationResult] = None
 
     def __post_init__(self):
+        # Check arguments
         if self.seed is not None:
             np.random.seed(seed=self.seed)
-
         if self.check:
-            validate_range(self.m, 30, 60, 'Piston weight m is out of range, [30, 60] kg')
-            validate_range(self.s, 0.005, 0.02, "Piston surface area s is out of range, [0.005, 0.020] m^2")
-            validate_range(self.v0, 0.002, 0.01, "Value of initial gas volume v0 is out of range, [0.002, 0.010] m^3")
-            validate_range(self.k, 1000, 5000, "Value of spring coefficient k is out of range, [1000, 5000] N/m")
-            validate_range(self.p0, 90_000, 110_000,
-                           "Value of atmospheric pressure p0 is out of range, [90000, 110000] N/m^2")
-            validate_range(self.t, 290, 296, "Value of ambient temperature t is out of range, [290, 296] K")
-            validate_range(self.t0, 340, 360, "Value of filling gas temperature t0 is out of range, [340, 360] K")
-
+            self.validate_configuration()
         if self.n_simulation < 1:
             raise ValueError('Number of simulations must be greater 1')
 
@@ -77,60 +78,78 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
             values = np.array(list(repeat_elements(values, maxsize // len(values))))
             setattr(self, option, values)
 
-        self.errors = dict(default_errors)
+        self.errors = {p: configuration.error for p, configuration in configurations.items()}
+
+    def validate_configuration(self):
+        for parameter, configuration in configurations.items():
+            values = getattr(self, parameter)
+            limits = configuration.limits
+            valid = True
+            if isinstance(values, (tuple, list, pd.core.series.Series, np.ndarray)):
+                left = limits[0] - 1e-6
+                right = limits[1] + 1e-6
+                if not all(left <= v <= right for v in values):
+                    valid = False
+            else:
+                if not limits[0] <= values <= limits[1]:
+                    valid = False
+            if not valid:
+                limits = f'{configuration.limits[0]}, {configuration.limits[1]}'
+                message = f'{configuration.label} is out of range, [{limits}] {configuration.unit}'
+                raise ValueError(message)
+
+    def with_added_errors(self, parameter):
+        configuration = configurations[parameter]
+        values = getattr(self, parameter)
+        size = len(values)
+        # add random error to values
+        error = configuration.error
+        values = values + norm.rvs(size=size, loc=0, scale=error)
+        # restrict values to fall within limits +/- 3 error
+        lower = configuration.limits[0] - 3 * error
+        upper = configuration.limits[1] + 3 * error
+        values[values < lower] = lower
+        values[values > upper] = upper
+        return values
 
     def simulate(self):
         size = len(self.m)
 
         # add errors
         errors = self.errors
-        m_s = self.m + norm.rvs(size=size, loc=0, scale=errors['m'])
-        s_s = self.s + norm.rvs(size=size, loc=0, scale=errors['s'])
-        s_s[s_s < 0.00001] = 0.00001
-        v0_s = self.v0 + norm.rvs(size=size, loc=0, scale=errors['v0'])
-        v0_s[v0_s < 0] = 0.001
-        k_s = self.k + norm.rvs(size=size, loc=0, scale=errors['k'])
-        p0_s = self.p0 + norm.rvs(size=size, loc=0, scale=errors['p0'])
-        p0_s[p0_s < 0] = 0.001
-        t_s = self.t + norm.rvs(size=size, loc=0, scale=errors['t'])
-        t0_s = self.t0 + norm.rvs(size=size, loc=0, scale=errors['t0'])
+        m = self.with_added_errors('m')
+        s = self.with_added_errors('s')
+        v0 = self.with_added_errors('v0')
+        k = self.with_added_errors('k')
+        p0 = self.with_added_errors('p0')
+        t = self.with_added_errors('t')
+        t0 = self.with_added_errors('t0')
 
-        Mg = 0.2 * k_s
-        A = p0_s * s_s + 2 * Mg - k_s * v0_s / s_s
-        V = s_s * (np.sqrt(A**2 + 4 * k_s * p0_s * v0_s * t_s / t0_s) - A) / (2 * k_s)
-        res = 2 * np.pi * np.sqrt(m_s / (k_s + ((s_s**2) * p0_s * v0_s * t_s) / (t0_s * V * V)))
+        A = p0 * s + 2 * m * 9.81 - k * v0 / s
+        V = s / (2 * k) * (np.sqrt(A**2 + 4 * k*t*p0 * v0 / t0) - A)
+        self.A = A
+        self.V = V
+        res = 2 * np.pi * np.sqrt(m / (k + s**2 * p0 * (t / (t0 * V**2))))
 
         result = {option: getattr(self, option) for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0')}
         result['seconds'] = res
         self.actuals = SimulationResult({
-            'm': m_s,
-            's': s_s,
-            'v0': v0_s,
-            'k': k_s,
-            'p0': p0_s,
-            't': t_s,
-            't0': t0_s,
+            'm': m,
+            's': s,
+            'v0': v0,
+            'k': k,
+            'p0': p0,
+            't': t,
+            't0': t0,
             'seconds': res,
         })
         return SimulationResult(result)
 
     @staticmethod
     def cycleTime(m, s, v0, k, p0, t, t0):  # pylint: disable=too-many-arguments
-        Mg = 0.2 * k
-        A = p0 * s + 2 * Mg - k * v0 / s
-        V = s * (np.sqrt(A**2 + 4 * k * p0 * v0 * t / t0) - A) / (2 * k)
-        return 2 * np.pi * np.sqrt(m / (k + ((s**2) * p0 * v0 * t) / (t0 * V * V)))
-
-
-def validate_range(value, left, right, message):
-    if isinstance(value, (tuple, list, pd.core.series.Series, np.ndarray)):
-        left = left - 1e-6
-        right = right + 1e-6
-        if not all(left <= v <= right for v in value):
-            raise ValueError(message)
-    else:
-        if not left <= value <= right:
-            raise ValueError(message)
+        A = p0 * s + 2 * m * 9.81 - k * v0 / s
+        V = s / (2 * k) * (np.sqrt(A**2 + 4 * k*t*p0 * v0 / t0) - A)
+        return 2 * np.pi * np.sqrt(m / (k + s**2 * p0 * (t / (t0 * V**2))))
 
 
 def uniformSumDistribution(size=1, k=6, left=0, right=1):
