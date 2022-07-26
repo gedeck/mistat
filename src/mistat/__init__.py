@@ -5,7 +5,7 @@ Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 - Industrial Statistics: A Computer Based Approach with Python
 """
 from .data import describe_data, load_data
-from .design import (FDS_Plot, addTreatments, calculateInteractions,
+from .design import (FDS_Plot, addTreatments, subgroupOfDefining, calculateInteractions,
                      calculateMainEffects, getModelMatrix, interactionPlot,
                      mainEffectsPlot)
 from .ecdf import plotECDF

@@ -39,6 +39,10 @@ configurations = {
 
 @dataclass
 class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-attributes
+    """ Version 2 of piston simulator code 
+
+    Results will differ from JMP and R versions of the simulator
+    """
     m: float = configurations['m'].default
     s: float = configurations['s'].default
     k: float = configurations['k'].default
@@ -99,11 +103,10 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
                 raise ValueError(message)
 
     def with_added_errors(self, parameter):
-        configuration = configurations[parameter]
         values = getattr(self, parameter)
         size = len(values)
         # add random error to values
-        return values + norm.rvs(size=size, loc=0, scale=configuration.error)
+        return values + norm.rvs(size=size, loc=0, scale=self.errors[parameter])
 
     def simulate(self):
         # add errors
