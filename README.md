@@ -1,3 +1,4 @@
+[![PyPI](https://badge.fury.io/py/mistat.svg)](https://pypi.org/project/dmba/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mistat)](https://pypi.org/project/mistat/)
 ![Python](https://github.com/gedeck/mistat/actions/workflows/build.yml/badge.svg)
 
