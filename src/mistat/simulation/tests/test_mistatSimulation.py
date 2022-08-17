@@ -27,8 +27,8 @@ class TestPistonSimulation(unittest.TestCase):
             simulationGroup(simulator, 10)
 
         simulation_result = simulator.simulate()
-        assert simulation_result.shape == (50, 8)
-        assert 'group' not in simulation_result
+        assert simulation_result.shape == (50, 9)
+        assert 'group' in simulation_result
 
         for group_size, expected_length in (7, 49), (2, 50), (3, 48), (25, 50), (40, 40), (1, 50):
             grouped = simulationGroup(simulation_result, group_size, quiet=True)

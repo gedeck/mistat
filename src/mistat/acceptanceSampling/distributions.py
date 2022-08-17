@@ -151,13 +151,13 @@ class OChypergeom(OCdistribution):
         n_cumsum = np.cumsum(n)
         D_cum = D - np.array([0, *x_cumsum[0:k1]])
         N_cum = N - np.array([0, *n_cumsum[0:k1]])
-        f = cast(float, hypergeom(N_cum[-1], max(0, D_cum[-1]), n[k1]).cdf(x[-1]))
+        f = cast(float, hypergeom(N_cum[-1], round(max(0, D_cum[-1])), n[k1]).cdf(x[-1]))
         for i in range(len(x) - 1):
-            f *= hypergeom(N_cum[i], max(0, D_cum[i]), n[i]).pmf(x[i])
+            f *= hypergeom(N_cum[i], round(max(0, D_cum[i])), n[i]).pmf(x[i])
         return f
 
 
-@dataclass
+@ dataclass
 class OCpoisson(OCdistribution):
     pd: Probabilities = None
 
@@ -188,7 +188,7 @@ class OCpoisson(OCdistribution):
                 p_acc += self.probAcc(xi.values, n, p_d)
         return p_acc
 
-    @staticmethod
+    @ staticmethod
     def probAcc(x: np.ndarray, n: List[int], p: float) -> float:
         k = len(x) - 1
         f = cast(float, poisson.cdf(x[k], np.floor(n[k] * p + 0.5)))

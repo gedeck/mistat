@@ -10,7 +10,6 @@ from typing import List, NamedTuple, Optional
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.stats import norm
 
 from mistat.simulation.mistatSimulation import (MistatSimulation,
                                                 SimulationResult,
@@ -29,11 +28,11 @@ class Configuration(NamedTuple):
 configurations = {
     'm': Configuration(45, (30, 60), 0.1, 'Piston weight m', 'kg'),
     's': Configuration(0.0125, (0.005, 0.02), 0.001, 'Piston surface area s', 'm^2'),
-    'k': Configuration(3_000, (1_000, 5_000), 50, 'Value of initial gas volume v0', 'm^3'),
-    't': Configuration(293, (290, 296), 0.3, 'Value of spring coefficient k', 'N/m'),
+    'k': Configuration(3_000, (1_000, 5_000), 50, 'Value of spring coefficient k', 'N/m'),
+    't': Configuration(293, (290, 296), 0.3, 'Value of ambient temperature t', 'K'),
     'p0': Configuration(100_000, (90_000, 110_000), 0.01, 'Value of atmospheric pressure p0', 'N/m^2'),
-    'v0': Configuration(0.006, (0.002, 0.01), 0.0005, 'Value of filling gas temperature t0', 'K'),
-    't0': Configuration(350, (340, 360), 0.3, 'Value of ambient temperature t', 'K'),
+    'v0': Configuration(0.006, (0.002, 0.01), 0.0005, 'Value of initial gas volume v0', 'm^3'),
+    't0': Configuration(350, (340, 360), 0.3, 'Value of filling gas temperature t0', 'K'),
 }
 
 
@@ -51,7 +50,10 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
     v0: float = configurations['v0'].default
     t0: float = configurations['t0'].default
 
+    parameter: Optional[pd.DataFrame] = None
+
     n_simulation: int = 50  # desired number of simulations
+    n_replicate: int = 1  # number of replicates for each simulated parameter setting
     seed: Optional[float] = None
     check: bool = True
     actuals: Optional[SimulationResult] = None
@@ -63,16 +65,23 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
         if self.check:
             self.validate_configuration()
         if self.n_simulation < 1:
-            raise ValueError('Number of simulations must be greater 1')
+            raise ValueError('Number of simulations must be greater 0')
+
+        # If parameter is given, use that to set parameter
+        if self.parameter is not None:
+            for option in configurations:
+                if option in self.parameter:
+                    setattr(self, option, list(self.parameter[option]))
 
         # Convert to lists
         maxsize = 0
         for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0'):
             values = convert_to_list(getattr(self, option))
+            values = list(np.repeat(values, self.n_replicate))
             maxsize = max(maxsize, len(values))
             setattr(self, option, values)
-        if maxsize == 1:
-            maxsize = self.n_simulation
+        if maxsize == self.n_replicate:
+            maxsize = self.n_simulation * self.n_replicate
 
         # Make sure that the vectors are all the same length
         for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0'):
@@ -107,7 +116,7 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
         values = getattr(self, parameter)
         size = len(values)
         # add random error to values
-        return values + norm.rvs(size=size, loc=0, scale=self.errors[parameter])
+        return values + stats.norm.rvs(size=size, loc=0, scale=self.errors[parameter])
 
     def simulate(self):
         # add errors
@@ -125,6 +134,9 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
 
         result = {option: getattr(self, option) for option in ('m', 's', 'v0', 'k', 'p0', 't', 't0')}
         result['seconds'] = res
+        nrepeats = len(m) // self.n_replicate
+        result['group'] = np.repeat(range(1, nrepeats + 1), self.n_replicate)
+
         # store the actual values
         self.actuals = SimulationResult({
             'm': m,
@@ -135,6 +147,7 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
             't': t,
             't0': t0,
             'seconds': res,
+            'group': np.repeat(range(1, nrepeats + 1), self.n_replicate),
         })
         return SimulationResult(result)
 

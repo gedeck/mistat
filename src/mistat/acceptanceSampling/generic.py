@@ -56,9 +56,12 @@ def findPlan(PRP, CRP, oc_type='binomial', N=None, s_type='known'):
         c = np.array([0])
         n = c + 1
         while True:
-            if OChypergeom(n=n, c=c, r=c + 1, N=N, D=CRP[0] * N).paccept > CRP[1]:
+            p1 = OChypergeom(n=n, c=c, r=c + 1, N=N, D=CRP[0] * N).paccept
+            if p1 > CRP[1]:
                 n += 1
-            elif OChypergeom(n=n, c=c, r=c + 1, N=N, D=PRP[0] * N).paccept < PRP[1]:
+                continue
+            p2 = OChypergeom(n=n, c=c, r=c + 1, N=N, D=PRP[0] * N).paccept
+            if p2 < PRP[1]:
                 c += 1
             else:
                 break

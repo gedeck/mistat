@@ -7,6 +7,7 @@ Industrial Statistics: A Computer Based Approach with Python
 '''
 import unittest
 
+import pandas as pd
 import pytest
 
 from mistat.simulation.pistonSimulation import (PistonSimulator,
@@ -53,3 +54,35 @@ class TestPistonSimulation(unittest.TestCase):
 #
 #         plt.scatter(x=result.index, y=result.seconds)
 #         plt.show()
+
+    def test_PistonSimulator(self):
+        parameter = pd.DataFrame({
+            'm': [30, 45, 60],
+            's': [0.005, 0.0125, 0.02],
+            'k': [1_000, 3_000, 5_000],
+            't': [290, 293, 296],
+            'p0': [90_000, 100_000, 110_000],
+            'v0': [0.002, 0.006, 0.01],
+            't0': [340, 350, 360],
+        })
+        simulator = PistonSimulator(parameter=parameter, seed=1236)
+        result = simulator.simulate()
+        assert list(result['m']) == [30, 45, 60]
+        assert result.shape == (3, 9)
+
+        simulator = PistonSimulator(parameter=parameter, n_replicate=2)
+        result = simulator.simulate()
+        assert list(result['m']) == [30, 30, 45, 45, 60, 60]
+        assert result.shape == (6, 9)
+
+        # we can provide additional parameters
+        parameter = pd.DataFrame({
+            's': [0.005, 0.0125, 0.02],
+            'k': [1_000, 3_000, 5_000],
+        })
+        simulator = PistonSimulator(parameter=parameter, m=30)
+        result = simulator.simulate()
+        assert list(result['s']) == list(parameter['s'])
+        assert list(result['k']) == list(parameter['k'])
+        assert list(result['m']) == [30, 30, 30]
+        assert result.shape == (3, 9)
