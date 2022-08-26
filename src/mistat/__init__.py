@@ -18,7 +18,7 @@ from .randomizationTest import randomizationTest
 from .regression import stepwise_regression
 from .reliability import availabilityEBD, renewalEBD
 from .rsm import ResponseSurfaceMethod
-from .runsTest import runsTest
+from .runsTest import runsTest, runStatistics
 from .simulation import (PistonSimulator, PowerCircuitSimulation,
                          SimulationResult, simulationGroup)
 from .stem_leaf import stemLeafDiagram

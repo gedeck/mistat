@@ -39,7 +39,8 @@ class QualityControlChart:
         self.labels = labels
 
         if isinstance(self.sizes, Number):
-            self.stats = GroupMeans((self.data.values / self.sizes).flatten(), self.data.mean())
+            # self.stats = GroupMeans((self.data.values / self.sizes).flatten(), self.data.mean())
+            self.stats = GroupMeans((self.data.values).flatten(), self.data.mean())
             self.sizes = [self.sizes] * len(self.data)
         else:
             self.stats = self.statistic.stats(self.data, self.sizes)

@@ -155,6 +155,11 @@ class Test_qccStatistics(unittest.TestCase):
         conf_limits = NP.limits(stats.center, sd, sizes, 0.9)
         np.testing.assert_allclose(conf_limits, np.array([[2, 9]]), rtol=1e-4)
 
+        # data = [45, 72, 25, 25, 33, 35, 42, 35, 50, 55, 26, 22]
+        # sizes = [7920, 6660, 6480, 4500, 5840, 7020, 6840, 8460, 7020, 9900, 9180, 7200]
+        # stats = NP.stats(data, sizes)
+        # print(stats)
+
     def test_R_statistic(self):
         R = self.qccStatistics.get('R')
         assert isinstance(R, statistics.R_statistic)

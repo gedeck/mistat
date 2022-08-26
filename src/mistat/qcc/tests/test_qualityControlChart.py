@@ -7,6 +7,7 @@ Industrial Statistics: A Computer Based Approach with Python
 import unittest
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from mistat.data import load_data
@@ -86,3 +87,15 @@ class TestQualityControlChart(unittest.TestCase):
         support = ['q12', 'q13', 'q14', 'q15', 'q16']
         top5counts = (abc[equipment + support] == 5).sum()
         _ = QualityControlChart(top5counts[equipment], qcc_type='np', sizes=len(abc))
+
+    def test_np_chart(self):
+        data = pd.Series([18, 14,  9, 25, 27, 18, 21, 16, 18, 24, 20, 19, 22, 22, 20,
+                          38, 29, 35, 24, 20, 23, 17, 20, 19, 17, 16, 10,  8, 10,  9])
+        qcc = QualityControlChart(data, qcc_type='np', sizes=1000)
+        assert qcc.center == 19.6
+        assert qcc.std_dev == pytest.approx(4.383588)
+        assert qcc.limits.LCL[0] == pytest.approx(6.449237)
+        assert qcc.limits.UCL[0] == pytest.approx(32.750763)
+        print(qcc.stats.statistics)
+
+        # 1/0
