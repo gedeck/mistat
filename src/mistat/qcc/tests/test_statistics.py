@@ -49,7 +49,7 @@ class Test_qccStatistics(unittest.TestCase):
         np.testing.assert_array_equal(stats.statistics, [2, 1.5])
         assert stats.center == 1.8
 
-        assert xbar.sd(self.array_1, 12345) == 12345
+        assert xbar.sd(self.array_1, std_dev=12345) == 12345
         assert xbar.sd(self.array_1) == pytest.approx(1.03393)
         assert xbar.sd(self.array_1, std_dev=SD_estimator.uwave_r) == pytest.approx(1.03393)
         assert xbar.sd(self.array_1, std_dev=SD_estimator.uwave_sd) == pytest.approx(1.007303)
@@ -118,7 +118,7 @@ class Test_qccStatistics(unittest.TestCase):
         assert stats.center == pytest.approx(0.05387097)
         assert stats.statistics[0] == 0.06
 
-        assert p.sd(data, 12345) == 12345
+        assert p.sd(data, std_dev=12345) == 12345
         assert p.sd(data, sizes=100) == pytest.approx(0.2257629)
         assert p.sd(data, sizes=[100] * len(data)) == pytest.approx(0.2257629)
 
@@ -171,7 +171,7 @@ class Test_qccStatistics(unittest.TestCase):
         assert stats.center == pytest.approx(5.387097)
         assert stats.statistics[0] == 6
 
-        assert NP.sd(data, 12345) == 12345
+        assert NP.sd(data, std_dev=12345) == 12345
         assert NP.sd(data, sizes=100) == pytest.approx(2.257629)
         assert NP.sd(data, sizes=[100] * len(data)) == pytest.approx(2.257629)
 #
@@ -195,7 +195,7 @@ class Test_qccStatistics(unittest.TestCase):
         assert stats.center == pytest.approx(0.23665)
         assert stats.statistics[0] == 0.119
 
-        assert R.sd(data, 12345) == 12345
+        assert R.sd(data, std_dev=12345) == 12345
         assert R.sd(data) == pytest.approx(0.1017412)
 
         sd = R.sd(data)
@@ -219,7 +219,7 @@ class Test_qccStatistics(unittest.TestCase):
         assert stats.center == pytest.approx(2.569706)
         assert stats.statistics[0] == 2.23
 
-        assert XbarOne.sd(data, 12345) == 12345
+        assert XbarOne.sd(data, std_dev=12345) == 12345
         assert XbarOne.sd(data) == pytest.approx(0.1794541)
         assert XbarOne.sd(data, std_dev=SD_estimator.mr) == pytest.approx(0.1794541)
         assert XbarOne.sd(data, std_dev=SD_estimator.sd) == pytest.approx(0.2216795)
