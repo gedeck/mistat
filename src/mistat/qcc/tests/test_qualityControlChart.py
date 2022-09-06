@@ -96,6 +96,5 @@ class TestQualityControlChart(unittest.TestCase):
         assert qcc.std_dev == pytest.approx(4.383588)
         assert qcc.limits.LCL[0] == pytest.approx(6.449237)
         assert qcc.limits.UCL[0] == pytest.approx(32.750763)
-        print(qcc.stats.statistics)
 
         # 1/0

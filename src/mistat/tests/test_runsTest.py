@@ -9,7 +9,7 @@ import unittest
 import pytest
 
 import mistat
-from mistat import runsTest, runStatistics
+from mistat import runStatistics, runsTest
 
 
 class TestRunsTest(unittest.TestCase):
@@ -40,7 +40,6 @@ class TestRunsTest(unittest.TestCase):
         data = mistat.load_data('YARNSTRG')
         result = runStatistics(data)
         runCount = result['count']
-        print(runCount)
         assert runCount['mu_R'] == pytest.approx(50.92, rel=1e-4)
         assert runCount['sigma_R'] == pytest.approx(4.96664266823, rel=1e-4)
         assert runCount['observed'] == 49
@@ -48,7 +47,3 @@ class TestRunsTest(unittest.TestCase):
         assert runDirection['mu_Rstar'] == pytest.approx(66.33, rel=1e-4)
         assert runDirection['sigma_Rstar'] == pytest.approx(4.1779846)
         assert runDirection['alpha'][0] == pytest.approx(0.2883, rel=1e-3)
-        
-
-
-        

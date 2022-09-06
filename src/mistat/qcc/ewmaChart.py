@@ -100,14 +100,16 @@ class EWMA:
         if ax is None:
             _, ax = plt.subplots(figsize=(7, 6))
 
-        pd.Series(self.statistics).plot(marker='+', linestyle='None', color='black', ax=ax)
+        pd.Series(self.statistics).plot(marker='+', linestyle='None', color='grey', ax=ax)
         v = np.array(self.violations)
-        ax.plot(self.x, self.y, color='grey')
-        ax.plot(self.x[v], self.y[v], linestyle='None', marker='s', color='red')
-        ax.plot(np.delete(self.x, v), np.delete(self.y, v), linestyle='None', marker='o', color='black', markersize=4)
+        ax.plot(self.x, self.y, color='black')
+        if v.size > 0:
+            ax.plot(self.x[v], self.y[v], linestyle='None', marker='s', color='red')
+            ax.plot(np.delete(self.x, v), np.delete(self.y, v), linestyle='None',
+                    marker='o', color='black', markersize=4)
         ax.axhline(self.center, color='grey')
-        ax.plot(self.x, self.ucl, color='grey', linestyle='--')
-        ax.plot(self.x, self.lcl, color='grey', linestyle='--')
+        ax.plot(self.x, self.ucl, color='black', linestyle='--')
+        ax.plot(self.x, self.lcl, color='black', linestyle='--')
 
         ax2 = ax.twinx()
         ax2.set_ylim(*ax.get_ylim())

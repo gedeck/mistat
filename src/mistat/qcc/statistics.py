@@ -111,7 +111,7 @@ class Base_statistic:
     def stats(self, data, sizes=None):
         raise NotImplementedError()
 
-    def sd(self, data, std_dev, sizes=None):
+    def sd(self, data, *, std_dev=None, sizes=None):
         raise NotImplementedError()
 
     def limits(self, center, std_dev, sizes, conf):
@@ -126,7 +126,7 @@ class Xbar_statistic(Base_statistic):
     def stats(self, data, sizes=None):
         return GroupMeans(np.nanmean(data, axis=1), np.nanmean(data))
 
-    def sd(self, data, std_dev=None, sizes=None):
+    def sd(self, data, *, std_dev=None, sizes=None):
         if isinstance(std_dev, numbers.Number):
             return std_dev
 
@@ -197,7 +197,7 @@ class Xbar_one_statistic(Base_statistic):
             data = data.values
         return GroupMeans(np.array(data).flatten(), np.mean(data))
 
-    def sd(self, data, std_dev=None, sizes=None, k=2):  # pylint: disable=unused-import, arguments-differ
+    def sd(self, data, *, std_dev=None, sizes=None, k=2):  # pylint: disable=unused-import, arguments-differ
         if isinstance(std_dev, numbers.Number):
             return std_dev
 
@@ -250,7 +250,7 @@ class R_statistic(Base_statistic):
         by_group = np.nanmax(data, axis=1) - np.nanmin(data, axis=1)
         return GroupMeans(by_group, sum(sizes * by_group) / sum(sizes))
 
-    def sd(self, data, std_dev=None, sizes=None):
+    def sd(self, data, *, std_dev=None, sizes=None):
         if isinstance(std_dev, numbers.Number):
             return std_dev
 
@@ -297,7 +297,7 @@ class S_statistic(Base_statistic):
         by_group = np.nanstd(data, ddof=1, axis=1)
         return GroupMeans(by_group, sum(sizes * by_group) / sum(sizes))
 
-    def sd(self, data, std_dev=None, sizes=None):
+    def sd(self, data, *, std_dev=None, sizes=None):
         if isinstance(std_dev, numbers.Number):
             return std_dev
 
@@ -354,7 +354,7 @@ class P_statistic(Base_statistic):
         sizes = sizes.flatten()
         return GroupMeans(data / sizes, sum(data) / sum(sizes))
 
-    def sd(self, data, std_dev=None, sizes=None):
+    def sd(self, data, *, std_dev=None, sizes=None):
         if isinstance(std_dev, numbers.Number):
             return std_dev
         if isinstance(sizes, numbers.Number):
@@ -397,7 +397,7 @@ class NP_statistic(Base_statistic):
             center = center[0]
         return GroupMeans(data, center)
 
-    def sd(self, data, std_dev=None, sizes=None):
+    def sd(self, data, *, std_dev=None, sizes=None):
         if isinstance(std_dev, numbers.Number):
             return std_dev
         if isinstance(sizes, numbers.Number):
@@ -431,7 +431,7 @@ class NP_statistic(Base_statistic):
             lcl = np.array([stats.binom(size, p).ppf(pbar) for size in sizes])
             ucl = np.array([stats.binom(size, p).isf(pbar) for size in sizes])
         lcl[lcl < 0] = 0
-        ucl[ucl > sizes] = sizes
+        ucl[ucl > sizes] = sizes[ucl > sizes]
         return pd.DataFrame({'LCL': lcl, 'UCL': ucl})
 
 # # c Chart

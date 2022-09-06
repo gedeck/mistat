@@ -5,7 +5,7 @@ Industrial Statistics: A Computer Based Approach with Python
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
-from typing import List, NamedTuple, Optional
+from typing import NamedTuple, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -19,7 +19,7 @@ from mistat.simulation.mistatSimulation import (MistatSimulation,
 
 class Configuration(NamedTuple):
     default: float
-    limits: List[float]
+    limits: Union[Tuple[int, int], Tuple[float, float]]
     error: float
     label: str
     unit: str
