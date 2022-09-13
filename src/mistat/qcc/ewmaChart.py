@@ -67,7 +67,7 @@ class EWMA:
 
         if center is None:
             center = statistics.center
-        std_dev = qccStatistic.sd(data, std_dev, sizes=sizes)
+        std_dev = qccStatistic.sd(data, std_dev=std_dev, sizes=sizes)
 
         self.data = data
         self.statistics = statistics.statistics
