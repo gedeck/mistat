@@ -107,6 +107,7 @@ def interactionPlot(df, response, factors=None):
 
 
 def marginalInteractionPlot(df, response, factors=None, interactions=None, levels=None, ax=None):
+    # pylint: disable=unsubscriptable-object
     def _calculateInteractions(df, response, factors=None):
         factors = factors or [c for c in df.columns if c != response]
         interactions = []
