@@ -138,9 +138,9 @@ def marginalInteractionPlot(df, response, factors=None, interactions=None, level
         common = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
         offset = -abs(offset) if values[0] > values[-1] else abs(offset)
         for n, (l, value) in enumerate(zip(me['level'], values)):
-            s = f'${l}$'
+            s = f'${l:.5g}$'
             if levels:
-                s = f'{s}: {levels[factor][n]}'
+                s = f'{s}: {levels[factor][n]:.5g}'
             if n == 0:
                 ax.scatter(i, value, color='red', marker='o', zorder=10)
                 ax.annotate(s, (i, value - offset), **common)
@@ -161,18 +161,18 @@ def marginalInteractionPlot(df, response, factors=None, interactions=None, level
 
         shift_1 = {l1: i + s for l1, s in zip(level1, np.linspace(-0.25, 0.25, len(level1)))}
         markercol_1 = {l: 'grey' for l in level1}
-        markercol_1[level1[0]] = 'red'
-        markercol_1[level1[-1]] = 'black'
+        markercol_1[f'{level1[0]:.4f}'] = 'red'
+        markercol_1[f'{level1[-1]:.4f}'] = 'black'
         markercol_2 = {l: 'grey' for l in level2}
-        markercol_2[level2[0]] = 'red'
-        markercol_2[level2[-1]] = 'black'
+        markercol_2[f'{level2[0]:.4f}'] = 'red'
+        markercol_2[f'{level2[-1]:.4f}'] = 'black'
         mat = np.zeros([len(level1), len(level2)])
         for _, row in subdf.iterrows():
             mat[level1.index(row['l1']), level2.index(row['l2'])] = row['mean']
             ax.plot(shift_1[row['l1']], row['mean'], zorder=10, marker='s',
                     markeredgewidth=0, fillstyle='right',
-                    markerfacecolor=markercol_1[row['l1']],
-                    markerfacecoloralt=markercol_1[row['l2']])
+                    markerfacecolor=markercol_1[f'{row["l1"]:.4f}'],
+                    markerfacecoloralt=markercol_2[f'{row["l2"]:.4f}'])
 
         for l1, values in zip(level1, mat):
             ax.plot([shift_1[l1]] * len(values), values, color='lightgrey')
