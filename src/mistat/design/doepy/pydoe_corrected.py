@@ -1,9 +1,12 @@
 import re
-import numpy as np
-from itertools import dropwhile, combinations, islice
 import string
-from scipy.special import binom
+from itertools import combinations, dropwhile, islice
 
+import numpy as np
+from pyDOE.doe_repeat_center import repeat_center
+from pyDOE.doe_star import star
+from pyDOE.doe_union import union
+from scipy.special import binom
 
 # __all__ = ['np', 'fullfact_corrected', 'ff2n_corrected', 'fracfact']
 
@@ -11,22 +14,22 @@ from scipy.special import binom
 def fullfact_corrected(levels):
     """
     Create a general full-factorial design
-    
+
     Parameters
     ----------
     levels : array-like
         An array of integers that indicate the number of levels of each input
         design factor.
-    
+
     Returns
     -------
     mat : 2d-array
         The design matrix with coded levels 0 to k-1 for a k-level factor
-    
+
     Example
     -------
     ::
-    
+
         >>> fullfact([2, 4, 3])
         array([[ 0.,  0.,  0.],
                [ 1.,  0.,  0.],
@@ -52,7 +55,7 @@ def fullfact_corrected(levels):
                [ 1.,  2.,  2.],
                [ 0.,  3.,  2.],
                [ 1.,  3.,  2.]])
-               
+
     """
     n = len(levels)  # number of factors
     nb_lines = np.prod(levels)  # number of trial conditions
@@ -78,21 +81,21 @@ def fullfact_corrected(levels):
 def ff2n_corrected(n):
     """
     Create a 2-Level full-factorial design
-    
+
     Parameters
     ----------
     n : int
         The number of factors in the design.
-    
+
     Returns
     -------
     mat : 2d-array
         The design matrix with coded levels -1 and 1
-    
+
     Example
     -------
     ::
-    
+
         >>> ff2n(3)
         array([[-1., -1., -1.],
                [ 1., -1., -1.],
@@ -102,7 +105,7 @@ def ff2n_corrected(n):
                [ 1., -1.,  1.],
                [-1.,  1.,  1.],
                [ 1.,  1.,  1.]])
-       
+
     """
     return 2 * fullfact_corrected([2] * n) - 1
 
@@ -117,64 +120,64 @@ def ff2n(levels):
 def fracfact_corrected(gen):
     """
     Create a 2-level fractional-factorial design with a generator string.
-    
+
     Parameters
     ----------
     gen : str
         A string, consisting of lowercase, uppercase letters or operators "-"
         and "+", indicating the factors of the experiment
-    
+
     Returns
     -------
     H : 2d-array
         A m-by-n matrix, the fractional factorial design. m is 2^k, where k
         is the number of letters in ``gen``, and n is the total number of
         entries in ``gen``.
-    
+
     Notes
     -----
     In ``gen`` we define the main factors of the experiment and the factors
     whose levels are the products of the main factors. For example, if
-    
+
         gen = "a b ab"
-    
+
     then "a" and "b" are the main factors, while the 3rd factor is the product
     of the first two. If we input uppercase letters in ``gen``, we get the same
     result. We can also use the operators "+" and "-" in ``gen``.
-    
+
     For example, if
-    
+
         gen = "a b -ab"
-    
+
     then the 3rd factor is the opposite of the product of "a" and "b".
-    
+
     The output matrix includes the two level full factorial design, built by
     the main factors of ``gen``, and the products of the main factors. The
     columns of ``H`` follow the sequence of ``gen``.
-    
+
     For example, if
-    
+
         gen = "a b ab c"
-    
+
     then columns H[:, 0], H[:, 1], and H[:, 3] include the two level full
     factorial design and H[:, 2] includes the products of the main factors.
-    
+
     Examples
     --------
     ::
-    
+
         >>> fracfact("a b ab")
         array([[-1., -1.,  1.],
                [ 1., -1., -1.],
                [-1.,  1., -1.],
                [ 1.,  1.,  1.]])
-       
+
         >>> fracfact("A B AB")
         array([[-1., -1.,  1.],
                [ 1., -1., -1.],
                [-1.,  1., -1.],
                [ 1.,  1.,  1.]])
-        
+
         >>> fracfact("a b -ab c +abc")
         array([[-1., -1., -1., -1., -1.],
                [ 1., -1.,  1., -1.,  1.],
@@ -184,10 +187,10 @@ def fracfact_corrected(gen):
                [ 1., -1.,  1.,  1., -1.],
                [-1.,  1.,  1.,  1., -1.],
                [ 1.,  1., -1.,  1.,  1.]])
-       
+
     """
     # Recognize letters and combinations
-    A = [item for item in re.split("\-|\s|\+", gen) if item]  # remove empty strings
+    A = [item for item in re.split(r"\-|\s|\+", gen) if item]  # remove empty strings
     C = [len(item) for item in A]
 
     # Indices of single letters (main factors)
@@ -201,7 +204,7 @@ def fracfact_corrected(gen):
 
     # If R1 is either None or not, the result is not changed, since it is a
     # multiplication of 1.
-    R1 = _grep(U, "+")
+    # R1 = _grep(U, "+")
     R2 = _grep(U, "-")
 
     # Fill in design with two level factorial design
@@ -315,7 +318,7 @@ def fracfact_by_res(n, res):
 
     if min_fac is None:
         raise ValueError("design not possible")
-    elif min_fac > len(string.ascii_lowercase):
+    if min_fac > len(string.ascii_lowercase):
         # This check needs to be done to make sure that the number
         # of available are enough since `fracfact` parses design generator
         # characters. In practice, this is highly theoretical and it is
@@ -341,26 +344,26 @@ def fracfact_by_res(n, res):
 def bbdesign_corrected(n, center=None):
     """
     Create a Box-Behnken design
-    
+
     Parameters
     ----------
     n : int
         The number of factors in the design
-    
+
     Optional
     --------
     center : int
         The number of center points to include (default = 1).
-    
+
     Returns
     -------
     mat : 2d-array
         The design matrix
-    
+
     Example
     -------
     ::
-    
+
         >>> bbdesign(3)
         array([[-1., -1.,  0.],
                [ 1., -1.,  0.],
@@ -377,7 +380,7 @@ def bbdesign_corrected(n, center=None):
                [ 0.,  0.,  0.],
                [ 0.,  0.,  0.],
                [ 0.,  0.,  0.]])
-        
+
     """
     assert n >= 3, "Number of variables must be at least 3"
 
@@ -396,10 +399,10 @@ def bbdesign_corrected(n, center=None):
         for j in range(i + 1, n):
             Index = Index + 1
             H[
-                max([0, (Index - 1) * H_fact.shape[0]]) : Index * H_fact.shape[0], i
+                max([0, (Index - 1) * H_fact.shape[0]]): Index * H_fact.shape[0], i
             ] = H_fact[:, 0]
             H[
-                max([0, (Index - 1) * H_fact.shape[0]]) : Index * H_fact.shape[0], j
+                max([0, (Index - 1) * H_fact.shape[0]]): Index * H_fact.shape[0], j
             ] = H_fact[:, 1]
 
     if center is None:
@@ -414,25 +417,15 @@ def bbdesign_corrected(n, center=None):
     return H
 
 
-import numpy as np
-
-# from pyDOE.doe_factorial import ff2n
-from pyDOE.doe_star import star
-from pyDOE.doe_union import union
-from pyDOE.doe_repeat_center import repeat_center
-
-__all__ = ["ccdesign"]
-
-
 def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed"):
     """
     Central composite design
-    
+
     Parameters
     ----------
     n : int
         The number of factors in the design.
-    
+
     Optional
     --------
     center : int array
@@ -441,24 +434,24 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
     alpha : str
         A string describing the effect of alpha has on the variance. ``alpha``
         can take on the following values:
-        
+
         1. 'orthogonal' or 'o' (Default)
-        
+
         2. 'rotatable' or 'r'
-        
+
     face : str
         The relation between the start points and the corner (factorial) points.
         There are three options for this input:
-        
+
         1. 'circumscribed' or 'ccc': This is the original form of the central
            composite design. The star points are at some distance ``alpha``
            from the center, based on the properties desired for the design.
            The start points establish new extremes for the low and high
            settings for all factors. These designs have circular, spherical,
            or hyperspherical symmetry and require 5 levels for each factor.
-           Augmenting an existing factorial or resolution V fractional 
+           Augmenting an existing factorial or resolution V fractional
            factorial design with star points can produce this design.
-        
+
         2. 'inscribed' or 'cci': For those situations in which the limits
            specified for factor settings are truly limits, the CCI design
            uses the factors settings as the star points and creates a factorial
@@ -466,29 +459,29 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
            a CCI design is a scaled down CCC design with each factor level of
            the CCC design divided by ``alpha`` to generate the CCI design).
            This design also requires 5 levels of each factor.
-        
+
         3. 'faced' or 'ccf': In this design, the star points are at the center
-           of each face of the factorial space, so ``alpha`` = 1. This 
-           variety requires 3 levels of each factor. Augmenting an existing 
-           factorial or resolution V design with appropriate star points can 
+           of each face of the factorial space, so ``alpha`` = 1. This
+           variety requires 3 levels of each factor. Augmenting an existing
+           factorial or resolution V design with appropriate star points can
            also produce this design.
-    
+
     Notes
     -----
     - Fractional factorial designs are not (yet) available here.
     - 'ccc' and 'cci' can be rotatable design, but 'ccf' cannot.
     - If ``face`` is specified, while ``alpha`` is not, then the default value
       of ``alpha`` is 'orthogonal'.
-        
+
     Returns
     -------
     mat : 2d-array
         The design matrix with coded levels -1 and 1
-    
+
     Example
     -------
     ::
-    
+
         >>> ccdesign(3)
         array([[-1.        , -1.        , -1.        ],
                [ 1.        , -1.        , -1.        ],
@@ -512,8 +505,8 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
                [ 0.        ,  0.        ,  0.        ],
                [ 0.        ,  0.        ,  0.        ],
                [ 0.        ,  0.        ,  0.        ]])
-        
-       
+
+
     """
     # Check inputs
     assert isinstance(n, int) and n > 1, '"n" must be an integer greater than 1.'
@@ -522,7 +515,7 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
         "o",
         "rotatable",
         "r",
-    ), 'Invalid value for "alpha": {:}'.format(alpha)
+    ), f'Invalid value for "alpha": {alpha}'
     assert face.lower() in (
         "circumscribed",
         "ccc",
@@ -530,21 +523,17 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
         "cci",
         "faced",
         "ccf",
-    ), 'Invalid value for "face": {:}'.format(face)
+    ), f'Invalid value for "face": {face}'
 
     try:
         nc = len(center)
-    except:
+    except Exception as exc:
         raise TypeError(
-            'Invalid value for "center": {:}. Expected a 1-by-2 array.'.format(center)
-        )
+            f'Invalid value for "center": {center}. Expected a 1-by-2 array.'
+        ) from exc
     else:
         if nc != 2:
-            raise ValueError(
-                'Invalid number of values for "center" (expected 2, but got {:})'.format(
-                    nc
-                )
-            )
+            raise ValueError(f'Invalid number of values for "center" (expected 2, but got {nc})')
 
     # Orthogonal Design
     if alpha.lower() in ("orthogonal", "o"):
@@ -579,29 +568,29 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
     return H
 
 
-def repeat_center(n, repeat):
-    """
-    Create the center-point portion of a design matrix
-    
-    Parameters
-    ----------
-    n : int
-        The number of factors in the original design
-    repeat : int
-        The number of center points to repeat
-    
-    Returns
-    -------
-    mat : 2d-array
-        The center-point portion of a design matrix (elements all zero).
-    
-    Example
-    -------
-    ::
-    
-        >>> repeat_center(3, 2)
-        array([[ 0.,  0.,  0.],
-               [ 0.,  0.,  0.]])
-       
-    """
-    return np.zeros((repeat, n))
+# def repeat_center(n, repeat):
+#     """
+#     Create the center-point portion of a design matrix
+
+#     Parameters
+#     ----------
+#     n : int
+#         The number of factors in the original design
+#     repeat : int
+#         The number of center points to repeat
+
+#     Returns
+#     -------
+#     mat : 2d-array
+#         The center-point portion of a design matrix (elements all zero).
+
+#     Example
+#     -------
+#     ::
+
+#         >>> repeat_center(3, 2)
+#         array([[ 0.,  0.,  0.],
+#                [ 0.,  0.,  0.]])
+
+#     """
+#     return np.zeros((repeat, n))

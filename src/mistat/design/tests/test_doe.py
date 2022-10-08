@@ -1,7 +1,7 @@
 # from doepy.build import box_behnken, central_composite, full_fact, frac_fact_res, plackett_burman, sukharev
 
-import pytest
 import numpy as np
+import pytest
 
 from mistat.design import doe
 

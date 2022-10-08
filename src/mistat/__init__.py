@@ -6,9 +6,9 @@ Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 """
 from .data import describe_data, load_data
 from .design import (FDS_Plot, addTreatments, calculateInteractions,
-                     calculateMainEffects, getModelMatrix, interactionPlot,
-                     mainEffectsPlot, marginalInteractionPlot,
-                     subgroupOfDefining, doe)
+                     calculateMainEffects, doe, getModelMatrix,
+                     interactionPlot, mainEffectsPlot, marginalInteractionPlot,
+                     subgroupOfDefining)
 from .ecdf import plotECDF
 from .ml import plot_dendrogram
 from .mqcc import MahalanobisT2, MultivariateQualityControlChart
