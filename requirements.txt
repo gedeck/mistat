@@ -7,4 +7,5 @@ pingouin
 pytest-watch 
 pytest-testmon 
 pytest-xdist
-doepy
+pyDOE2
+diversipy

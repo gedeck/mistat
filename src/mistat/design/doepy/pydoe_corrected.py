@@ -3,9 +3,9 @@ import string
 from itertools import combinations, dropwhile, islice
 
 import numpy as np
-from pyDOE.doe_repeat_center import repeat_center
-from pyDOE.doe_star import star
-from pyDOE.doe_union import union
+from pyDOE2.doe_repeat_center import repeat_center
+from pyDOE2.doe_star import star
+from pyDOE2.doe_union import union
 from scipy.special import binom
 
 # __all__ = ['np', 'fullfact_corrected', 'ff2n_corrected', 'fracfact']
