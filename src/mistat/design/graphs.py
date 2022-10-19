@@ -160,10 +160,10 @@ def marginalInteractionPlot(df, response, factors=None, interactions=None, level
         level2 = sorted(subdf['l2'].unique())
 
         shift_1 = {l1: i + s for l1, s in zip(level1, np.linspace(-0.25, 0.25, len(level1)))}
-        markercol_1 = {l: 'grey' for l in level1}
+        markercol_1 = {f'{l:.4f}': 'grey' for l in level1}
         markercol_1[f'{level1[0]:.4f}'] = 'red'
         markercol_1[f'{level1[-1]:.4f}'] = 'black'
-        markercol_2 = {l: 'grey' for l in level2}
+        markercol_2 = {f'{l:.4f}': 'grey' for l in level2}
         markercol_2[f'{level2[0]:.4f}'] = 'red'
         markercol_2[f'{level2[-1]:.4f}'] = 'black'
         mat = np.zeros([len(level1), len(level2)])
