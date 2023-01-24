@@ -9,6 +9,7 @@ from unittest.case import skip
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from mistat.acceptanceSampling.generic import (Plan, PlanNormal, find_k,
                                                findPlan, findPlanApprox)
@@ -46,10 +47,14 @@ class TestGeneric(unittest.TestCase):
 
     def test_findPlan_normal(self):
         result = findPlan(PRP=(0.01, 0.95), CRP=(0.03, 0.05), oc_type="normal", N=500)
-        assert result == PlanNormal(55, 2.1045558562282713, 'known')
+        assert result.n == 55
+        assert result.k == pytest.approx(2.1045558562282713)
+        assert result.s_type == 'known'
 
         result = findPlan(PRP=(0.01, 0.95), CRP=(0.03, 0.05), oc_type="normal", N=500, s_type='unknown')
-        assert result == PlanNormal(176, 2.105480330251979, 'unknown')
+        assert result.n == 176
+        assert result.k == pytest.approx(2.105480330251979)
+        assert result.s_type == 'unknown'
 
     @skip('Not implemented')
     def test_findPlan_poisson(self):
@@ -63,5 +68,5 @@ class TestGeneric(unittest.TestCase):
         assert result == Plan(127, 2, 3)
 
     def test_find_k(self):
-        assert find_k(100, 0.01, 0.95, [0, 1000]) == 2.0400552555161156
-        assert find_k(10, 0.01, 0.95, [0, 1000]) == 1.562533782230915
+        assert find_k(100, 0.01, 0.95, [0, 1000]) == pytest.approx(2.0400552555161156)
+        assert find_k(10, 0.01, 0.95, [0, 1000]) == pytest.approx(1.562533782230915)
