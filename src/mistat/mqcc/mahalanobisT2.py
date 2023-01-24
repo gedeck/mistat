@@ -120,7 +120,8 @@ class MahalanobisT2:
         ax2.get_xaxis().set_visible(False)
         mmin = min(self.mahalanobis)
         mmax = max(self.mahalanobis)
-        ax2.add_patch(patches.Rectangle((left, mmin), 1, mmax - mmin, facecolor="red", edgecolor="black"))
+        ax2.add_patch(patches.Rectangle((left, mmin), 1, mmax - mmin, facecolor="red", edgecolor="black",
+                                        alpha=0.25))
         y = self.mahalanobis[1]
         ax2.plot((left, left + 1), (y, y), color='black', linewidth=2)
         if self.mahalanobis_compare is not None:
