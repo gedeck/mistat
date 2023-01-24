@@ -11,8 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mistat.acceptanceSampling.generic import (Plan, PlanNormal, find_k,
-                                               findPlan, findPlanApprox)
+from mistat.acceptanceSampling.generic import Plan, find_k, findPlan, findPlanApprox
 
 
 class TestGeneric(unittest.TestCase):
