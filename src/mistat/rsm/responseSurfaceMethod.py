@@ -21,7 +21,8 @@ class ResponseSurfaceMethod:
         b = np.array([model.params.get(c, 0) for c in codes])
         B = np.zeros([len(codes), len(codes)])
         for i, code_i in enumerate(codes):
-            B[i, i] = model.params.get(f'np.power({code_i}, 2)', 0)
+            B[i, i] = model.params.get(f'np.power({code_i}, 2)',
+                                       model.params.get(f'I({code_i} ** 2)', 0))
             for j, code_j in enumerate(codes[i + 1:], i + 1):
                 B[i, j] = model.params.get(f'{code_i}:{code_j}', 0) / 2
                 B[j, i] = B[i, j]

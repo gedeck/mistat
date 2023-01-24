@@ -23,7 +23,7 @@ class BetaDistribution(Distribution):
     a: int
     b: int
 
-    def theta(self):
+    def theta(self) -> float:
         return self.a / (self.a + self.b)
 
 

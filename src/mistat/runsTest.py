@@ -52,3 +52,60 @@ def runsTest(sequence, cutoff=None, alternative=None, verbose=False):
 Standard Normal = {result.statistic:.4f}, p-value = {result.pval:.4f}
 alternative hypothesis: {result.alternative}""")
     return result
+
+
+def runStatistics(data):
+    """ determine expected and observed number of run directions """
+
+    # number of runs
+    mean_ct = np.mean(data)
+    runs = [1 if ct > mean_ct else 0 for ct in data]
+    obs_R = 0
+    current = None
+    for r in runs:
+        if r != current:
+            obs_R += 1
+            current = r
+
+    m1 = sum(data > mean_ct)
+    m2 = sum(data <= mean_ct)
+    n = m1 + m2
+    resultRuns = {
+        'count': {
+            'mu_R': 1 + 2 * m1 * m2 / (m1 + m2),
+            'sigma_R': np.sqrt(2 * m1 * m2 * (2*m1*m2-n)/(n*n*(n-1))),
+            'observed': obs_R,
+        }
+    }
+
+    # determine direction of change up (1) or down (-1)
+    n = len(data)
+    directions = [1 if xi < xip1 else -1 for xi, xip1 in zip(data[:-1], data[1:])]
+    mu_Rstar = (2*n-1)/3
+    sigma_Rstar = np.sqrt((16*n-29)/90)
+
+    # count number of up and down runs
+    up = 0
+    down = 0
+    current = None
+    for direction in directions:
+        if direction == current:  # no change of direction
+            continue
+        if direction < 0:
+            down += 1
+        else:
+            up += 1
+        current = direction
+    Rstar = up + down
+    alpha = stats.norm.cdf((Rstar - mu_Rstar) / sigma_Rstar)
+    return {
+        **resultRuns,
+        'direction': {
+            'mu_Rstar': mu_Rstar,
+            'sigma_Rstar': sigma_Rstar,
+            'up': up,
+            'down': down,
+            'Rstar': Rstar,
+            'alpha': sorted([alpha, 1 - alpha])
+        }
+    }

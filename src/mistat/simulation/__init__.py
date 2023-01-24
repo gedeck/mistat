@@ -1,3 +1,3 @@
 from .mistatSimulation import SimulationResult, simulationGroup
-from .pistonSimulation import PistonSimulator
+from .pistonSimulation import PistonSimulator, pistonConfigurations
 from .powerCircuitSimulation import PowerCircuitSimulation

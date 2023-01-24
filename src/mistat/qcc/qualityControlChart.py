@@ -39,12 +39,13 @@ class QualityControlChart:
         self.labels = labels
 
         if isinstance(self.sizes, Number):
-            self.stats = GroupMeans((self.data.values / self.sizes).flatten(), self.data.mean())
+            # self.stats = GroupMeans((self.data.values / self.sizes).flatten(), self.data.mean())
+            self.stats = GroupMeans((self.data.values).flatten(), self.data.mean())
             self.sizes = [self.sizes] * len(self.data)
         else:
             self.stats = self.statistic.stats(self.data, self.sizes)
         self.center = float(center or self.stats.center)
-        self.std_dev = self.statistic.sd(self.data, std_dev, self.sizes)
+        self.std_dev = self.statistic.sd(self.data, std_dev=std_dev, sizes=self.sizes)
 
         if confidence_level is None:
             self.nsigmas = nsigmas
@@ -93,6 +94,26 @@ class QualityControlChart:
             ax.axhline(self.limits.UCL[0], color='black', linestyle='--')
             ax.set_yticks([self.limits.LCL[0], self.limits.UCL[0], self.center])
             ax.set_yticklabels(['LCL', 'UCL', 'CL'])
+        else:
+            # calculate mid-points for steps
+            delta = (df.x.values[1:] - df.x.values[:-1]) / 2
+            delta = [delta[0], *delta, delta[-1]]
+            lcl = [[], []]
+            ucl = [[], []]
+            last = None
+            for xleft, xright, l, u in zip(df.x.values - delta[:-1], df.x.values + delta[1:],
+                                           self.limits.LCL, self.limits.UCL):
+                if last:
+                    lcl[0].extend([xleft, xleft])
+                    lcl[1].extend([last, l])
+                    ucl[0].extend([xleft, xleft])
+                    ucl[1].extend([last, u])
+                lcl[0].extend([xleft, xright])
+                lcl[1].extend([l, l])
+                ucl[0].extend([xleft, xright])
+                ucl[1].extend([u, u])
+            ax.plot(*lcl, color='black', linestyle='--')
+            ax.plot(*ucl, color='black', linestyle='--')
 
         fig = ax.get_figure()
         fig.subplots_adjust(bottom=0.2)

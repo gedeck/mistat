@@ -6,8 +6,9 @@ Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 """
 from .data import describe_data, load_data
 from .design import (FDS_Plot, addTreatments, calculateInteractions,
-                     calculateMainEffects, getModelMatrix, interactionPlot,
-                     mainEffectsPlot, subgroupOfDefining)
+                     calculateMainEffects, doe, getModelMatrix,
+                     interactionPlot, mainEffectsPlot, marginalInteractionPlot,
+                     subgroupOfDefining)
 from .ecdf import plotECDF
 from .ml import plot_dendrogram
 from .mqcc import MahalanobisT2, MultivariateQualityControlChart
@@ -18,9 +19,10 @@ from .randomizationTest import randomizationTest
 from .regression import stepwise_regression
 from .reliability import availabilityEBD, renewalEBD
 from .rsm import ResponseSurfaceMethod
-from .runsTest import runsTest
+from .runsTest import runStatistics, runsTest
 from .simulation import (PistonSimulator, PowerCircuitSimulation,
-                         SimulationResult, simulationGroup)
+                         SimulationResult, pistonConfigurations,
+                         simulationGroup)
 from .stem_leaf import stemLeafDiagram
 from .timeseries import (dlmLinearGrowth, masPredictor, normRandomWalk,
                          optimalLinearPredictor, predictARMA,

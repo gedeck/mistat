@@ -34,28 +34,6 @@ class TestPistonSimulation(unittest.TestCase):
         assert PistonSimulator.cycleTime(60, 0.2, 0.01, 5000, 110000, 296, 360) == pytest.approx(0.006329772978006459)
 
     def test_PistonSimulator(self):
-        s = [0.005] * 100
-        s.extend([0.01] * 100)
-        s.extend([0.02] * 100)
-
-        simulator = PistonSimulator(seed=1, s=s)
-
-        result = simulator.simulate()
-        return result
-#         plt.scatter(x=result.index, y=result.seconds)
-#         plt.show()
-#
-#         np.random.seed(0)
-#         t = [296] * 35
-#         t.extend([296 * np.power(1.1, k) for k in range(1, 66)])
-#         simulator = PistonSimulator(t=t, check=False, seed=1236)
-#         result = simulator.simulate()
-#         print(result)
-#
-#         plt.scatter(x=result.index, y=result.seconds)
-#         plt.show()
-
-    def test_PistonSimulator(self):
         parameter = pd.DataFrame({
             'm': [30, 45, 60],
             's': [0.005, 0.0125, 0.02],

@@ -106,6 +106,86 @@ def interactionPlot(df, response, factors=None):
     return ax
 
 
+def marginalInteractionPlot(df, response, factors=None, interactions=None, levels=None, ax=None):
+    # pylint: disable=unsubscriptable-object
+    def _calculateInteractions(df, response, factors=None):
+        factors = factors or [c for c in df.columns if c != response]
+        interactions = []
+        for f1, f2 in combinations(factors, 2):
+            for (l1, l2), g in df[response].groupby([df[f1], df[f2]]):
+                interactions.append({'f1': f1, 'l1': l1, 'f2': f2, 'l2': l2, 'mean': g.mean()})
+        return pd.DataFrame(interactions)
+
+    factors = factors or [c for c in df.columns if c != response]
+    mainEffects = calculateMainEffects(df, response, factors)
+    mainEffects = mainEffects.sort_values('level')
+    interactionEffects = _calculateInteractions(df, response, factors)
+    interactionEffects = interactionEffects.sort_values(by=['f1', 'f2'])
+
+    if ax is None:
+        _, ax = plt.subplots()
+
+    # horizontal line for overall mean
+    ax.axhline(df[response].mean(), color='black', linewidth=0.5)
+
+    ticks = []
+    offset = (max(interactionEffects['mean']) - min(interactionEffects['mean'])) / 20
+    for i, factor in enumerate(factors):
+        ticks.append(factor)
+        me = mainEffects[mainEffects['factor'] == factor]
+        values = me['mean'].values
+        ax.plot([i] * len(values), values, color='grey')
+        common = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
+        offset = -abs(offset) if values[0] > values[-1] else abs(offset)
+        for n, (l, value) in enumerate(zip(me['level'], values)):
+            s = f'${l:.5g}$'
+            if levels:
+                s = f'{s}: {levels[factor][n]:.5g}'
+            if n == 0:
+                ax.scatter(i, value, color='red', marker='o', zorder=10)
+                ax.annotate(s, (i, value - offset), **common)
+            elif n == len(values) - 1:
+                ax.scatter(i, value, color='black', marker='s', zorder=10)
+                ax.annotate(s, (i, value + offset), **common)
+            else:
+                ax.scatter(i, value, color='grey', marker='o', zorder=10)
+
+    if interactions is None:
+        interactions = combinations(factors, 2)
+    for i, (f1, f2) in enumerate(interactions, len(ticks)):
+        ticks.append(f'{f1}-{f2}')
+        subdf = interactionEffects[(interactionEffects['f1'] == f1) & (interactionEffects['f2'] == f2)]
+        # convert to matrix form
+        level1 = sorted(subdf['l1'].unique())
+        level2 = sorted(subdf['l2'].unique())
+
+        shift_1 = {l1: i + s for l1, s in zip(level1, np.linspace(-0.25, 0.25, len(level1)))}
+        markercol_1 = {f'{l:.4f}': 'grey' for l in level1}
+        markercol_1[f'{level1[0]:.4f}'] = 'red'
+        markercol_1[f'{level1[-1]:.4f}'] = 'black'
+        markercol_2 = {f'{l:.4f}': 'grey' for l in level2}
+        markercol_2[f'{level2[0]:.4f}'] = 'red'
+        markercol_2[f'{level2[-1]:.4f}'] = 'black'
+        mat = np.zeros([len(level1), len(level2)])
+        for _, row in subdf.iterrows():
+            mat[level1.index(row['l1']), level2.index(row['l2'])] = row['mean']
+            ax.plot(shift_1[row['l1']], row['mean'], zorder=10, marker='s',
+                    markeredgewidth=0, fillstyle='right',
+                    markerfacecolor=markercol_1[f'{row["l1"]:.4f}'],
+                    markerfacecoloralt=markercol_2[f'{row["l2"]:.4f}'])
+
+        for l1, values in zip(level1, mat):
+            ax.plot([shift_1[l1]] * len(values), values, color='lightgrey')
+        shifts = [shift_1[l1] for l1 in level1]
+        for values in mat.transpose():
+            ax.plot(shifts, values, color='lightgrey')
+
+    ax.set_xticks(range(len(ticks)), ticks)
+    ax.set_ylim(ax.get_ylim()[0] - abs(offset), ax.get_ylim()[1] + abs(offset),)
+    ax.set_xlim(ax.get_xlim()[0] - 0.1, ax.get_xlim()[1] + 0.1,)
+    return ax
+
+
 def getModelMatrix(design, mod=0, maxscale=1):
     ''' Convert design to model matrix. Will rescale design to code values '''
     design = design - design.mean()

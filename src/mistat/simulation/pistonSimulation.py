@@ -5,7 +5,7 @@ Industrial Statistics: A Computer Based Approach with Python
 (c) 2022 Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 '''
 from dataclasses import dataclass
-from typing import List, NamedTuple, Optional
+from typing import NamedTuple, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -19,13 +19,13 @@ from mistat.simulation.mistatSimulation import (MistatSimulation,
 
 class Configuration(NamedTuple):
     default: float
-    limits: List[float]
+    limits: Union[Tuple[int, int], Tuple[float, float]]
     error: float
     label: str
     unit: str
 
 
-configurations = {
+pistonConfigurations = {
     'm': Configuration(45, (30, 60), 0.1, 'Piston weight m', 'kg'),
     's': Configuration(0.0125, (0.005, 0.02), 0.001, 'Piston surface area s', 'm^2'),
     'k': Configuration(3_000, (1_000, 5_000), 50, 'Value of spring coefficient k', 'N/m'),
@@ -42,13 +42,13 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
 
     Results will differ from JMP and R versions of the simulator
     """
-    m: float = configurations['m'].default
-    s: float = configurations['s'].default
-    k: float = configurations['k'].default
-    t: float = configurations['t'].default
-    p0: float = configurations['p0'].default
-    v0: float = configurations['v0'].default
-    t0: float = configurations['t0'].default
+    m: float = pistonConfigurations['m'].default
+    s: float = pistonConfigurations['s'].default
+    k: float = pistonConfigurations['k'].default
+    t: float = pistonConfigurations['t'].default
+    p0: float = pistonConfigurations['p0'].default
+    v0: float = pistonConfigurations['v0'].default
+    t0: float = pistonConfigurations['t0'].default
 
     parameter: Optional[pd.DataFrame] = None
 
@@ -69,7 +69,7 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
 
         # If parameter is given, use that to set parameter
         if self.parameter is not None:
-            for option in configurations:
+            for option in pistonConfigurations:
                 if option in self.parameter:
                     setattr(self, option, list(self.parameter[option]))
 
@@ -92,24 +92,29 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
             setattr(self, option, values)
 
         # Create a simulator specific copy of the errors to allow manipulation before the simulation
-        self.errors = {p: configuration.error for p, configuration in configurations.items()}
+        self.errors = {p: configuration.error for p, configuration in pistonConfigurations.items()}
 
     def validate_configuration(self):
-        for parameter, configuration in configurations.items():
+        for parameter, configuration in pistonConfigurations.items():
             values = getattr(self, parameter)
             limits = configuration.limits
             valid = True
+            failedValues = []
             if isinstance(values, (tuple, list, pd.core.series.Series, np.ndarray)):
                 left = limits[0] - 1e-6
                 right = limits[1] + 1e-6
                 if not all(left <= v <= right for v in values):
+                    failedValues = {v for v in values if v < left or right < v}
                     valid = False
             else:
                 if not limits[0] <= values <= limits[1]:
                     valid = False
+                    failedValues = {values}
             if not valid:
+                failures = f'{", ".join([f"{v}" for v in sorted(failedValues)])}'
                 limits = f'{configuration.limits[0]}, {configuration.limits[1]}'
-                message = f'{configuration.label} is out of range, [{limits}] {configuration.unit}'
+                message = (f'{configuration.label} is out of range, [{limits}] ' +
+                           f'{configuration.unit}\n Failures: {failures}')
                 raise ValueError(message)
 
     def with_added_errors(self, parameter):
@@ -151,7 +156,7 @@ class PistonSimulator(MistatSimulation):  # pylint: disable=too-many-instance-at
         })
         return SimulationResult(result)
 
-    @staticmethod
+    @ staticmethod
     def cycleTime(m, s, v0, k, p0, t, t0):  # pylint: disable=too-many-arguments
         A = p0 * s + 2 * m * 9.81 - k * v0 / s
         V = s / (2 * k) * (np.sqrt(A**2 + 4 * k*t*p0 * v0 / t0) - A)

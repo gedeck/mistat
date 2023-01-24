@@ -41,7 +41,7 @@ class Cusum:
 
         if center is None:
             center = statistics.center
-        std_dev = qccStatistic.sd(data, std_dev, sizes=sizes)
+        std_dev = qccStatistic.sd(data, std_dev=std_dev, sizes=sizes)
 
         self.newdata = None
         if newdata is not None:
@@ -106,7 +106,15 @@ class Cusum:
             v = np.array(v)
             ax.plot(indices, cs, color='grey')
             ax.plot(indices[v], cs[v], marker="s", color='red')
-            ax.plot(np.delete(indices, v), np.delete(cs, v), color='black', marker='o', markersize=4)
+            subset = []
+            for idx in indices:
+                if idx in v:
+                    ax.plot(indices[subset], cs[subset], color='black', marker='o', markersize=4)
+                    subset = []
+                else:
+                    subset.append(idx)
+            if subset:
+                ax.plot(indices[subset], cs[subset], color='black', marker='o', markersize=4)
 
         ax2 = ax.twinx()
         ax2.set_ylim(*ax.get_ylim())
