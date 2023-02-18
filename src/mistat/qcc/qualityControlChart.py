@@ -223,20 +223,20 @@ def ARL_modifiedShewhartControlChart(a, w, r, delta, n, sigma=1):
     # standard deviation of means of n samples
     sigma_n = sigma / np.sqrt(n)
     # distribution of means from n samples; process shifted by delta*sigma
-    distribution = stats.norm(scale=sigma_n, loc=delta*sigma)
+    distribution = stats.norm(scale=sigma_n, loc=delta * sigma)
 
     # calculate CDF at the +/-a*sigma_n and +/-w*sigma_n
-    limits = [a*sigma_n, -a*sigma_n, w*sigma_n, -w*sigma_n]
+    limits = [a * sigma_n, -a * sigma_n, w * sigma_n, -w * sigma_n]
     pa, ma, pw, mw = distribution.cdf(limits)
 
     # probability to be outside of control limits
-    P = ma + (1-pa)
-    
+    P = ma + (1 - pa)
+
     # probability to be between warning and control limits
     H = pa - pw
     L = mw - ma
-    
+
     # calculate ARL
     H_r = H**r
     L_r = L**r
-    return 1 / (P + H_r*(1-H)/(1-H_r) + L_r*(1-L)/(1-L_r))
+    return 1 / (P + H_r * (1 - H) / (1 - H_r) + L_r * (1 - L) / (1 - L_r))
