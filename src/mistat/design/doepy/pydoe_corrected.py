@@ -237,12 +237,11 @@ def _grep(haystack, needle):
         haystack[0]
     except (TypeError, AttributeError):
         return [0] if needle in haystack else []
-    else:
-        locs = []
-        for idx, item in enumerate(haystack):
-            if needle in item:
-                locs += [idx]
-        return locs
+    locs = []
+    for idx, item in enumerate(haystack):
+        if needle in item:
+            locs += [idx]
+    return locs
 
 
 def _n_fac_at_res(n, res):
@@ -531,9 +530,8 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
         raise TypeError(
             f'Invalid value for "center": {center}. Expected a 1-by-2 array.'
         ) from exc
-    else:
-        if nc != 2:
-            raise ValueError(f'Invalid number of values for "center" (expected 2, but got {nc})')
+    if nc != 2:
+        raise ValueError(f'Invalid number of values for "center" (expected 2, but got {nc})')
 
     # Orthogonal Design
     if alpha.lower() in ("orthogonal", "o"):

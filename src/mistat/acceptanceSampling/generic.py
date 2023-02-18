@@ -110,7 +110,7 @@ def findPlan(PRP, CRP, oc_type='binomial', N=None, s_type='known'):
 
 def findPlanApprox(PRP, CRP, N):
     """ Calculate single-stage sampling plan using approximation of hypergeometric distribution """
-    alpha = (1 - PRP[1])
+    alpha = 1 - PRP[1]
     beta = CRP[1]
     p0 = PRP[0]
     pt = CRP[0]
