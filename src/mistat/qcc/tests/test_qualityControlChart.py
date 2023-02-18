@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from mistat.data import load_data
-from mistat.qcc.qualityControlChart import (QualityControlChart, qcc_groups,
+from mistat.qcc.qualityControlChart import (ARL_modifiedShewhartControlChart, QualityControlChart, qcc_groups,
                                             qcc_overdispersion_test)
 from mistat.simulation.mistatSimulation import simulationGroup
 from mistat.simulation.pistonSimulation import PistonSimulator
@@ -89,8 +89,8 @@ class TestQualityControlChart(unittest.TestCase):
         _ = QualityControlChart(top5counts[equipment], qcc_type='np', sizes=len(abc))
 
     def test_np_chart(self):
-        data = pd.Series([18, 14,  9, 25, 27, 18, 21, 16, 18, 24, 20, 19, 22, 22, 20,
-                          38, 29, 35, 24, 20, 23, 17, 20, 19, 17, 16, 10,  8, 10,  9])
+        data = pd.Series([18, 14, 9, 25, 27, 18, 21, 16, 18, 24, 20, 19, 22, 22, 20,
+                          38, 29, 35, 24, 20, 23, 17, 20, 19, 17, 16, 10, 8, 10, 9])
         qcc = QualityControlChart(data, qcc_type='np', sizes=1000)
         assert qcc.center == 19.6
         assert qcc.std_dev == pytest.approx(4.383588)
@@ -98,3 +98,21 @@ class TestQualityControlChart(unittest.TestCase):
         assert qcc.limits.UCL[0] == pytest.approx(32.750763)
 
         # 1/0
+
+    def test_ARL_modifiedShewhartControlChart(self):
+        a = 3
+        n = 5
+        sigma = 1
+        w = 1
+        delta = 0
+        assert ARL_modifiedShewhartControlChart(a, w, 2, delta, n, sigma) == pytest.approx(21.99596)
+        assert ARL_modifiedShewhartControlChart(a, w, 3, delta, n, sigma) == pytest.approx(107.69086)
+        assert ARL_modifiedShewhartControlChart(a, w, 4, delta, n, sigma) == pytest.approx(267.923)
+        assert ARL_modifiedShewhartControlChart(a, w, 7, delta, n, sigma) == pytest.approx(369.848)
+
+        w = 2
+        delta = 1
+        assert ARL_modifiedShewhartControlChart(a, w, 2, delta, n, sigma) == pytest.approx(3.098073)
+        assert ARL_modifiedShewhartControlChart(a, w, 3, delta, n, sigma) == pytest.approx(3.902158)
+        assert ARL_modifiedShewhartControlChart(a, w, 4, delta, n, sigma) == pytest.approx(4.262863)
+        assert ARL_modifiedShewhartControlChart(a, w, 7, delta, n, sigma) == pytest.approx(4.483068)
