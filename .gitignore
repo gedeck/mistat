@@ -134,3 +134,4 @@ dmypy.json
 src/.testmondata
 .Trash-0
 R code 
+.vscode

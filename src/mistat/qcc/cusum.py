@@ -47,6 +47,7 @@ class Cusum:
         if newdata is not None:
             raise NotImplementedError()
 
+        # center the statistics
         z = (statistics.statistics.flatten() - center) / (std_dev / np.sqrt(sizes))
         ldb = -decision_interval
         udb = decision_interval
@@ -62,6 +63,11 @@ class Cusum:
         for zfi in z_f[1:]:
             cusum_neg.append(max(0, cusum_neg[-1] - zfi))
         cusum_neg = np.array([-v for v in cusum_neg])
+
+        # convert back to same range as decision boundaries
+        factor = std_dev / np.sqrt(sizes) - se_shift / 2
+        cusum_pos = factor * cusum_pos
+        cusum_neg = factor * cusum_neg
 
         violations = {'lower': np.where(cusum_neg < ldb)[0],
                       'upper': np.where(cusum_pos > udb)[0]}
