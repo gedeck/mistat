@@ -10,5 +10,6 @@
         "python"
     ],
     "esbonio.server.enabled": true,
-    "restructuredtext.languageServer.disabled": true
+    "restructuredtext.languageServer.disabled": true,
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }

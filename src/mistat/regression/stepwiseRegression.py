@@ -1,7 +1,10 @@
 import warnings
 
 import statsmodels.formula.api as smf
-import statsmodels.stats as sms
+try:
+    from statsmodels.stats.anova import anova_lm
+except ImportError:
+    from statsmodels.api.stats import anova_lm
 
 
 def find_best_model_partialF(outcome, variable_sets, data, old_model, opt_max):
@@ -16,7 +19,7 @@ def find_best_model_partialF(outcome, variable_sets, data, old_model, opt_max):
         new_model = smf.ols(formula, data=data).fit()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            comparison = sms.anova.anova_lm(old_model, new_model)
+            comparison = anova_lm(old_model, new_model)
         if optF * partialF < optF * comparison.F[1]:
             best_vars = variables
             best_model = new_model
@@ -24,7 +27,7 @@ def find_best_model_partialF(outcome, variable_sets, data, old_model, opt_max):
     return best_vars, best_model, partialF
 
 
-def stepwise_regression(outcome, all_vars, data):
+def stepwise_regression(outcome, all_vars, data, verbose=True):
     # initial model
     model = smf.ols(f'{outcome} ~ 1', data=data).fit()
 
@@ -45,8 +48,9 @@ def stepwise_regression(outcome, all_vars, data):
         # stop if best partial-F is below cutoff
         if partialF < F_to_add:
             break
-        print(f'Step {step} add - (F: {partialF:.2f}) ', end='')
-        print(f' {" ".join(sorted(best_vars))}')
+        if verbose:
+            print(f'Step {step} add - (F: {partialF:.2f}) ', end='')
+            print(f' {" ".join(sorted(best_vars))}')
         model = best_model
         include = best_vars
 
