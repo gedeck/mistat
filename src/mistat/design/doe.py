@@ -179,7 +179,7 @@ def central_composite(d, center=(2, 2), alpha="o", face="ccc"):
     return build_central_composite(d, center=center, alpha=alpha, face=face)
 
 
-def lhs(d, num_samples=None, prob_distribution=None):
+def lhs(d, num_samples=None, prob_distribution=None, random_state=None):
     """
     Builds a Latin Hypercube design dataframe from a dictionary of factor/level ranges.
     Only min and max values of the range are required.
@@ -199,7 +199,8 @@ def lhs(d, num_samples=None, prob_distribution=None):
         following any analytical probability distribution.
     """
 
-    return build_lhs(d, num_samples=num_samples, prob_distribution=prob_distribution)
+    return build_lhs(d, num_samples=num_samples, prob_distribution=prob_distribution,
+                     random_state=random_state)
 
 
 def space_filling_lhs(d, num_samples=None):

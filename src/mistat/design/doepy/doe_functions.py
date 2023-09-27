@@ -454,7 +454,8 @@ def build_central_composite(factor_level_ranges, center=(2, 2), alpha="o", face=
 # ====================================================================================
 
 
-def build_lhs(factor_level_ranges, num_samples=None, prob_distribution=None):
+def build_lhs(factor_level_ranges, num_samples=None, prob_distribution=None,
+              random_state=None):
     """
     Builds a Latin Hypercube design dataframe from a dictionary of factor/level ranges.
     Only min and max values of the range are required.
@@ -487,7 +488,7 @@ def build_lhs(factor_level_ranges, num_samples=None, prob_distribution=None):
     for key in factor_level_ranges:
         factor_lists.append(factor_level_ranges[key])
 
-    x = lhs(n=factor_count, samples=num_samples)
+    x = lhs(n=factor_count, samples=num_samples, random_state=random_state)
     factor_lists = np.array(factor_lists)
 
     df = construct_df_from_random_matrix(x, factor_lists)

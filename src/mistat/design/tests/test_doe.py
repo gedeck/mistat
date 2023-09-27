@@ -29,12 +29,26 @@ def test_full_fact():
 def test_frac_fact_res():
     factors = {'A': [1, 5], 'B': [0.3, 0.7], 'C': [10, 15], 'D': [3, 7], 'E': [-2, -1]}
     df = doe.frac_fact_res(factors, 3)
-    assert len(df) == 2**5 / 2**(3-1)
+    assert len(df) == 2**5 / 2**(3 - 1)
     for factor, values in factors.items():
         assert set(df[factor]) == set(values), f'Incorrect values for {factor}'
 
     with pytest.raises(AssertionError):
         doe.frac_fact_res(factors, 5)
+
+
+def test_lhs():
+    factors = {'A': [1, 5], 'B': [0.3, 0.7], 'C': [10, 15], 'D': [3, 7], 'E': [-2, -1]}
+    df = doe.lhs(factors, num_samples=3)
+    assert len(df) == 3
+    for factor, values in factors.items():
+        assert all(values[0] <= v <= values[1] for v in df[factor]), f'Incorrect values for {factor}'
+
+    # check that we can set random state
+    df = doe.lhs(factors, num_samples=3, random_state=123)
+    print(df)
+    df = doe.lhs(factors, num_samples=3, random_state=123)
+    print(df)
 
 
 def test_plackett_burman():
@@ -78,7 +92,7 @@ def test_central_composite():
     df = doe.central_composite(factors)
     assert len(df) == 12
     # add additional generated values (note that factors already has the center point added)
-    factors['Pressure'].extend([60 + np.sqrt(2)*10, 60 - np.sqrt(2)*10])
-    factors['Temperature'].extend([np.sqrt(2)*10, - np.sqrt(2)*10])
+    factors['Pressure'].extend([60 + np.sqrt(2) * 10, 60 - np.sqrt(2) * 10])
+    factors['Temperature'].extend([np.sqrt(2) * 10, - np.sqrt(2) * 10])
     for factor, values in factors.items():
         assert set(df[factor]) == set(values), f'Incorrect values for {factor}'
