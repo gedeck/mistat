@@ -6,7 +6,7 @@ import pandas as pd
 from diversipy import (halton, lhd_matrix, maximin_reconstruction,
                        random_k_means, random_uniform, sukharev_grid,
                        transform_spread_out)
-from pyDOE2 import lhs, pbdesign
+from pyDOE3 import lhs, pbdesign
 
 from .pydoe_corrected import (bbdesign_corrected, ccdesign_corrected,
                               fracfact_by_res, fullfact_corrected)

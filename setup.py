@@ -45,7 +45,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'pyDOE2',
+        'pyDOE3',
         'diversipy',
     ],
 
