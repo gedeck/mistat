@@ -42,5 +42,8 @@ mypy:
 pylint:
 	docker run -it --rm -v $(PWD)/src:/src $(DEV_IMAGE) pylint mistat
 
+ruff:
+	docker run -it --rm -v $(PWD)/src:/src $(DEV_IMAGE) ruff check mistat
+
 bash-dev:
 	docker run -it --rm -v $(PWD)/src:/src $(DEV_IMAGE) bash
