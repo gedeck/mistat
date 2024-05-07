@@ -1,2 +1,2 @@
-python3.8 setup.py sdist bdist_wheel
+python3.12 setup.py sdist bdist_wheel
 twine upload dist/*
