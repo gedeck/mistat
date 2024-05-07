@@ -1,5 +1,5 @@
 FROM mistat_test_1
-RUN pip install mypy isort data-science-types types-setuptools pylint
+RUN pip install mypy isort data-science-types types-setuptools pylint ruff
 
 WORKDIR /src
 

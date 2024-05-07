@@ -1,3 +1,4 @@
+# ruff: noqa:F401
 from .bandit import optimalOAB, simulateOAB
 from .dodge.dodge_chain import ChainPlanBinomial, ChainPlanPoisson
 from .dodge.dodge_curtailed import curtailedBinomial

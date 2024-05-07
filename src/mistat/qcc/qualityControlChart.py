@@ -101,17 +101,17 @@ class QualityControlChart:
             lcl = [[], []]
             ucl = [[], []]
             last = None
-            for xleft, xright, l, u in zip(df.x.values - delta[:-1], df.x.values + delta[1:],
+            for xleft, xright, lower, upper in zip(df.x.values - delta[:-1], df.x.values + delta[1:],
                                            self.limits.LCL, self.limits.UCL):
                 if last:
                     lcl[0].extend([xleft, xleft])
-                    lcl[1].extend([last, l])
+                    lcl[1].extend([last, lower])
                     ucl[0].extend([xleft, xleft])
-                    ucl[1].extend([last, u])
+                    ucl[1].extend([last, upper])
                 lcl[0].extend([xleft, xright])
-                lcl[1].extend([l, l])
+                lcl[1].extend([lower, lower])
                 ucl[0].extend([xleft, xright])
-                ucl[1].extend([u, u])
+                ucl[1].extend([upper, upper])
             ax.plot(*lcl, color='black', linestyle='--')
             ax.plot(*ucl, color='black', linestyle='--')
 

@@ -3,9 +3,9 @@ import string
 from itertools import combinations, dropwhile, islice
 
 import numpy as np
-from pyDOE2.doe_repeat_center import repeat_center
-from pyDOE2.doe_star import star
-from pyDOE2.doe_union import union
+from pyDOE3.doe_repeat_center import repeat_center
+from pyDOE3.doe_star import star
+from pyDOE3.doe_union import union
 from scipy.special import binom
 
 # __all__ = ['np', 'fullfact_corrected', 'ff2n_corrected', 'fracfact']
@@ -194,7 +194,7 @@ def fracfact_corrected(gen):
     C = [len(item) for item in A]
 
     # Indices of single letters (main factors)
-    I = [i for i, item in enumerate(C) if item == 1]
+    I_idx = [i for i, item in enumerate(C) if item == 1]
 
     # Indices of letter combinations (we need them to fill out H2 properly).
     J = [i for i, item in enumerate(C) if item != 1]
@@ -208,9 +208,9 @@ def fracfact_corrected(gen):
     R2 = _grep(U, "-")
 
     # Fill in design with two level factorial design
-    H1 = ff2n(len(I))
+    H1 = ff2n(len(I_idx))
     H = np.zeros((H1.shape[0], len(C)))
-    H[:, I] = H1
+    H[:, I_idx] = H1
 
     # Recognize combinations and fill in the rest of matrix H2 with the proper
     # products

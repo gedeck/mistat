@@ -1,3 +1,4 @@
+# ruff: noqa:F401
 from .cusum import Cusum, cusumArl, cusumPfaCed
 from .ewmaChart import EWMA
 from .paretoChart import ParetoChart

@@ -137,8 +137,8 @@ def marginalInteractionPlot(df, response, factors=None, interactions=None, level
         ax.plot([i] * len(values), values, color='grey')
         common = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
         offset = -abs(offset) if values[0] > values[-1] else abs(offset)
-        for n, (l, value) in enumerate(zip(me['level'], values)):
-            s = f'${l:.5g}$'
+        for n, (level, value) in enumerate(zip(me['level'], values)):
+            s = f'${level:.5g}$'
             if levels:
                 s = f'{s}: {levels[factor][n]:.5g}'
             if n == 0:
@@ -160,10 +160,10 @@ def marginalInteractionPlot(df, response, factors=None, interactions=None, level
         level2 = sorted(subdf['l2'].unique())
 
         shift_1 = {l1: i + s for l1, s in zip(level1, np.linspace(-0.25, 0.25, len(level1)))}
-        markercol_1 = {f'{l:.4f}': 'grey' for l in level1}
+        markercol_1 = {f'{level:.4f}': 'grey' for level in level1}
         markercol_1[f'{level1[0]:.4f}'] = 'red'
         markercol_1[f'{level1[-1]:.4f}'] = 'black'
-        markercol_2 = {f'{l:.4f}': 'grey' for l in level2}
+        markercol_2 = {f'{level:.4f}': 'grey' for level in level2}
         markercol_2[f'{level2[0]:.4f}'] = 'red'
         markercol_2[f'{level2[-1]:.4f}'] = 'black'
         mat = np.zeros([len(level1), len(level2)])

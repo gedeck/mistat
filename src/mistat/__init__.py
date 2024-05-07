@@ -4,6 +4,7 @@ Ron Kenett, Shelemyahu Zacks, Peter Gedeck
 - Modern Statistics: A Computer Based Approach with Python
 - Industrial Statistics: A Computer Based Approach with Python
 """
+# ruff: noqa:F401
 from .data import describe_data, load_data
 from .design import (FDS_Plot, addTreatments, calculateInteractions, calculateMainEffects, doe, getModelMatrix,
                      interactionPlot, mainEffectsPlot, marginalInteractionPlot, subgroupOfDefining)
