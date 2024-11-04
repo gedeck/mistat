@@ -538,8 +538,11 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
         H2, a = star(n, alpha="orthogonal", center=center)
 
     # Rotatable Design
-    if alpha.lower() in ("rotatable", "r"):
+    elif alpha.lower() in ("rotatable", "r"):
         H2, a = star(n, alpha="rotatable")
+
+    else:
+        raise NotImplementedError(f'Invalid value for "alpha": {alpha}')
 
     # Inscribed CCD
     if face.lower() in ("inscribed", "cci"):
@@ -548,13 +551,16 @@ def ccdesign_corrected(n, center=(4, 4), alpha="orthogonal", face="circumscribed
         H2, a = star(n)
 
     # Faced CCD
-    if face.lower() in ("faced", "ccf"):
+    elif face.lower() in ("faced", "ccf"):
         H2, a = star(n)  # Value of alpha is always 1 in Faced CCD
         H1 = ff2n_corrected(n)
 
     # Circumscribed CCD
-    if face.lower() in ("circumscribed", "ccc"):
+    elif face.lower() in ("circumscribed", "ccc"):
         H1 = ff2n_corrected(n)
+
+    else:
+        raise NotImplementedError(f'Invalid value for "face": {face}')
 
     C1 = repeat_center(n, center[0])
     C2 = repeat_center(n, center[1])
