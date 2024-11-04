@@ -42,6 +42,8 @@ def runsTest(sequence, cutoff=None, alternative=None, verbose=False):
         pval = stats.norm.cdf(Z)
     elif alternative == 'greater':
         pval = stats.norm.cdf(-Z)
+    else:
+        raise NotImplementedError('alternative not implemented')
 
     Result = namedtuple('Result', 'statistic,pval,method,alternative')
     result = Result(Z, pval, 'Runs Test', alternative)

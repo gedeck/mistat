@@ -16,7 +16,7 @@ from mistat.qcc.statistics import QCCStatistics, SD_estimator, qcc_c4
 
 
 class Test_qccStatistics(unittest.TestCase):
-    array_1 = np.array([[1, 2, 3], [1, 2, np.NaN]])
+    array_1 = np.array([[1, 2, 3], [1, 2, np.nan]])
     array_2 = np.array([[1, 2, 3], [1, 2, 7]])
 
     def setUp(self):

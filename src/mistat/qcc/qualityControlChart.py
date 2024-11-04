@@ -102,7 +102,7 @@ class QualityControlChart:
             ucl = [[], []]
             last = None
             for xleft, xright, lower, upper in zip(df.x.values - delta[:-1], df.x.values + delta[1:],
-                                           self.limits.LCL, self.limits.UCL):
+                                                   self.limits.LCL, self.limits.UCL):
                 if last:
                     lcl[0].extend([xleft, xleft])
                     lcl[1].extend([last, lower])
@@ -182,7 +182,7 @@ def qcc_groups(data, groups):
     max_size = max(grouped.size())
 
     result = np.empty((len(grouped), max_size))
-    result[:] = np.NaN
+    result[:] = np.nan
     for idx, group in grouped:
         result[idx - 1, :len(group.values)] = group.values
     return result

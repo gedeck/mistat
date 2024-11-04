@@ -50,10 +50,10 @@ class ProcessCapability:
         self.confidence_level = confidence_level
         self.calcPCIndices()
 
-        self.exp_LSL = np.NaN
+        self.exp_LSL = np.nan
         if not np.isnan(lsl):
             self.exp_LSL = stats.norm.cdf((lsl - self.center) / self.std_dev) * 100
-        self.exp_USL = np.NaN
+        self.exp_USL = np.nan
         if not np.isnan(usl):
             self.exp_USL = (1 - stats.norm.cdf((usl - self.center) / self.std_dev)) * 100
         self.obs_LSL = np.nanmean(data < lsl) * 100

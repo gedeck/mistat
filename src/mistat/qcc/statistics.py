@@ -90,12 +90,12 @@ class SD_estimator(Enum):
 # exp.R.unscaled a vector specifying, for each sample size, the expected value of the relative range
 # (i.e. R/σ) for a normal distribution. This appears as d2 on most tables containing factors for
 # the construction of control charts.
-_exp_R_unscaled = [np.NaN, np.NaN, 1.128, 1.693, 2.059, 2.326, 2.534, 2.704, 2.847, 2.970, 3.078, 3.173,
+_exp_R_unscaled = [np.nan, np.nan, 1.128, 1.693, 2.059, 2.326, 2.534, 2.704, 2.847, 2.970, 3.078, 3.173,
                    3.258, 3.336, 3.407, 3.472, 3.532, 3.588, 3.640, 3.689, 3.735, 3.778, 3.819, 3.858, 3.895, 3.931]
 # se.R.unscaled a vector specifying, for each sample size, the standard error of the relative range
 # (i.e. R/σ) for a normal distribution. This appears as d3 on most tables containing factors for
 # the construction of control charts.
-_se_R_unscaled = [np.NaN, np.NaN, 0.8525033, 0.8883697, 0.8798108, 0.8640855, 0.8480442, 0.8332108, 0.8198378,
+_se_R_unscaled = [np.nan, np.nan, 0.8525033, 0.8883697, 0.8798108, 0.8640855, 0.8480442, 0.8332108, 0.8198378,
                   0.8078413, 0.7970584, 0.7873230, 0.7784873, 0.7704257, 0.7630330, 0.7562217, 0.7499188, 0.7440627,
                   0.7386021, 0.7334929, 0.7286980, 0.7241851, 0.7199267, 0.7158987, 0.7120802, 0.7084528, 0.7050004,
                   0.7017086, 0.6985648, 0.6955576, 0.6926770, 0.6899137, 0.6872596, 0.6847074, 0.6822502, 0.6798821,
