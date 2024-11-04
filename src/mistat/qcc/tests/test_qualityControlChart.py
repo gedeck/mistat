@@ -27,9 +27,9 @@ def test_qcc_groups(num_regression):
 
 def test_qcc_groups_missing_values():
     result = qcc_groups([1, 2, 2, 3, 3, 3, 4, 4, 4, 4], [1, 2, 2, 3, 3, 3, 4, 4, 4, 4])
-    expect = np.array([[1.0, np.NaN, np.NaN, np.NaN],
-                       [2.0, 2.0, np.NaN, np.NaN],
-                       [3.0, 3.0, 3.0, np.NaN],
+    expect = np.array([[1.0, np.nan, np.nan, np.nan],
+                       [2.0, 2.0, np.nan, np.nan],
+                       [3.0, 3.0, 3.0, np.nan],
                        [4.0, 4.0, 4.0, 4.0]])
     np.testing.assert_array_equal(result, expect)
 

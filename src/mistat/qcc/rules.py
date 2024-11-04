@@ -35,8 +35,8 @@ def beyondLimits(qcc, limits=None, **kwargs):
     if len(limits['UCL']) == 1:
         return {'beyondLimits': {'UCL': np.nonzero(statistics > limits['UCL'][0])[0],
                                  'LCL': np.nonzero(statistics < limits['LCL'][0])[0]}}
-    return {'beyondLimits': {'UCL': np.nonzero(statistics.ravel() > limits['UCL'].ravel())[0],
-                             'LCL': np.nonzero(statistics.ravel() < limits['LCL'].ravel())[0]}}
+    return {'beyondLimits': {'UCL': np.nonzero(statistics > limits['UCL'].to_numpy())[0],
+                             'LCL': np.nonzero(statistics < limits['LCL'].to_numpy())[0]}}
 
 
 def violatingRuns(qcc, run_length=7, **kwargs):

@@ -49,6 +49,7 @@ setuptools.setup(
     install_requires=[
         'pyDOE3',
         'diversipy',
+        'pingouin',
     ],
 
     test_suite='nose.collector',

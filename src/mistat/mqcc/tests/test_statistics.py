@@ -15,7 +15,7 @@ from mistat.mqcc.statistics import (MQCCStatistics, T2_statistic,
 
 
 class Test_mqccStatistics(unittest.TestCase):
-    array_1 = np.array([[1, 2, 3], [1, 2, np.NaN]])
+    array_1 = np.array([[1, 2, 3], [1, 2, np.nan]])
     array_2 = np.array([[1, 2, 3], [1, 2, 7]])
 
     def setUp(self):
